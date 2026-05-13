@@ -636,12 +636,26 @@ body {
   font-size: 14px;
   color: #333;
   background-color: #fafafa;
+  box-sizing: border-box;
 }
 
 .modal-input:focus,
 .modal-select:focus {
   outline: 2px solid #2cb5b4;
   border-color: #2cb5b4;
+}
+
+/* Стилизация поля даты */
+input[type="date"].modal-input {
+  padding: 10px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  input[type="date"].modal-input {
+    font-size: 12px;
+  }
 }
 
 .modal-buttons {

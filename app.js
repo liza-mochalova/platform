@@ -526,15 +526,6 @@ function renderHostTasks() {
         }
       });
     });
-
-    // Добавляем обработчики для кнопок "Сообщить хосту"
-    const notifyButtons = myTasksScreen.querySelectorAll(".notify-btn");
-    notifyButtons.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const taskId = this.getAttribute("data-task-id");
-        alert("Уведомление отправлено хосту о задаче #" + taskId);
-      });
-    });
   } else if (currentRole === "host") {
     // Для хоста показываем вкладки с задачами
     // Вкладка "Мои задачи" - задачи сотрудника
@@ -614,83 +605,13 @@ function renderHostTasks() {
 
         internTasksContent.appendChild(card);
       });
-
-      // Добавляем обработчики для кнопок "Редактировать задачу"
-      const editButtons = internTasksContent.querySelectorAll(".edit-task-btn");
-      editButtons.forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const taskId = parseInt(this.getAttribute("data-task-id"));
-          const task = hostTasks.find((t) => t.id === taskId);
-          if (task) {
-            // Открываем модальное окно редактирования задачи
-            const hostTaskModal = document.getElementById("hostTaskModal");
-
-            // Заполняем поля формы данными задачи
-            document.getElementById("hostTaskName").value = task.title;
-            document.getElementById("hostTaskDescription").value =
-              task.description;
-            document.getElementById("hostTaskEffort").value = task.effort || "";
-            document.getElementById("hostTaskDeadline").value = task.deadline;
-            document.getElementById("hostTaskGoal").value =
-              task.contribution || "";
-            document.getElementById("hostTaskOperational").checked =
-              task.operational || false;
-
-            // Заполняем чек-лист
-            const checklistContainer =
-              document.getElementById("hostTaskChecklist");
-            checklistContainer.innerHTML = "";
-            task.checklist.forEach((item, index) => {
-              const row = document.createElement("div");
-              row.className = "checklist-row";
-              row.innerHTML = `
-                      <input type="text" class="modal-input checklist-input" value="${item.text}" placeholder="Элемент чек-листа" />
-                      <button type="button" class="remove-checklist-btn" style="display: ${task.checklist.length > 1 ? "flex" : "none"};">×</button>
-                    `;
-              checklistContainer.appendChild(row);
-            });
-
-            // Сохраняем данные для редактирования
-            hostTaskModal.dataset.editMode = "true";
-            hostTaskModal.dataset.taskId = taskId;
-            hostTaskModal.dataset.internName = task.internName;
-
-            // Меняем заголовок и кнопку
-            hostTaskModal.querySelector(".modal-title").textContent =
-              "Редактировать задачу";
-            document.getElementById("hostTaskConfirm").textContent =
-              "Сохранить изменения";
-
-            hostTaskModal.classList.add("active");
-          }
-        });
-      });
-
-      // Добавляем обработчики для кнопок "Завершить задачу"
-      const completeButtons = internTasksContent.querySelectorAll(
-        ".complete-task-btn:not([disabled])",
-      );
-      completeButtons.forEach((btn) => {
-        btn.addEventListener("click", function () {
-          const taskId = parseInt(this.getAttribute("data-task-id"));
-          const task = hostTasks.find((t) => t.id === taskId);
-          if (task) {
-            // Открываем модальное окно завершения задачи
-            const completeModal = document.getElementById("completeTaskModal");
-            document.getElementById("completeTaskName").textContent =
-              task.title;
-            document.getElementById("completeWorkDescription").value = "";
-            document.getElementById("completeRating").value = "";
-            document.getElementById("completeReview").value = "";
-            completeModal.dataset.taskId = taskId;
-            completeModal.classList.add("active");
-          }
-        });
-      });
     }
   } else if (currentRole === "employee" || currentRole === "supervisor") {
     // Для сотрудника/руководителя показываем созданные ими задачи
     const employeeTasks = tasks.filter((t) => t.authorId === currentEmployeeId);
+
+    // Очищаем контейнер перед рендерингом
+    myTasksScreen.innerHTML = "";
 
     if (employeeTasks.length === 0) {
       myTasksScreen.innerHTML = `
@@ -706,16 +627,93 @@ function renderHostTasks() {
       const card = renderEmployeeTaskCard(task);
       myTasksScreen.appendChild(card);
     });
-
-    // Добавляем обработчики для кнопок "Посмотреть отклики"
-    const respondButtons = myTasksScreen.querySelectorAll(".respond-btn");
-    respondButtons.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const taskId = this.getAttribute("data-task-id");
-        alert("Отклики на задачу #" + taskId);
-      });
-    });
   }
+}
+
+// Делегирование событий для кнопок в myTasksScreen
+myTasksScreen.addEventListener("click", function (e) {
+  const respondBtn = e.target.closest(".respond-btn");
+  if (respondBtn) {
+    const taskId = respondBtn.getAttribute("data-task-id");
+    alert("Отклики на задачу #" + taskId);
+    return;
+  }
+
+  const notifyBtn = e.target.closest(".notify-btn");
+  if (notifyBtn) {
+    const taskId = notifyBtn.getAttribute("data-task-id");
+    alert("Уведомление отправлено хосту о задаче #" + taskId);
+    return;
+  }
+});
+
+// Делегирование событий для кнопок в internTasksContent (для хоста)
+const internTasksContent = document.getElementById("intern-tasks-content");
+if (internTasksContent) {
+  internTasksContent.addEventListener("click", function (e) {
+    const editBtn = e.target.closest(".edit-task-btn");
+    if (editBtn) {
+      const taskId = parseInt(editBtn.getAttribute("data-task-id"));
+      const task = hostTasks.find((t) => t.id === taskId);
+      if (task) {
+        // Открываем модальное окно редактирования задачи
+        const hostTaskModal = document.getElementById("hostTaskModal");
+
+        // Заполняем поля формы данными задачи
+        document.getElementById("hostTaskName").value = task.title;
+        document.getElementById("hostTaskDescription").value = task.description;
+        document.getElementById("hostTaskEffort").value = task.effort || "";
+        document.getElementById("hostTaskDeadline").value = task.deadline;
+        document.getElementById("hostTaskGoal").value = task.contribution || "";
+        document.getElementById("hostTaskOperational").checked =
+          task.operational || false;
+
+        // Заполняем чек-лист
+        const checklistContainer = document.getElementById("hostTaskChecklist");
+        checklistContainer.innerHTML = "";
+        task.checklist.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "checklist-row";
+          row.innerHTML = `
+                  <input type="text" class="modal-input checklist-input" value="${item.text}" placeholder="Элемент чек-листа" />
+                  <button type="button" class="remove-checklist-btn" style="display: ${task.checklist.length > 1 ? "flex" : "none"};">×</button>
+                `;
+          checklistContainer.appendChild(row);
+        });
+
+        // Сохраняем данные для редактирования
+        hostTaskModal.dataset.editMode = "true";
+        hostTaskModal.dataset.taskId = taskId;
+        hostTaskModal.dataset.internName = task.internName;
+
+        // Меняем заголовок и кнопку
+        hostTaskModal.querySelector(".modal-title").textContent =
+          "Редактировать задачу";
+        document.getElementById("hostTaskConfirm").textContent =
+          "Сохранить изменения";
+
+        hostTaskModal.classList.add("active");
+      }
+      return;
+    }
+
+    const completeBtn = e.target.closest(".complete-task-btn:not([disabled])");
+    if (completeBtn) {
+      const taskId = parseInt(completeBtn.getAttribute("data-task-id"));
+      const task = hostTasks.find((t) => t.id === taskId);
+      if (task) {
+        // Открываем модальное окно завершения задачи
+        const completeModal = document.getElementById("completeTaskModal");
+        document.getElementById("completeTaskName").textContent = task.title;
+        document.getElementById("completeWorkDescription").value = "";
+        document.getElementById("completeRating").value = "";
+        document.getElementById("completeReview").value = "";
+        completeModal.dataset.taskId = taskId;
+        completeModal.classList.add("active");
+      }
+      return;
+    }
+  });
 }
 
 // Функция для форматирования времени
@@ -777,18 +775,6 @@ function renderRaisedHands() {
   raisedHands.forEach((intern) => {
     const card = renderInternCard(intern);
     feedScreen.appendChild(card);
-  });
-
-  // Добавляем обработчики для кнопок "Пригласить"
-  const inviteButtons = feedScreen.querySelectorAll(".invite-btn");
-  inviteButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const internId = this.getAttribute("data-intern-id");
-      const intern = raisedHands.find((i) => i.id === parseInt(internId));
-      if (intern) {
-        openInviteModal(intern);
-      }
-    });
   });
 }
 
@@ -936,31 +922,42 @@ function renderTasks() {
       const card = renderTaskCard(task);
       feedScreen.appendChild(card);
     });
-
-    // Добавляем обработчики для кнопок отклика
-    const respondButtons = document.querySelectorAll(".respond-btn");
-    respondButtons.forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const taskId = this.getAttribute("data-task-id");
-        const buttonText = this.textContent.trim();
-
-        if (buttonText === "Откликнуться") {
-          // Открываем модальное окно для ввода времени прихода
-          const respondModal = document.getElementById("respondModal");
-          const respondTimeInput = document.getElementById("respondTime");
-          respondTimeInput.value = "";
-          respondModal.classList.add("active");
-
-          // Сохраняем ID задачи для последующей отправки
-          respondModal.dataset.taskId = taskId;
-        } else if (buttonText === "Посмотреть отклики") {
-          // Для сотрудников показываем просто alert
-          alert("Отклики на задачу #" + taskId);
-        }
-      });
-    });
   }
 }
+
+// Делегирование событий для кнопок в feedScreen (отклики и приглашения)
+feedScreen.addEventListener("click", function (e) {
+  const respondBtn = e.target.closest(".respond-btn");
+  if (respondBtn) {
+    const taskId = respondBtn.getAttribute("data-task-id");
+    const buttonText = respondBtn.textContent.trim();
+
+    if (buttonText === "Откликнуться") {
+      // Открываем модальное окно для ввода времени прихода
+      const respondModal = document.getElementById("respondModal");
+      const respondTimeInput = document.getElementById("respondTime");
+      respondTimeInput.value = "";
+      respondModal.classList.add("active");
+
+      // Сохраняем ID задачи для последующей отправки
+      respondModal.dataset.taskId = taskId;
+    } else if (buttonText === "Посмотреть отклики") {
+      // Для сотрудников показываем просто alert
+      alert("Отклики на задачу #" + taskId);
+    }
+    return;
+  }
+
+  const inviteBtn = e.target.closest(".invite-btn");
+  if (inviteBtn) {
+    const internId = inviteBtn.getAttribute("data-intern-id");
+    const intern = raisedHands.find((i) => i.id === parseInt(internId));
+    if (intern) {
+      openInviteModal(intern);
+    }
+    return;
+  }
+});
 
 // Обработчик для кнопки "Отмена" в модальном окне отклика
 document.getElementById("respondCancel").addEventListener("click", function () {
@@ -1125,20 +1122,24 @@ function renderActiveInvitations() {
           `;
     activeInvitationsList.appendChild(card);
   });
+}
 
-  // Добавляем обработчики для кнопок "Завершить работу"
-  const completeButtons =
-    activeInvitationsList.querySelectorAll(".complete-work-btn");
-  completeButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const invitationId = this.getAttribute("data-invitation-id");
-      const invitation = activeInvitations.find(
-        (inv) => inv.id === parseInt(invitationId),
-      );
-      if (invitation) {
-        openCompleteWorkModal(invitation);
-      }
-    });
+// Делегирование событий для кнопок "Завершить работу" в активных приглашениях
+const activeInvitationsList = document.getElementById(
+  "active-invitations-list",
+);
+if (activeInvitationsList) {
+  activeInvitationsList.addEventListener("click", function (e) {
+    const btn = e.target.closest(".complete-work-btn");
+    if (!btn) return;
+
+    const invitationId = btn.getAttribute("data-invitation-id");
+    const invitation = activeInvitations.find(
+      (inv) => inv.id === parseInt(invitationId),
+    );
+    if (invitation) {
+      openCompleteWorkModal(invitation);
+    }
   });
 }
 
@@ -1165,32 +1166,6 @@ function openCompleteWorkModal(invitation) {
     completeTaskModal.setAttribute("data-invitation-id", invitation.id);
   }
 }
-
-// Обработчик переключения роли
-roleSelector.addEventListener("change", function () {
-  const selectedOption = this.options[this.selectedIndex];
-  const roleName = selectedOption.text;
-  currentRole = this.value;
-  alert("Переключено на " + roleName);
-
-  // Переключаем кнопки в зависимости от роли
-  const raiseHandBtn = document.getElementById("raiseHandBtn");
-  const createTaskBtn = document.getElementById("createTaskBtn");
-
-  if (currentRole === "employee" || currentRole === "host") {
-    raiseHandBtn.style.display = "none";
-    createTaskBtn.style.display = "flex";
-  } else {
-    raiseHandBtn.style.display = "flex";
-    createTaskBtn.style.display = "none";
-  }
-
-  // Перерисовываем ленту в зависимости от роли
-  renderTasks();
-
-  // Перерисовываем профиль
-  renderProfile();
-});
 
 // Функция для рендеринга уведомлений в выпадающем списке
 function renderNotifications() {
@@ -1237,14 +1212,27 @@ function renderNotifications() {
             <span class="notification-item-type ${notification.type}">${typeLabels[notification.type] || notification.type}</span>
           `;
 
-    item.addEventListener("click", function () {
+    notificationsList.appendChild(item);
+  });
+}
+
+// Делегирование событий для элементов уведомлений в выпадающем списке
+const dropdownNotificationsList = document.getElementById("notificationsList");
+if (dropdownNotificationsList) {
+  dropdownNotificationsList.addEventListener("click", function (e) {
+    const item = e.target.closest(".notification-item");
+    if (!item) return;
+
+    const notificationId = item.getAttribute("data-notification-id");
+    const notification = notifications.find(
+      (n) => n.id === parseInt(notificationId),
+    );
+    if (notification) {
       // Помечаем как прочитанное
       notification.unread = false;
       renderNotifications();
       alert(`Переход к уведомлению: ${notification.title}`);
-    });
-
-    notificationsList.appendChild(item);
+    }
   });
 }
 
@@ -1600,10 +1588,21 @@ function renderUsersList(filterText = "") {
             </div>
             <div class="user-list-item-rating">⭐ ${user.rating}</div>
           `;
-    userItem.addEventListener("click", function () {
-      showInternProfile(user);
-    });
     usersList.appendChild(userItem);
+  });
+}
+
+// Делегирование событий для списка пользователей (практиканты)
+if (usersList) {
+  usersList.addEventListener("click", function (e) {
+    const item = e.target.closest(".user-list-item");
+    if (!item) return;
+
+    const userId = item.getAttribute("data-user-id");
+    const user = allUsers.find((u) => u.id === parseInt(userId));
+    if (user) {
+      showInternProfile(user);
+    }
   });
 }
 
@@ -1642,10 +1641,22 @@ function renderEmployeesList(filterText = "") {
             </div>
             <div class="user-list-item-rating" style="font-size: 12px; color: #666;">${roleLabels[employee.role]}</div>
           `;
-    employeeItem.addEventListener("click", function () {
-      showEmployeeProfile(employee);
-    });
     employeesList.appendChild(employeeItem);
+  });
+}
+
+// Делегирование событий для списка сотрудников
+const employeesList = document.getElementById("employees-list");
+if (employeesList) {
+  employeesList.addEventListener("click", function (e) {
+    const item = e.target.closest(".user-list-item");
+    if (!item) return;
+
+    const employeeId = item.getAttribute("data-employee-id");
+    const employee = allEmployees.find((e) => e.id === parseInt(employeeId));
+    if (employee) {
+      showEmployeeProfile(employee);
+    }
   });
 }
 
@@ -2189,19 +2200,24 @@ function renderCriticalNotifications(sortByDate = true) {
           `;
     notificationsList.appendChild(card);
   });
+}
 
-  // Добавляем обработчики для кнопок "Перейти"
-  const actionButtons = notificationsList.querySelectorAll(".notification-btn");
-  actionButtons.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const notificationId = this.getAttribute("data-notification-id");
-      const notification = criticalNotifications.find(
-        (n) => n.id === parseInt(notificationId),
-      );
-      if (notification) {
-        alert(`Переход к: ${notification.title}`);
-      }
-    });
+// Делегирование событий для кнопок "Перейти" в критических уведомлениях
+const criticalNotificationsList = document.getElementById(
+  "critical-notifications-list",
+);
+if (criticalNotificationsList) {
+  criticalNotificationsList.addEventListener("click", function (e) {
+    const btn = e.target.closest(".notification-btn");
+    if (!btn) return;
+
+    const notificationId = btn.getAttribute("data-notification-id");
+    const notification = criticalNotifications.find(
+      (n) => n.id === parseInt(notificationId),
+    );
+    if (notification) {
+      alert(`Переход к: ${notification.title}`);
+    }
   });
 }
 
