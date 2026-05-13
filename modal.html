@@ -1,0 +1,413 @@
+<!-- Модальное окно "Поднять руку" -->
+<div class="modal-overlay" id="raiseHandModal">
+  <div class="modal">
+    <h3 class="modal-title">Поднять руку</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="raiseHandTime">Время</label>
+      <input type="datetime-local" class="modal-input" id="raiseHandTime" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Хочу помочь в блоке</label>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <label class="modal-checkbox">
+          <input
+            type="checkbox"
+            value="Аналитика"
+            class="help-block-checkbox" />
+          <span>Аналитика</span>
+        </label>
+        <label class="modal-checkbox">
+          <input
+            type="checkbox"
+            value="Маркетинг"
+            class="help-block-checkbox" />
+          <span>Маркетинг</span>
+        </label>
+        <label class="modal-checkbox">
+          <input type="checkbox" value="IT" class="help-block-checkbox" />
+          <span>IT</span>
+        </label>
+        <label class="modal-checkbox">
+          <input
+            type="checkbox"
+            value="Разработка"
+            class="help-block-checkbox" />
+          <span>Разработка</span>
+        </label>
+        <label class="modal-checkbox">
+          <input type="checkbox" value="Продукт" class="help-block-checkbox" />
+          <span>Продукт</span>
+        </label>
+      </div>
+      <p style="font-size: 11px; color: #999; margin-top: 6px">
+        Оставьте все чекбоксы пустыми для опции "Любой блок"
+      </p>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="raiseHandCancel">Отмена</button>
+      <button class="modal-btn primary" id="raiseHandConfirm">
+        Подтвердить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Пригласить" -->
+<div class="modal-overlay" id="inviteModal">
+  <div class="modal">
+    <h3 class="modal-title">Пригласить практиканта</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="inviteTask">Выберите задачу</label>
+      <select class="modal-select" id="inviteTask">
+        <option value="">-- Выберите задачу --</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="inviteComment">Комментарий</label>
+      <textarea
+        class="modal-input"
+        id="inviteComment"
+        rows="3"
+        placeholder="Добавьте комментарий к приглашению..."></textarea>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="inviteCancel">Отмена</button>
+      <button class="modal-btn primary" id="inviteConfirm">
+        Отправить приглашение
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Создать задачу" -->
+<div class="modal-overlay" id="createTaskModal">
+  <div class="modal">
+    <h3 class="modal-title">Создать задачу</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="taskName">Название задачи *</label>
+      <input
+        type="text"
+        class="modal-input"
+        id="taskName"
+        placeholder="Введите название задачи" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="taskDescription">Описание *</label>
+      <textarea
+        class="modal-input"
+        id="taskDescription"
+        rows="4"
+        placeholder="Опишите задачу..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="taskEffort">Трудозатраты (часы) *</label>
+      <input
+        type="number"
+        class="modal-input"
+        id="taskEffort"
+        min="0.5"
+        step="0.5"
+        placeholder="Например: 8" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="taskDeadline">Срок выполнения *</label>
+      <input type="date" class="modal-input" id="taskDeadline" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-checkbox">
+        <input type="checkbox" id="taskOperational" />
+        <span>Операционная задача</span>
+      </label>
+    </div>
+    <div class="modal-field goal-field" id="goalFields">
+      <label class="modal-label" for="taskGoal">Привязка к цели блока</label>
+      <select class="modal-select" id="taskGoal">
+        <option value="">-- Выберите цель --</option>
+        <option value="goal1">Улучшение процессов</option>
+        <option value="goal2">Автоматизация задач</option>
+        <option value="goal3">Оптимизация ресурсов</option>
+      </select>
+    </div>
+    <div class="modal-field goal-field" id="contributionField">
+      <label class="modal-label" for="taskContribution">Вклад в цель</label>
+      <input
+        type="number"
+        class="modal-input"
+        id="taskContribution"
+        min="0"
+        step="0.1"
+        placeholder="Значение вклада" />
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="createTaskCancel">Отмена</button>
+      <button class="modal-btn primary" id="createTaskConfirm">
+        Опубликовать
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Завершить задачу" (Сценарий А - существующая задача) -->
+<div class="modal-overlay" id="completeTaskModal">
+  <div class="modal">
+    <h3 class="modal-title">Завершить задачу</h3>
+    <div class="modal-field">
+      <label class="modal-label">Задача</label>
+      <div
+        class="modal-input"
+        id="completeTaskName"
+        style="background: #f0f0f0"></div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="completeWorkDescription"
+        >Описание выполненной работы *</label
+      >
+      <textarea
+        class="modal-input"
+        id="completeWorkDescription"
+        rows="4"
+        placeholder="Опишите, что было сделано..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="completeRating">Оценка (1-5) *</label>
+      <input
+        type="number"
+        class="modal-input"
+        id="completeRating"
+        min="1"
+        max="5"
+        step="0.5"
+        placeholder="Например: 4.5" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="completeReview"
+        >Отзыв (необязательно)</label
+      >
+      <textarea
+        class="modal-input"
+        id="completeReview"
+        rows="3"
+        placeholder="Оставьте отзыв о работе..."></textarea>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="completeTaskCancel">
+        Отмена
+      </button>
+      <button class="modal-btn primary" id="completeTaskConfirm">
+        Завершить задачу
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Создать задачу и завершить" (Сценарий Б - нет задачи) -->
+<div class="modal-overlay" id="createAndCompleteTaskModal">
+  <div class="modal">
+    <h3 class="modal-title">Создать задачу и завершить</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteTaskName"
+        >Название задачи *</label
+      >
+      <input
+        type="text"
+        class="modal-input"
+        id="newCompleteTaskName"
+        placeholder="Введите название задачи" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteTaskDescription"
+        >Описание задачи *</label
+      >
+      <textarea
+        class="modal-input"
+        id="newCompleteTaskDescription"
+        rows="3"
+        placeholder="Опишите задачу..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteTaskEffort"
+        >Трудозатраты (часы) *</label
+      >
+      <input
+        type="number"
+        class="modal-input"
+        id="newCompleteTaskEffort"
+        min="0.5"
+        step="0.5"
+        placeholder="Например: 8" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteTaskDeadline"
+        >Срок выполнения *</label
+      >
+      <input type="date" class="modal-input" id="newCompleteTaskDeadline" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-checkbox">
+        <input type="checkbox" id="newCompleteTaskOperational" />
+        <span>Операционная задача</span>
+      </label>
+    </div>
+    <div class="modal-field goal-field" id="newCompleteGoalFields">
+      <label class="modal-label" for="newCompleteTaskGoal"
+        >Привязка к цели блока</label
+      >
+      <select class="modal-select" id="newCompleteTaskGoal">
+        <option value="">-- Выберите цель --</option>
+        <option value="goal1">Улучшение процессов</option>
+        <option value="goal2">Автоматизация задач</option>
+        <option value="goal3">Оптимизация ресурсов</option>
+      </select>
+    </div>
+    <div class="modal-field goal-field" id="newCompleteContributionField">
+      <label class="modal-label" for="newCompleteTaskContribution"
+        >Вклад в цель</label
+      >
+      <input
+        type="number"
+        class="modal-input"
+        id="newCompleteTaskContribution"
+        min="0"
+        step="0.1"
+        placeholder="Значение вклада" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteWorkDescription"
+        >Описание выполненной работы *</label
+      >
+      <textarea
+        class="modal-input"
+        id="newCompleteWorkDescription"
+        rows="3"
+        placeholder="Опишите, что было сделано..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteRating">Оценка (1-5) *</label>
+      <input
+        type="number"
+        class="modal-input"
+        id="newCompleteRating"
+        min="1"
+        max="5"
+        step="0.5"
+        placeholder="Например: 4.5" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="newCompleteReview"
+        >Отзыв (необязательно)</label
+      >
+      <textarea
+        class="modal-input"
+        id="newCompleteReview"
+        rows="3"
+        placeholder="Оставьте отзыв о работе..."></textarea>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="createAndCompleteCancel">
+        Отмена
+      </button>
+      <button class="modal-btn primary" id="createAndCompleteConfirm">
+        Создать задачу и завершить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Откликнуться" -->
+<div class="modal-overlay" id="respondModal">
+  <div class="modal">
+    <h3 class="modal-title">Откликнуться на задачу</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="respondTime">Время прихода *</label>
+      <input type="datetime-local" class="modal-input" id="respondTime" />
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="respondCancel">Отмена</button>
+      <button class="modal-btn primary" id="respondConfirm">
+        Отправить отклик
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно "Поставить задачу" (для хоста) -->
+<div class="modal-overlay" id="hostTaskModal">
+  <div class="modal">
+    <h3 class="modal-title">Поставить задачу</h3>
+    <div class="modal-field">
+      <label class="modal-label" for="hostTaskName">Название задачи *</label>
+      <input
+        type="text"
+        class="modal-input"
+        id="hostTaskName"
+        placeholder="Введите название задачи" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="hostTaskDescription">Описание *</label>
+      <textarea
+        class="modal-input"
+        id="hostTaskDescription"
+        rows="3"
+        placeholder="Опишите задачу"></textarea>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Чек-лист *</label>
+      <div id="hostTaskChecklist">
+        <div class="checklist-row">
+          <input
+            type="text"
+            class="modal-input checklist-input"
+            placeholder="Элемент чек-листа" />
+          <button
+            type="button"
+            class="remove-checklist-btn"
+            style="display: none">
+            ×
+          </button>
+        </div>
+      </div>
+      <button type="button" class="add-checklist-btn" id="addChecklistItem">
+        + Добавить элемент
+      </button>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="hostTaskEffort"
+        >Трудозатраты (часы) *</label
+      >
+      <input
+        type="number"
+        class="modal-input"
+        id="hostTaskEffort"
+        placeholder="8" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="hostTaskDeadline"
+        >Срок выполнения *</label
+      >
+      <input type="date" class="modal-input" id="hostTaskDeadline" />
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="hostTaskGoal"
+        >Привязка к цели блока</label
+      >
+      <select class="modal-select" id="hostTaskGoal">
+        <option value="">-- Выберите цель --</option>
+        <option value="goal1">Увеличить конверсию на 20%</option>
+        <option value="goal2">Запустить новую функцию</option>
+        <option value="goal3">Оптимизировать производительность</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-checkbox">
+        <input type="checkbox" id="hostTaskOperational" />
+        <span>Операционная задача</span>
+      </label>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" id="hostTaskCancel">Отмена</button>
+      <button class="modal-btn primary" id="hostTaskConfirm">
+        Создать задачу
+      </button>
+    </div>
+  </div>
+</div>

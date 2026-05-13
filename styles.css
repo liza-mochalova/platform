@@ -1,0 +1,1235 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* Контейнер как экран телефона */
+.app {
+  max-width: 480px;
+  width: 100%;
+  background-color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+/* ----- Верхняя панель ----- */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.role-selector {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: #fafafa;
+  cursor: pointer;
+  color: #333;
+}
+
+.role-selector:focus {
+  outline: 2px solid #2cb5b4;
+  border-color: #2cb5b4;
+}
+
+.notification-icon {
+  width: 28px;
+  height: 28px;
+  margin-left: 12px;
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ----- Основной контент (лента) ----- */
+.content {
+  flex: 1;
+  padding: 16px;
+  background-color: #f5f5f5;
+}
+
+.feed-placeholder {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #999;
+}
+
+.feed-placeholder h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.feed-placeholder p {
+  font-size: 14px;
+}
+
+/* ----- Карточки задач ----- */
+.task-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  padding-right: 12px;
+}
+
+.task-deadline {
+  font-size: 12px;
+  color: #e74c3c;
+  background-color: #fee;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.task-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+.author-name {
+  font-size: 14px;
+  color: #666;
+}
+
+.task-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.meta-item {
+  font-size: 13px;
+  color: #888;
+}
+
+.meta-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.task-description {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.respond-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.respond-btn:hover {
+  background-color: #25a09f;
+}
+
+.respond-btn:active {
+  transform: scale(0.98);
+}
+
+/* ----- Нижнее меню ----- */
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  position: sticky;
+  bottom: 0;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 8px;
+}
+
+.nav-item:hover {
+  color: #2cb5b4;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: #666;
+  transition: stroke 0.2s;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.nav-item.active {
+  color: #2cb5b4;
+}
+
+.nav-item.active .nav-icon svg {
+  stroke: #2cb5b4;
+}
+
+/* ----- Экраны ----- */
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen-placeholder {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  color: #999;
+}
+
+.screen-placeholder h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.screen-placeholder p {
+  font-size: 14px;
+}
+
+/* ----- Профиль ----- */
+.profile-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2cb5b4, #92c143);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  color: white;
+}
+
+.profile-info h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.profile-block {
+  font-size: 14px;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+}
+
+.profile-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-tag {
+  background-color: #e8f5f5;
+  color: #2cb5b4;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.schedule-table th,
+.schedule-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  width: 80px;
+}
+
+.schedule-table td {
+  font-size: 14px;
+  color: #333;
+}
+
+.schedule-table tr:last-child th,
+.schedule-table tr:last-child td {
+  border-bottom: none;
+}
+
+.schedule-status.morning {
+  color: #2cb5b4;
+}
+
+.schedule-status.afternoon {
+  color: #92c143;
+}
+
+.schedule-status.out {
+  color: #999;
+}
+
+.rating-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.rating-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2cb5b4;
+}
+
+.rating-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.profile-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.profile-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.profile-btn.primary {
+  background-color: #2cb5b4;
+  color: white;
+}
+
+.profile-btn.primary:hover {
+  background-color: #25a09f;
+}
+
+.profile-btn.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.profile-btn.secondary:hover {
+  background-color: #e8e8e8;
+}
+
+/* ----- Мои задачи ----- */
+.host-task-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.host-task-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.checklist {
+  margin-bottom: 16px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.checklist-item:last-child {
+  margin-bottom: 0;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #2cb5b4;
+}
+
+.checklist-item label {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+  cursor: pointer;
+  flex: 1;
+}
+
+.checklist-item input[type="checkbox"]:checked + label {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Стили для чекбоксов настроек уведомлений (без зачёркивания) */
+.notification-settings .checklist-item input[type="checkbox"]:checked + label {
+  text-decoration: none;
+  color: #444;
+}
+
+.progress-container {
+  margin-bottom: 16px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2cb5b4, #92c143);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+  text-align: right;
+}
+
+.notify-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.notify-btn:hover {
+  background-color: #25a09f;
+}
+
+.notify-btn:active {
+  transform: scale(0.98);
+}
+
+/* ----- Кнопка "Поднять руку" ----- */
+.raise-hand-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.raise-hand-btn:hover {
+  background-color: #25a09f;
+}
+
+.raise-hand-btn:active {
+  transform: scale(0.98);
+}
+
+.raise-hand-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ----- Модальное окно ----- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.modal-field {
+  margin-bottom: 16px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.modal-input,
+.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background-color: #fafafa;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+  outline: 2px solid #2cb5b4;
+  border-color: #2cb5b4;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-btn.primary {
+  background-color: #2cb5b4;
+  color: white;
+}
+
+.modal-btn.primary:hover {
+  background-color: #25a09f;
+}
+
+.modal-btn.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.modal-btn.secondary:hover {
+  background-color: #e8e8e8;
+}
+
+/* ----- Карточка практиканта (для сотрудника) ----- */
+.intern-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.intern-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.intern-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+.intern-info {
+  flex: 1;
+}
+
+.intern-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.intern-rating {
+  font-size: 14px;
+  color: #f5a623;
+}
+
+.intern-rating span {
+  margin-right: 4px;
+}
+
+.intern-blocks {
+  margin-bottom: 12px;
+}
+
+.intern-block {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.intern-block-label {
+  font-weight: 500;
+  color: #999;
+  margin-right: 6px;
+}
+
+.help-block {
+  display: inline-block;
+  background-color: #e8f5f5;
+  color: #2cb5b4;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.intern-time {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.invite-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.invite-btn:hover {
+  background-color: #25a09f;
+}
+
+.invite-btn:active {
+  transform: scale(0.98);
+}
+
+.screen-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+/* ----- Вкладки хоста ----- */
+.host-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.host-tab {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.host-tab:hover {
+  background: #e8e8e8;
+}
+
+.host-tab.active {
+  background: #2cb5b4;
+  color: white;
+}
+
+.tab-content {
+  display: block;
+}
+
+.tab-content[style*="display: none"] {
+  display: none;
+}
+
+.user-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-list-item:hover {
+  background-color: #f9f9f9;
+}
+
+.user-list-item-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+}
+
+.user-list-item-info {
+  flex: 1;
+}
+
+.user-list-item-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.user-list-item-block {
+  font-size: 13px;
+  color: #666;
+}
+
+.user-list-item-rating {
+  font-size: 14px;
+  color: #f5a623;
+  font-weight: 500;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #2cb5b4;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.back-btn:hover {
+  color: #25a09f;
+}
+
+.profile-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e0e0e0;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-item {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.review-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.review-rating {
+  font-size: 13px;
+  color: #f5a623;
+  font-weight: 500;
+}
+
+.review-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.create-task-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.create-task-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.create-task-btn:hover {
+  background-color: #25a09f;
+}
+
+.create-task-btn:active {
+  transform: scale(0.98);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.goal-field {
+  display: block;
+}
+
+.goal-field.hidden {
+  display: none;
+}
+
+.modal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* ----- Стили для чек-листа в модальном окне ----- */
+.checklist-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.checklist-input {
+  flex: 1;
+}
+
+.remove-checklist-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.remove-checklist-btn:hover {
+  background-color: #dc2626;
+}
+
+.add-checklist-btn {
+  background-color: transparent;
+  color: #2cb5b4;
+  border: 1px dashed #2cb5b4;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.add-checklist-btn:hover {
+  background-color: #2cb5b4;
+  color: white;
+}
+
+/* ----- Критические уведомления ----- */
+.notification-card {
+  background-color: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.notification-card.critical {
+  background-color: #fef2f2;
+  border-left-color: #ef4444;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.notification-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.notification-date {
+  font-size: 11px;
+  color: #999;
+}
+
+.notification-text {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.notification-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notification-btn {
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-btn:hover {
+  background-color: #25a09f;
+}
+
+.notification-btn:active {
+  transform: scale(0.98);
+}
+
+/* ----- Выпадающий список уведомлений ----- */
+.notifications-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+  display: none;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notifications-dropdown.active {
+  display: block;
+}
+
+.notifications-header {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notifications-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notifications-count {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.notifications-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.unread {
+  background-color: #f0f9f9;
+}
+
+.notification-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.notification-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.notification-item-time {
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.notification-item-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.notification-item-type {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+.notification-item-type.new-task {
+  background-color: #e8f5f5;
+  color: #2cb5b4;
+}
+
+.notification-item-type.invitation {
+  background-color: #f0f9f9;
+  color: #92c143;
+}
+
+.notification-item-type.approved {
+  background-color: #fff4e6;
+  color: #f5a623;
+}
+
+.notification-item-type.rated {
+  background-color: #fef2f2;
+  color: #e74c3c;
+}
+
+.notifications-empty {
+  padding: 24px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
