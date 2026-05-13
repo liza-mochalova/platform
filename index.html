@@ -1329,12 +1329,44 @@
               id="raiseHandTime" />
           </div>
           <div class="modal-field">
-            <label class="modal-label" for="raiseHandBlock">Блок</label>
-            <select class="modal-select" id="raiseHandBlock">
-              <option value="analytics">Аналитика</option>
-              <option value="marketing">Маркетинг</option>
-              <option value="it">IT</option>
-            </select>
+            <label class="modal-label">Хочу помочь в блоке</label>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <label class="modal-checkbox">
+                <input
+                  type="checkbox"
+                  value="Аналитика"
+                  class="help-block-checkbox" />
+                <span>Аналитика</span>
+              </label>
+              <label class="modal-checkbox">
+                <input
+                  type="checkbox"
+                  value="Маркетинг"
+                  class="help-block-checkbox" />
+                <span>Маркетинг</span>
+              </label>
+              <label class="modal-checkbox">
+                <input type="checkbox" value="IT" class="help-block-checkbox" />
+                <span>IT</span>
+              </label>
+              <label class="modal-checkbox">
+                <input
+                  type="checkbox"
+                  value="Разработка"
+                  class="help-block-checkbox" />
+                <span>Разработка</span>
+              </label>
+              <label class="modal-checkbox">
+                <input
+                  type="checkbox"
+                  value="Продукт"
+                  class="help-block-checkbox" />
+                <span>Продукт</span>
+              </label>
+            </div>
+            <p style="font-size: 11px; color: #999; margin-top: 6px">
+              Оставьте все чекбоксы пустыми для опции "Любой блок"
+            </p>
           </div>
           <div class="modal-buttons">
             <button class="modal-btn secondary" id="raiseHandCancel">
@@ -1773,8 +1805,37 @@
         <!-- Экран пользователей -->
         <div id="users-screen" class="screen">
           <h2 class="screen-title">Пользователи</h2>
-          <div id="users-list">
-            <!-- Список пользователей будет рендериться здесь -->
+          <!-- Вкладки пользователей -->
+          <div class="host-tabs" id="usersTabs">
+            <button class="host-tab active" data-tab="interns">
+              Практиканты
+            </button>
+            <button class="host-tab" data-tab="employees">Сотрудники</button>
+          </div>
+          <!-- Поиск и фильтр -->
+          <div
+            style="
+              padding: 12px 16px;
+              background: white;
+              border-bottom: 1px solid #e0e0e0;
+            ">
+            <input
+              type="text"
+              class="modal-input"
+              id="usersSearch"
+              placeholder="Поиск по имени и блоку..." />
+          </div>
+          <!-- Контент вкладки Практиканты -->
+          <div id="interns-content" class="tab-content">
+            <div id="users-list">
+              <!-- Список практикантов будет рендериться здесь -->
+            </div>
+          </div>
+          <!-- Контент вкладки Сотрудники -->
+          <div id="employees-content" class="tab-content" style="display: none">
+            <div id="employees-list">
+              <!-- Список сотрудников будет рендериться здесь -->
+            </div>
           </div>
         </div>
 
@@ -1822,6 +1883,103 @@
               </div>
             </div>
 
+            <!-- Кнопка редактирования профиля -->
+            <div
+              class="profile-buttons"
+              id="internProfileEditButtons"
+              style="display: none">
+              <button class="profile-btn primary" id="editInternProfileBtn">
+                Редактировать
+              </button>
+            </div>
+
+            <!-- Форма редактирования профиля -->
+            <div id="internProfileEditForm" style="display: none">
+              <div class="profile-section">
+                <div class="profile-section-title">Редактирование профиля</div>
+                <div class="modal-field">
+                  <label class="modal-label">ФИО</label>
+                  <input type="text" class="modal-input" id="editInternName" />
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Блок</label>
+                  <select class="modal-select" id="editInternBlock">
+                    <option value="Аналитика">Аналитика</option>
+                    <option value="Маркетинг">Маркетинг</option>
+                    <option value="IT">IT</option>
+                    <option value="Разработка">Разработка</option>
+                    <option value="Продукт">Продукт</option>
+                  </select>
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Интересы (через запятую)</label>
+                  <input
+                    type="text"
+                    class="modal-input"
+                    id="editInternInterests"
+                    placeholder="#маркетинг, #продукт" />
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Расписание</label>
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: repeat(5, 1fr);
+                      gap: 8px;
+                    ">
+                    <div>
+                      <label style="font-size: 12px; color: #666">Пн</label>
+                      <select class="modal-select" id="editScheduleMon">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Вт</label>
+                      <select class="modal-select" id="editScheduleTue">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Ср</label>
+                      <select class="modal-select" id="editScheduleWed">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Чт</label>
+                      <select class="modal-select" id="editScheduleThu">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Пт</label>
+                      <select class="modal-select" id="editScheduleFri">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-buttons">
+                <button class="profile-btn secondary" id="cancelInternEditBtn">
+                  Отмена
+                </button>
+                <button class="profile-btn primary" id="saveInternEditBtn">
+                  Сохранить
+                </button>
+              </div>
+            </div>
+
             <!-- Последние отзывы -->
             <div class="profile-section">
               <div class="profile-section-title">Последние отзывы</div>
@@ -1855,6 +2013,33 @@
                 id="assignTaskFromProfileBtn">
                 Поставить задачу
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Экран профиля сотрудника (публичный) -->
+        <div id="employee-public-profile-screen" class="screen">
+          <div class="profile-container">
+            <button class="back-btn" id="backFromEmployeeProfile">
+              ← Назад
+            </button>
+            <!-- Заголовок профиля -->
+            <div class="profile-header">
+              <img
+                src=""
+                class="profile-avatar-img"
+                id="employeePublicAvatar"
+                alt="Avatar" />
+              <div class="profile-info">
+                <h2 id="employeePublicName">Имя Фамилия</h2>
+                <span class="profile-block" id="employeePublicBlock">Блок</span>
+                <span
+                  class="profile-block"
+                  id="employeePublicRole"
+                  style="margin-left: 8px"
+                  >Роль</span
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -1925,8 +2110,113 @@
               </div>
             </div>
 
-            <!-- Кнопки -->
-            <div class="profile-buttons">
+            <!-- Кнопка редактирования -->
+            <div class="profile-buttons" id="currentUserEditButtons">
+              <button class="profile-btn primary" id="editCurrentUserBtn">
+                Редактировать
+              </button>
+              <button class="profile-btn secondary" id="detailsBtn">
+                Детали
+              </button>
+              <button class="profile-btn secondary" id="qrBtn">
+                Показать QR
+              </button>
+            </div>
+
+            <!-- Форма редактирования профиля -->
+            <div id="currentUserEditForm" style="display: none">
+              <div class="profile-section">
+                <div class="profile-section-title">Редактирование профиля</div>
+                <div class="modal-field">
+                  <label class="modal-label">ФИО</label>
+                  <input
+                    type="text"
+                    class="modal-input"
+                    id="editCurrentUserName" />
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Блок</label>
+                  <select class="modal-select" id="editCurrentUserBlock">
+                    <option value="Аналитика">Аналитика</option>
+                    <option value="Маркетинг">Маркетинг</option>
+                    <option value="IT">IT</option>
+                    <option value="Разработка">Разработка</option>
+                    <option value="Продукт">Продукт</option>
+                  </select>
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Интересы (через запятую)</label>
+                  <input
+                    type="text"
+                    class="modal-input"
+                    id="editCurrentUserInterests"
+                    placeholder="#маркетинг, #продукт" />
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Расписание</label>
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: repeat(5, 1fr);
+                      gap: 8px;
+                    ">
+                    <div>
+                      <label style="font-size: 12px; color: #666">Пн</label>
+                      <select class="modal-select" id="editCurrentScheduleMon">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Вт</label>
+                      <select class="modal-select" id="editCurrentScheduleTue">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Ср</label>
+                      <select class="modal-select" id="editCurrentScheduleWed">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Чт</label>
+                      <select class="modal-select" id="editCurrentScheduleThu">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px; color: #666">Пт</label>
+                      <select class="modal-select" id="editCurrentScheduleFri">
+                        <option value="morning">до обеда</option>
+                        <option value="afternoon">после обеда</option>
+                        <option value="out">не в офисе</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-buttons">
+                <button
+                  class="profile-btn secondary"
+                  id="cancelCurrentUserEditBtn">
+                  Отмена
+                </button>
+                <button class="profile-btn primary" id="saveCurrentUserEditBtn">
+                  Сохранить
+                </button>
+              </div>
+            </div>
+
+            <!-- Кнопки (скрыты при редактировании) -->
+            <div class="profile-buttons" id="currentUserViewButtons">
               <button class="profile-btn primary" id="detailsBtn">
                 Детали
               </button>
@@ -1975,8 +2265,76 @@
               </div>
             </div>
 
-            <!-- Кнопки -->
-            <div class="profile-buttons">
+            <!-- Кнопка редактирования -->
+            <div class="profile-buttons" id="employeeEditButtons">
+              <button class="profile-btn primary" id="editEmployeeBtn">
+                Редактировать
+              </button>
+              <button class="profile-btn secondary" id="saveSettingsBtn">
+                Сохранить настройки
+              </button>
+            </div>
+
+            <!-- Форма редактирования профиля сотрудника -->
+            <div id="employeeEditForm" style="display: none">
+              <div class="profile-section">
+                <div class="profile-section-title">Редактирование профиля</div>
+                <div class="modal-field">
+                  <label class="modal-label">ФИО</label>
+                  <input
+                    type="text"
+                    class="modal-input"
+                    id="editEmployeeName" />
+                </div>
+                <div class="modal-field">
+                  <label class="modal-label">Блок</label>
+                  <select class="modal-select" id="editEmployeeBlock">
+                    <option value="Аналитика">Аналитика</option>
+                    <option value="Маркетинг">Маркетинг</option>
+                    <option value="IT">IT</option>
+                    <option value="Разработка">Разработка</option>
+                    <option value="Продукт">Продукт</option>
+                  </select>
+                </div>
+                <div class="profile-section-title" style="margin-top: 16px">
+                  Настройки уведомлений
+                </div>
+                <div class="checklist notification-settings">
+                  <div class="checklist-item">
+                    <input type="checkbox" id="editNotifNewTasks" checked />
+                    <label for="editNotifNewTasks">Новые задачи</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="editNotifResponses" checked />
+                    <label for="editNotifResponses">Отклики на задачи</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="editNotifMessages" checked />
+                    <label for="editNotifMessages">Сообщения</label>
+                  </div>
+                  <div class="checklist-item">
+                    <input type="checkbox" id="editNotifRating" checked />
+                    <label for="editNotifRating">Изменение рейтинга</label>
+                  </div>
+                </div>
+              </div>
+              <div class="profile-buttons">
+                <button
+                  class="profile-btn secondary"
+                  id="cancelEmployeeEditBtn">
+                  Отмена
+                </button>
+                <button class="profile-btn primary" id="saveEmployeeEditBtn">
+                  Сохранить
+                </button>
+              </div>
+            </div>
+
+            <!-- Кнопки (скрыты при редактировании) -->
+            <div
+              class="profile-buttons"
+              id="employeeViewButtons"
+              style="display: none">
               <button class="profile-btn primary" id="saveSettingsBtn">
                 Сохранить настройки
               </button>
@@ -2653,7 +3011,7 @@
           id: 1,
           name: "Иван Иванов",
           block: "Аналитика",
-          helpBlock: "Маркетинг",
+          helpBlocks: ["Маркетинг"],
           startTime: "2025-04-25T14:00",
           endTime: "2025-04-25T17:00",
           rating: 4.8,
@@ -2663,7 +3021,7 @@
           id: 2,
           name: "Мария Петрова",
           block: "IT",
-          helpBlock: "Аналитика",
+          helpBlocks: ["Аналитика", "Маркетинг"],
           startTime: "2025-04-25T10:00",
           endTime: "2025-04-25T13:00",
           rating: 4.5,
@@ -2673,11 +3031,50 @@
           id: 3,
           name: "Алексей Смирнов",
           block: "Маркетинг",
-          helpBlock: "IT",
+          helpBlocks: [],
           startTime: "2025-04-26T15:00",
           endTime: "2025-04-26T18:00",
           rating: 4.9,
           avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+        },
+      ];
+
+      // Массив всех сотрудников (включая хостов и руководителя)
+      const allEmployees = [
+        {
+          id: 101,
+          name: "Алексей Петров",
+          block: "Аналитика",
+          avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+          role: "employee",
+        },
+        {
+          id: 102,
+          name: "Мария Иванова",
+          block: "Маркетинг",
+          avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+          role: "host",
+        },
+        {
+          id: 103,
+          name: "Дмитрий Сидоров",
+          block: "IT",
+          avatar: "https://randomuser.me/api/portraits/men/22.jpg",
+          role: "employee",
+        },
+        {
+          id: 104,
+          name: "Елена Козлова",
+          block: "Аналитика",
+          avatar: "https://randomuser.me/api/portraits/women/65.jpg",
+          role: "supervisor",
+        },
+        {
+          id: 105,
+          name: "Олег Иванов",
+          block: "Маркетинг",
+          avatar: "https://randomuser.me/api/portraits/men/52.jpg",
+          role: "employee",
         },
       ];
 
@@ -3203,6 +3600,16 @@
 
         const timeSlot = formatTimeSlot(intern.startTime, intern.endTime);
 
+        // Формируем блоки помощи
+        let helpBlocksHTML = "";
+        if (intern.helpBlocks && intern.helpBlocks.length > 0) {
+          helpBlocksHTML = intern.helpBlocks
+            .map((block) => `<span class="help-block">#${block}</span>`)
+            .join(" ");
+        } else {
+          helpBlocksHTML = `<span class="help-block">Любой блок</span>`;
+        }
+
         card.innerHTML = `
           <div class="intern-header">
             <img src="${intern.avatar}" class="intern-avatar" alt="${intern.name}">
@@ -3213,7 +3620,7 @@
           </div>
           <div class="intern-blocks">
             <div class="intern-block"><span class="intern-block-label">Блок практики:</span>${intern.block}</div>
-            <div class="intern-block"><span class="intern-block-label">Хочет помочь:</span><span class="help-block">#${intern.helpBlock}</span></div>
+            <div class="intern-block"><span class="intern-block-label">Хочет помочь:</span>${helpBlocksHTML}</div>
           </div>
           <div class="intern-time">📅 ${timeSlot}</div>
           <button class="invite-btn" data-intern-id="${intern.id}">Пригласить</button>
@@ -3517,6 +3924,13 @@
             `;
             scheduleContainer.appendChild(row);
           });
+
+          // Скрываем форму редактирования при открытии профиля
+          document.getElementById("currentUserEditForm").style.display = "none";
+          document.getElementById("currentUserEditButtons").style.display =
+            "block";
+          document.getElementById("currentUserViewButtons").style.display =
+            "none";
         } else if (
           currentRole === "employee" ||
           currentRole === "host" ||
@@ -3540,6 +3954,12 @@
             employeeData.block;
           document.getElementById("employeeProfileAvatar").textContent =
             getInitials(employeeData.name);
+
+          // Скрываем форму редактирования при открытии профиля
+          document.getElementById("employeeEditForm").style.display = "none";
+          document.getElementById("employeeEditButtons").style.display =
+            "block";
+          document.getElementById("employeeViewButtons").style.display = "none";
 
           // Рендерим активные приглашения
           renderActiveInvitations();
@@ -3732,7 +4152,6 @@
       const raiseHandConfirm = document.getElementById("raiseHandConfirm");
       const raiseHandCancel = document.getElementById("raiseHandCancel");
       const raiseHandTime = document.getElementById("raiseHandTime");
-      const raiseHandBlock = document.getElementById("raiseHandBlock");
 
       // Открытие модального окна
       raiseHandBtn.addEventListener("click", function () {
@@ -3741,6 +4160,10 @@
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         raiseHandTime.value = now.toISOString().slice(0, 16);
+        // Сбрасываем чекбоксы
+        document
+          .querySelectorAll(".help-block-checkbox")
+          .forEach((cb) => (cb.checked = false));
       });
 
       // Закрытие модального окна по кнопке "Отмена"
@@ -3748,24 +4171,37 @@
         raiseHandModal.classList.remove("active");
         // Очищаем поля
         raiseHandTime.value = "";
-        raiseHandBlock.value = "analytics";
+        document
+          .querySelectorAll(".help-block-checkbox")
+          .forEach((cb) => (cb.checked = false));
       });
 
       // Подтверждение поднятия руки
       raiseHandConfirm.addEventListener("click", function () {
         const time = raiseHandTime.value;
-        const block = raiseHandBlock.options[raiseHandBlock.selectedIndex].text;
+
+        // Собираем выбранные блоки
+        const selectedBlocks = [];
+        document
+          .querySelectorAll(".help-block-checkbox:checked")
+          .forEach((cb) => {
+            selectedBlocks.push(cb.value);
+          });
 
         if (!time) {
           alert("Пожалуйста, выберите время");
           return;
         }
 
-        alert("Рука поднята\n\nВремя: " + time + "\nБлок: " + block);
+        let blockText =
+          selectedBlocks.length > 0 ? selectedBlocks.join(", ") : "Любой блок";
+        alert("Рука поднята\n\nВремя: " + time + "\nБлоки: " + blockText);
         raiseHandModal.classList.remove("active");
         // Очищаем поля
         raiseHandTime.value = "";
-        raiseHandBlock.value = "analytics";
+        document
+          .querySelectorAll(".help-block-checkbox")
+          .forEach((cb) => (cb.checked = false));
       });
 
       // Закрытие модального окна при клике на оверлей
@@ -3774,7 +4210,9 @@
           raiseHandModal.classList.remove("active");
           // Очищаем поля
           raiseHandTime.value = "";
-          raiseHandBlock.value = "analytics";
+          document
+            .querySelectorAll(".help-block-checkbox")
+            .forEach((cb) => (cb.checked = false));
         }
       });
 
@@ -4012,10 +4450,25 @@
         }
       });
 
-      // Функция для рендеринга списка пользователей
-      function renderUsersList() {
+      // Функция для рендеринга списка пользователей (практиканты)
+      function renderUsersList(filterText = "") {
+        const usersList = document.getElementById("users-list");
         usersList.innerHTML = "";
-        allUsers.forEach((user) => {
+
+        // Сортируем практикантов по рейтингу (по убыванию)
+        let sortedUsers = [...allUsers].sort((a, b) => b.rating - a.rating);
+
+        // Применяем фильтр
+        if (filterText) {
+          const lowerFilter = filterText.toLowerCase();
+          sortedUsers = sortedUsers.filter(
+            (user) =>
+              user.name.toLowerCase().includes(lowerFilter) ||
+              user.block.toLowerCase().includes(lowerFilter),
+          );
+        }
+
+        sortedUsers.forEach((user) => {
           const userItem = document.createElement("div");
           userItem.className = "user-list-item";
           userItem.setAttribute("data-user-id", user.id);
@@ -4032,6 +4485,80 @@
           });
           usersList.appendChild(userItem);
         });
+      }
+
+      // Функция для рендеринга списка сотрудников
+      function renderEmployeesList(filterText = "") {
+        const employeesList = document.getElementById("employees-list");
+        employeesList.innerHTML = "";
+
+        // Применяем фильтр
+        let filteredEmployees = [...allEmployees];
+        if (filterText) {
+          const lowerFilter = filterText.toLowerCase();
+          filteredEmployees = filteredEmployees.filter(
+            (employee) =>
+              employee.name.toLowerCase().includes(lowerFilter) ||
+              employee.block.toLowerCase().includes(lowerFilter),
+          );
+        }
+
+        filteredEmployees.forEach((employee) => {
+          const employeeItem = document.createElement("div");
+          employeeItem.className = "user-list-item";
+          employeeItem.setAttribute("data-employee-id", employee.id);
+
+          const roleLabels = {
+            employee: "Сотрудник",
+            host: "Хост",
+            supervisor: "Руководитель",
+          };
+
+          employeeItem.innerHTML = `
+            <img src="${employee.avatar}" class="user-list-item-avatar" alt="${employee.name}">
+            <div class="user-list-item-info">
+              <div class="user-list-item-name">${employee.name}</div>
+              <div class="user-list-item-block">${employee.block}</div>
+            </div>
+            <div class="user-list-item-rating" style="font-size: 12px; color: #666;">${roleLabels[employee.role]}</div>
+          `;
+          employeeItem.addEventListener("click", function () {
+            showEmployeeProfile(employee);
+          });
+          employeesList.appendChild(employeeItem);
+        });
+      }
+
+      // Функция для показа профиля сотрудника (публичного)
+      function showEmployeeProfile(employee) {
+        const employeePublicScreen = document.getElementById(
+          "employee-public-profile-screen",
+        );
+        const employeePublicAvatar = document.getElementById(
+          "employeePublicAvatar",
+        );
+        const employeePublicName =
+          document.getElementById("employeePublicName");
+        const employeePublicBlock = document.getElementById(
+          "employeePublicBlock",
+        );
+        const employeePublicRole =
+          document.getElementById("employeePublicRole");
+
+        // Заполняем данные
+        employeePublicAvatar.src = employee.avatar;
+        employeePublicName.textContent = employee.name;
+        employeePublicBlock.textContent = employee.block;
+
+        const roleLabels = {
+          employee: "Сотрудник",
+          host: "Хост",
+          supervisor: "Руководитель",
+        };
+        employeePublicRole.textContent = roleLabels[employee.role];
+
+        // Переключаем экран
+        switchScreen("employee-public-profile-screen");
       }
 
       // Функция для показа профиля практиканта
@@ -4090,6 +4617,9 @@
         });
 
         // Показываем/скрываем кнопку приглашения в зависимости от роли
+        const internProfileEditButtons = document.getElementById(
+          "internProfileEditButtons",
+        );
         if (currentRole === "employee" || currentRole === "host") {
           internProfileButtons.style.display = "block";
           // Скрываем кнопку "Поставить задачу" для обычного сотрудника
@@ -4100,9 +4630,19 @@
             assignTaskBtn.style.display =
               currentRole === "host" ? "inline-block" : "none";
           }
+          // Скрываем кнопку редактирования профиля (сотрудник не может редактировать чужой профиль)
+          internProfileEditButtons.style.display = "none";
+        } else if (currentRole === "intern" && user.id === currentInternId) {
+          // Практикант видит кнопку редактирования только на своём профиле
+          internProfileButtons.style.display = "none";
+          internProfileEditButtons.style.display = "block";
         } else {
           internProfileButtons.style.display = "none";
+          internProfileEditButtons.style.display = "none";
         }
+
+        // Скрываем форму редактирования при открытии профиля
+        document.getElementById("internProfileEditForm").style.display = "none";
 
         // Сохраняем ID текущего просматриваемого практиканта
         internProfileScreen.setAttribute("data-intern-id", user.id);
@@ -4947,10 +5487,390 @@
         });
       });
 
+      // Обработчики вкладок пользователей
+      const usersTabs = document.querySelectorAll("#usersTabs .host-tab");
+      usersTabs.forEach((tab) => {
+        tab.addEventListener("click", function () {
+          const tabId = this.getAttribute("data-tab");
+
+          // Убираем активный класс со всех вкладок
+          usersTabs.forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+
+          // Скрываем все контенты вкладок
+          document
+            .querySelectorAll("#users-screen .tab-content")
+            .forEach((content) => {
+              content.style.display = "none";
+            });
+
+          // Показываем выбранный контент
+          const selectedContent = document.getElementById(tabId + "-content");
+          if (selectedContent) {
+            selectedContent.style.display = "block";
+          }
+
+          // Перерисовываем соответствующий список
+          if (tabId === "interns") {
+            renderUsersList(document.getElementById("usersSearch").value);
+          } else if (tabId === "employees") {
+            renderEmployeesList(document.getElementById("usersSearch").value);
+          }
+        });
+      });
+
+      // Обработчик поиска пользователей
+      const usersSearch = document.getElementById("usersSearch");
+      if (usersSearch) {
+        usersSearch.addEventListener("input", function () {
+          const filterText = this.value;
+          const activeTab = document.querySelector(
+            "#usersTabs .host-tab.active",
+          );
+          if (activeTab) {
+            const tabId = activeTab.getAttribute("data-tab");
+            if (tabId === "interns") {
+              renderUsersList(filterText);
+            } else if (tabId === "employees") {
+              renderEmployeesList(filterText);
+            }
+          }
+        });
+      }
+
+      // Обработчик кнопки "Назад" в профиле сотрудника
+      document
+        .getElementById("backFromEmployeeProfile")
+        .addEventListener("click", function () {
+          switchScreen("users-screen");
+        });
+
+      // Обработчик кнопки "Редактировать" для профиля практиканта (просмотр)
+      document
+        .getElementById("editInternProfileBtn")
+        .addEventListener("click", function () {
+          const internProfileScreen = document.getElementById(
+            "intern-profile-screen",
+          );
+          const internId = internProfileScreen.getAttribute("data-intern-id");
+          const intern = allUsers.find((u) => u.id === parseInt(internId));
+
+          if (intern) {
+            // Заполняем форму редактирования
+            document.getElementById("editInternName").value = intern.name;
+            document.getElementById("editInternBlock").value = intern.block;
+            document.getElementById("editInternInterests").value =
+              intern.interests.join(", ");
+
+            // Заполняем расписание
+            const scheduleMap = {
+              Пн: "editScheduleMon",
+              Вт: "editScheduleTue",
+              Ср: "editScheduleWed",
+              Чт: "editScheduleThu",
+              Пт: "editScheduleFri",
+            };
+            intern.schedule.forEach((day) => {
+              const selectId = scheduleMap[day.day];
+              if (selectId) {
+                document.getElementById(selectId).value = day.status;
+              }
+            });
+
+            // Показываем форму, скрываем кнопки
+            document.getElementById("internProfileEditForm").style.display =
+              "block";
+            document.getElementById("internProfileEditButtons").style.display =
+              "none";
+            document.getElementById("internProfileButtons").style.display =
+              "none";
+          }
+        });
+
+      // Обработчик кнопки "Отмена" редактирования профиля практиканта
+      document
+        .getElementById("cancelInternEditBtn")
+        .addEventListener("click", function () {
+          document.getElementById("internProfileEditForm").style.display =
+            "none";
+          document.getElementById("internProfileEditButtons").style.display =
+            "block";
+          document.getElementById("internProfileButtons").style.display =
+            "block";
+        });
+
+      // Обработчик кнопки "Сохранить" редактирования профиля практиканта
+      document
+        .getElementById("saveInternEditBtn")
+        .addEventListener("click", function () {
+          const internProfileScreen = document.getElementById(
+            "intern-profile-screen",
+          );
+          const internId = internProfileScreen.getAttribute("data-intern-id");
+          const intern = allUsers.find((u) => u.id === parseInt(internId));
+
+          if (intern) {
+            // Обновляем данные
+            intern.name = document.getElementById("editInternName").value;
+            intern.block = document.getElementById("editInternBlock").value;
+
+            // Парсим интересы
+            const interestsText = document.getElementById(
+              "editInternInterests",
+            ).value;
+            intern.interests = interestsText
+              .split(",")
+              .map((i) => i.trim())
+              .filter((i) => i);
+
+            // Обновляем расписание
+            const scheduleMap = {
+              Пн: "editScheduleMon",
+              Вт: "editScheduleTue",
+              Ср: "editScheduleWed",
+              Чт: "editScheduleThu",
+              Пт: "editScheduleFri",
+            };
+            intern.schedule = [
+              {
+                day: "Пн",
+                status: document.getElementById(scheduleMap["Пн"]).value,
+              },
+              {
+                day: "Вт",
+                status: document.getElementById(scheduleMap["Вт"]).value,
+              },
+              {
+                day: "Ср",
+                status: document.getElementById(scheduleMap["Ср"]).value,
+              },
+              {
+                day: "Чт",
+                status: document.getElementById(scheduleMap["Чт"]).value,
+              },
+              {
+                day: "Пт",
+                status: document.getElementById(scheduleMap["Пт"]).value,
+              },
+            ];
+
+            // Обновляем отображение
+            showInternProfile(intern);
+            renderUsersList();
+
+            // Скрываем форму, показываем кнопки
+            document.getElementById("internProfileEditForm").style.display =
+              "none";
+            document.getElementById("internProfileEditButtons").style.display =
+              "block";
+            document.getElementById("internProfileButtons").style.display =
+              "block";
+
+            alert("Профиль обновлён");
+          }
+        });
+
+      // Обработчик кнопки "Редактировать" для текущего профиля практиканта
+      document
+        .getElementById("editCurrentUserBtn")
+        .addEventListener("click", function () {
+          const internData = currentUser.intern;
+
+          // Заполняем форму редактирования
+          document.getElementById("editCurrentUserName").value =
+            internData.name;
+          document.getElementById("editCurrentUserBlock").value =
+            internData.block;
+          document.getElementById("editCurrentUserInterests").value =
+            internData.interests.join(", ");
+
+          // Заполняем расписание
+          const scheduleMap = {
+            Пн: "editCurrentScheduleMon",
+            Вт: "editCurrentScheduleTue",
+            Ср: "editCurrentScheduleWed",
+            Чт: "editCurrentScheduleThu",
+            Пт: "editCurrentScheduleFri",
+          };
+          internData.schedule.forEach((day) => {
+            const selectId = scheduleMap[day.day];
+            if (selectId) {
+              document.getElementById(selectId).value = day.status;
+            }
+          });
+
+          // Показываем форму, скрываем кнопки
+          document.getElementById("currentUserEditForm").style.display =
+            "block";
+          document.getElementById("currentUserEditButtons").style.display =
+            "none";
+          document.getElementById("currentUserViewButtons").style.display =
+            "none";
+        });
+
+      // Обработчик кнопки "Отмена" редактирования текущего профиля
+      document
+        .getElementById("cancelCurrentUserEditBtn")
+        .addEventListener("click", function () {
+          document.getElementById("currentUserEditForm").style.display = "none";
+          document.getElementById("currentUserEditButtons").style.display =
+            "block";
+          document.getElementById("currentUserViewButtons").style.display =
+            "block";
+        });
+
+      // Обработчик кнопки "Сохранить" редактирования текущего профиля
+      document
+        .getElementById("saveCurrentUserEditBtn")
+        .addEventListener("click", function () {
+          const internData = currentUser.intern;
+
+          // Обновляем данные
+          internData.name = document.getElementById(
+            "editCurrentUserName",
+          ).value;
+          internData.block = document.getElementById(
+            "editCurrentUserBlock",
+          ).value;
+
+          // Парсим интересы
+          const interestsText = document.getElementById(
+            "editCurrentUserInterests",
+          ).value;
+          internData.interests = interestsText
+            .split(",")
+            .map((i) => i.trim())
+            .filter((i) => i);
+
+          // Обновляем расписание
+          const scheduleMap = {
+            Пн: "editCurrentScheduleMon",
+            Вт: "editCurrentScheduleTue",
+            Ср: "editCurrentScheduleWed",
+            Чт: "editCurrentScheduleThu",
+            Пт: "editCurrentScheduleFri",
+          };
+          internData.schedule = [
+            {
+              day: "Пн",
+              status: document.getElementById(scheduleMap["Пн"]).value,
+            },
+            {
+              day: "Вт",
+              status: document.getElementById(scheduleMap["Вт"]).value,
+            },
+            {
+              day: "Ср",
+              status: document.getElementById(scheduleMap["Ср"]).value,
+            },
+            {
+              day: "Чт",
+              status: document.getElementById(scheduleMap["Чт"]).value,
+            },
+            {
+              day: "Пт",
+              status: document.getElementById(scheduleMap["Пт"]).value,
+            },
+          ];
+
+          // Обновляем отображение
+          renderProfile();
+
+          // Скрываем форму, показываем кнопки
+          document.getElementById("currentUserEditForm").style.display = "none";
+          document.getElementById("currentUserEditButtons").style.display =
+            "block";
+          document.getElementById("currentUserViewButtons").style.display =
+            "block";
+
+          alert("Профиль обновлён");
+        });
+
+      // Обработчик кнопки "Редактировать" для профиля сотрудника
+      document
+        .getElementById("editEmployeeBtn")
+        .addEventListener("click", function () {
+          const employeeData =
+            currentRole === "employee"
+              ? currentUser.employee
+              : currentRole === "host"
+                ? currentUser.employee
+                : currentUser.supervisor;
+
+          // Заполняем форму редактирования
+          document.getElementById("editEmployeeName").value = employeeData.name;
+          document.getElementById("editEmployeeBlock").value =
+            employeeData.block;
+
+          // Заполняем настройки уведомлений
+          document.getElementById("editNotifNewTasks").checked =
+            document.getElementById("notifNewTasks").checked;
+          document.getElementById("editNotifResponses").checked =
+            document.getElementById("notifResponses").checked;
+          document.getElementById("editNotifMessages").checked =
+            document.getElementById("notifMessages").checked;
+          document.getElementById("editNotifRating").checked =
+            document.getElementById("notifRating").checked;
+
+          // Показываем форму, скрываем кнопки
+          document.getElementById("employeeEditForm").style.display = "block";
+          document.getElementById("employeeEditButtons").style.display = "none";
+          document.getElementById("employeeViewButtons").style.display = "none";
+        });
+
+      // Обработчик кнопки "Отмена" редактирования профиля сотрудника
+      document
+        .getElementById("cancelEmployeeEditBtn")
+        .addEventListener("click", function () {
+          document.getElementById("employeeEditForm").style.display = "none";
+          document.getElementById("employeeEditButtons").style.display =
+            "block";
+          document.getElementById("employeeViewButtons").style.display = "none";
+        });
+
+      // Обработчик кнопки "Сохранить" редактирования профиля сотрудника
+      document
+        .getElementById("saveEmployeeEditBtn")
+        .addEventListener("click", function () {
+          const employeeData =
+            currentRole === "employee"
+              ? currentUser.employee
+              : currentRole === "host"
+                ? currentUser.employee
+                : currentUser.supervisor;
+
+          // Обновляем данные
+          employeeData.name = document.getElementById("editEmployeeName").value;
+          employeeData.block =
+            document.getElementById("editEmployeeBlock").value;
+
+          // Обновляем настройки уведомлений
+          document.getElementById("notifNewTasks").checked =
+            document.getElementById("editNotifNewTasks").checked;
+          document.getElementById("notifResponses").checked =
+            document.getElementById("editNotifResponses").checked;
+          document.getElementById("notifMessages").checked =
+            document.getElementById("editNotifMessages").checked;
+          document.getElementById("notifRating").checked =
+            document.getElementById("editNotifRating").checked;
+
+          // Обновляем отображение
+          renderProfile();
+
+          // Скрываем форму, показываем кнопки
+          document.getElementById("employeeEditForm").style.display = "none";
+          document.getElementById("employeeEditButtons").style.display =
+            "block";
+          document.getElementById("employeeViewButtons").style.display = "none";
+
+          alert("Профиль обновлён");
+        });
+
       // Инициализация - рендерим задачи при загрузке
       renderTasks();
       renderHostTasks();
       renderUsersList();
+      renderEmployeesList();
       renderProfile();
     </script>
   </body>
