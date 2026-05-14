@@ -1,3 +1,6 @@
+// Регистрация плагина Chart.js DataLabels
+Chart.register(ChartDataLabels);
+
 // Текущая роль пользователя
 let currentRole = "intern";
 
@@ -654,6 +657,7 @@ const weeklyStats = [
   { week: "Неделя 3", tasksCreated: 18, handsRaised: 12 },
   { week: "Неделя 4", tasksCreated: 14, handsRaised: 9 },
   { week: "Неделя 5", tasksCreated: 20, handsRaised: 15 },
+  { week: "Неделя 6", tasksCreated: 16, handsRaised: 11 },
 ];
 
 // Скорость отклика по блокам (в часах)
@@ -914,46 +918,49 @@ function renderHostTasks() {
     // Вкладка "Мои задачи" - задачи сотрудника
     const employeeTasks = tasks.filter((t) => t.authorId === currentEmployeeId);
 
-    if (employeeTasks.length === 0) {
-      myTasksContent.innerHTML = `
-              <div class="feed-placeholder">
-                <h2>Нет задач</h2>
-                <p>Вы ещё не создали ни одной задачи</p>
-              </div>
-            `;
-    } else {
-      employeeTasks.forEach((task) => {
-        const card = renderEmployeeTaskCard(task);
-        myTasksContent.appendChild(card);
-      });
+    if (myTasksContent) {
+      if (employeeTasks.length === 0) {
+        myTasksContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач</h2>
+                  <p>Вы ещё не создали ни одной задачи</p>
+                </div>
+              `;
+      } else {
+        employeeTasks.forEach((task) => {
+          const card = renderEmployeeTaskCard(task);
+          myTasksContent.appendChild(card);
+        });
+      }
     }
 
     // Вкладка "Задачи моих практикантов"
-    if (hostTasks.length === 0) {
-      internTasksContent.innerHTML = `
-              <div class="feed-placeholder">
-                <h2>Нет задач практикантов</h2>
-                <p>Вы ещё не поставили ни одной задачи</p>
-              </div>
-            `;
-    } else {
-      hostTasks.forEach((task) => {
-        const progress = calculateProgress(task);
-        const card = document.createElement("div");
-        card.className = "host-task-card";
-        card.setAttribute("data-task-id", task.id);
+    if (internTasksContent) {
+      if (hostTasks.length === 0) {
+        internTasksContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач практикантов</h2>
+                  <p>Вы ещё не поставили ни одной задачи</p>
+                </div>
+              `;
+      } else {
+        hostTasks.forEach((task) => {
+          const progress = calculateProgress(task);
+          const card = document.createElement("div");
+          card.className = "host-task-card";
+          card.setAttribute("data-task-id", task.id);
 
-        let checklistHTML = "";
-        task.checklist.forEach((item) => {
-          checklistHTML += `
+          let checklistHTML = "";
+          task.checklist.forEach((item) => {
+            checklistHTML += `
                   <div class="checklist-item">
                     <input type="checkbox" disabled ${item.checked ? "checked" : ""}>
                     <span class="checklist-text">${item.text}</span>
                   </div>
                 `;
-        });
+          });
 
-        card.innerHTML = `
+          card.innerHTML = `
                 <div class="task-header">
                   <h3 class="task-title">${task.title}</h3>
                   <span class="task-deadline">до ${formatDate(task.deadline)}</span>
@@ -986,8 +993,9 @@ function renderHostTasks() {
                 </div>
               `;
 
-        internTasksContent.appendChild(card);
-      });
+          internTasksContent.appendChild(card);
+        });
+      }
     }
   } else if (currentRole === "employee" || currentRole === "supervisor") {
     // Для сотрудника/руководителя показываем созданные ими задачи
@@ -3241,7 +3249,8 @@ let responseTimeChart = null;
 let avgRatingChart = null;
 let tasksAndHandsChart = null;
 let officeAttendanceChart = null;
-let blockGoalsChart = null;
+let blockActivityChart = null;
+let hostLoadChart = null;
 
 // Текущий выбранный практикант для аналитики
 let selectedInternId = 1;
@@ -3280,6 +3289,8 @@ function initAnalytics() {
     renderSupervisorAnalytics();
     // Инициализируем вкладки куратора
     initSupervisorTabs();
+    // Инициализируем фильтр по периоду
+    initPeriodFilter();
   } else {
     analyticsScreen.innerHTML = `
       <div class="feed-placeholder">
@@ -3330,6 +3341,29 @@ function initSupervisorTabs() {
       }
     });
   });
+}
+
+// Инициализация фильтра по периоду
+function initPeriodFilter() {
+  const periodSelect = document.getElementById("periodSelect");
+  if (!periodSelect) return;
+
+  periodSelect.addEventListener("change", function () {
+    const period = this.value;
+    updateAnalyticsForPeriod(period);
+  });
+}
+
+// Обновление аналитики в зависимости от выбранного периода
+function updateAnalyticsForPeriod(period) {
+  // В реальном приложении здесь был бы запрос к API с фильтром по периоду
+  // Для прототипа просто перерисовываем графики
+  renderSupervisorGeneralAnalytics();
+
+  // Можно добавить визуальную индикацию обновления
+  const periodText =
+    period === "30" ? "30 дней" : period === "90" ? "90 дней" : "всё время";
+  console.log(`Аналитика обновлена за период: ${periodText}`);
 }
 
 // Заполнение селектора практикантов
@@ -3826,10 +3860,10 @@ function renderSupervisorGeneralAnalytics() {
   renderResponseTimeChart();
   renderAvgRatingChart();
   renderTasksAndHandsChart();
-  renderBlockActivityTable();
+  renderBlockActivityChart();
   renderOfficeAttendanceChart();
-  renderBlockGoalsChart();
-  renderHostLoadTable();
+  renderBlockGoals();
+  renderHostLoadChart();
   renderCriticalNotifications();
 }
 
@@ -3848,9 +3882,10 @@ function renderResponseTimeChart() {
       labels: responseTimeByBlock.map((b) => b.block),
       datasets: [
         {
-          label: "Время отклика (часы)",
+          label: "Среднее время отклика (часы)",
           data: responseTimeByBlock.map((b) => b.avgResponseTime),
-          backgroundColor: "#FF9800",
+          backgroundColor: "#2196F3",
+          borderRadius: 4,
         },
       ],
     },
@@ -3861,10 +3896,41 @@ function renderResponseTimeChart() {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return context.parsed.y.toFixed(1) + " ч";
+            },
+          },
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 4,
+          formatter: function (value) {
+            return value.toFixed(1) + " ч";
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
       },
       scales: {
         y: {
+          display: false,
           beginAtZero: true,
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
         },
       },
     },
@@ -3886,9 +3952,10 @@ function renderAvgRatingChart() {
       labels: avgRatingByBlock.map((b) => b.block),
       datasets: [
         {
-          label: "Средняя оценка",
+          label: "Средняя оценка (1–5)",
           data: avgRatingByBlock.map((b) => b.avgRating),
           backgroundColor: "#4CAF50",
+          borderRadius: 4,
         },
       ],
     },
@@ -3899,11 +3966,42 @@ function renderAvgRatingChart() {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return context.parsed.y.toFixed(1);
+            },
+          },
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 4,
+          formatter: function (value) {
+            return value.toFixed(1);
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
       },
       scales: {
         y: {
+          display: false,
           min: 0,
           max: 5,
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
         },
       },
     },
@@ -3949,11 +4047,44 @@ function renderTasksAndHandsChart() {
         legend: {
           display: false,
         },
+        tooltip: {
+          mode: "index",
+          intersect: false,
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 8,
+          formatter: function (value) {
+            return value;
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
       },
       scales: {
         y: {
+          display: false,
           beginAtZero: true,
         },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
+        },
+      },
+      interaction: {
+        mode: "nearest",
+        axis: "x",
+        intersect: false,
       },
     },
   });
@@ -4008,70 +4139,19 @@ function renderOfficeAttendanceChart() {
   officeAttendanceChart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: days,
+      labels: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"],
       datasets: [
         {
           label: "До обеда",
           data: morningCounts,
-          backgroundColor: "#2196F3",
+          backgroundColor: "#64b5f6",
+          borderRadius: 4,
         },
         {
           label: "После обеда",
           data: afternoonCounts,
-          backgroundColor: "#FF9800",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: "top",
-          labels: {
-            usePointStyle: true,
-            boxWidth: 8,
-            padding: 15,
-          },
-        },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1,
-          },
-        },
-      },
-    },
-  });
-}
-
-// Рендеринг графика целей блоков
-function renderBlockGoalsChart() {
-  const ctx = document.getElementById("blockGoalsChart");
-  if (!ctx) return;
-
-  if (blockGoalsChart) {
-    blockGoalsChart.destroy();
-  }
-
-  blockGoalsChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: blockGoals.map((g) => `${g.block}: ${g.goal}`),
-      datasets: [
-        {
-          label: "Прогресс",
-          data: blockGoals.map((g) => g.progress),
-          backgroundColor: blockGoals.map((g) =>
-            g.progress >= 80
-              ? "#4CAF50"
-              : g.progress >= 50
-                ? "#FF9800"
-                : "#F44336",
-          ),
+          backgroundColor: "#1565c0",
+          borderRadius: 4,
         },
       ],
     },
@@ -4082,15 +4162,70 @@ function renderBlockGoalsChart() {
         legend: {
           display: false,
         },
+        tooltip: {
+          mode: "index",
+          intersect: false,
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 4,
+          formatter: function (value) {
+            return value;
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
       },
       scales: {
         y: {
-          min: 0,
-          max: 100,
+          display: false,
+          beginAtZero: true,
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
         },
       },
     },
   });
+}
+
+// Рендеринг прогресс-баров целей блоков
+function renderBlockGoals() {
+  const container = document.getElementById("blockGoalsContainer");
+  if (!container) return;
+
+  if (blockGoals.length === 0) {
+    container.innerHTML =
+      '<div class="no-data-message">Нет данных для отображения</div>';
+    return;
+  }
+
+  container.innerHTML = blockGoals
+    .map(
+      (goal) => `
+    <div class="goal-item">
+      <div class="goal-header">
+        <span class="goal-name">${goal.block}: ${goal.goal}</span>
+        <span class="goal-percentage">${goal.progress}%</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: ${goal.progress}%" data-percent="${goal.progress}%"></div>
+      </div>
+    </div>
+  `,
+    )
+    .join("");
 }
 
 // Рендеринг таблицы нагрузки на хостов
@@ -4112,22 +4247,208 @@ function renderHostLoadTable() {
     .join("");
 }
 
+// Рендеринг графика активности блоков
+function renderBlockActivityChart() {
+  const ctx = document.getElementById("blockActivityChart");
+  if (!ctx) return;
+
+  if (blockActivityChart) {
+    blockActivityChart.destroy();
+  }
+
+  blockActivityChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: blockActivity.map((b) => b.block),
+      datasets: [
+        {
+          label: "Создано задач",
+          data: blockActivity.map((b) => b.tasksCreated),
+          backgroundColor: "#2196F3",
+          borderRadius: 4,
+        },
+        {
+          label: "Закрыто задач",
+          data: blockActivity.map((b) => b.tasksClosed),
+          backgroundColor: "#4CAF50",
+          borderRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          mode: "index",
+          intersect: false,
+          callbacks: {
+            footer: function (tooltipItems) {
+              const index = tooltipItems[0].dataIndex;
+              const overdue = blockActivity[index].overduePercent;
+              return `Не выполнено в срок: ${overdue}%`;
+            },
+          },
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 4,
+          formatter: function (value) {
+            return value;
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
+      },
+      scales: {
+        y: {
+          display: false,
+          beginAtZero: true,
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг графика нагрузки на хостов
+function renderHostLoadChart() {
+  const ctx = document.getElementById("hostLoadChart");
+  if (!ctx) return;
+
+  if (hostLoadChart) {
+    hostLoadChart.destroy();
+  }
+
+  hostLoadChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: hostLoad.map((h) => h.hostName.split(" ")[0]),
+      datasets: [
+        {
+          label: "Активные задачи практикантов",
+          data: hostLoad.map((h) => h.activeTasks),
+          backgroundColor: "#FF9800",
+          borderRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const index = context.dataIndex;
+              const host = hostLoad[index];
+              return [
+                `Активные задачи: ${host.activeTasks}`,
+                `Средняя оценка: ${host.avgRating}`,
+              ];
+            },
+          },
+        },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 4,
+          formatter: function (value) {
+            return value;
+          },
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
+      },
+      scales: {
+        y: {
+          display: false,
+          beginAtZero: true,
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10,
+            },
+          },
+          grid: {
+            display: false,
+          },
+        },
+      },
+    },
+  });
+}
+
 // Рендеринг критических уведомлений
 function renderCriticalNotifications() {
   const container = document.getElementById("criticalNotificationsList");
   if (!container) return;
 
+  if (criticalNotifications.length === 0) {
+    container.innerHTML =
+      '<div class="no-data-message">Нет критических уведомлений</div>';
+    return;
+  }
+
   container.innerHTML = criticalNotifications
     .map(
       (notif) => `
       <div class="critical-notification ${notif.critical ? "critical" : "warning"}">
-        <div class="notification-title">${notif.title}</div>
-        <div class="notification-text">${notif.text}</div>
-        <div class="notification-date">${notif.date}</div>
+        <div class="notification-content">
+          <div class="notification-title">${notif.title}</div>
+          <div class="notification-text">${notif.text}</div>
+          <div class="notification-date">${formatDate(notif.date)}</div>
+        </div>
+        <div class="notification-action">
+          <button onclick="handleNotificationAction(${notif.id})">Перейти</button>
+        </div>
       </div>
     `,
     )
     .join("");
+}
+
+// Обработка нажатия на кнопку уведомления
+function handleNotificationAction(notificationId) {
+  const notif = criticalNotifications.find((n) => n.id === notificationId);
+  if (notif) {
+    alert(`Переход к уведомлению: ${notif.title}`);
+  }
+}
+
+// Форматирование даты
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // Вспомогательная функция для получения номера недели

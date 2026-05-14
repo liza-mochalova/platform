@@ -8,6 +8,7 @@
     <title>Шаг 1 - Базовая структура</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   </head>
   <body>
     <div class="app">
@@ -388,16 +389,26 @@
               id="general-analytics-content"
               class="tab-content"
               style="display: none">
-              <!-- Скорость отклика по блокам -->
+              <!-- Фильтр по периоду -->
+              <div class="period-filter">
+                <label for="periodSelect">Период:</label>
+                <select class="modal-select" id="periodSelect">
+                  <option value="30">Последние 30 дней</option>
+                  <option value="90">Последние 90 дней</option>
+                  <option value="all">Всё время</option>
+                </select>
+              </div>
+
+              <!-- 1. Скорость отклика по блокам -->
               <div class="analytics-card">
                 <h3 class="card-title">Скорость отклика по блокам</h3>
                 <div class="chart-container">
                   <canvas id="responseTimeChart"></canvas>
                 </div>
-                <div class="chart-legend">Среднее время отклика в часах</div>
+                <div class="chart-legend">Среднее время отклика (часы)</div>
               </div>
 
-              <!-- Средняя оценка по блокам -->
+              <!-- 2. Средняя оценка за выполнение задач по блокам -->
               <div class="analytics-card">
                 <h3 class="card-title">
                   Средняя оценка за выполнение задач по блокам
@@ -405,10 +416,10 @@
                 <div class="chart-container">
                   <canvas id="avgRatingChart"></canvas>
                 </div>
-                <div class="chart-legend">Оценка от 1 до 5</div>
+                <div class="chart-legend">Средняя оценка (1–5)</div>
               </div>
 
-              <!-- Количество задач и поднятых рук по неделям -->
+              <!-- 3. Количество задач и поднятых рук по неделям -->
               <div class="analytics-card">
                 <h3 class="card-title">
                   Количество задач и поднятых рук по неделям
@@ -417,72 +428,71 @@
                   <canvas id="tasksAndHandsChart"></canvas>
                 </div>
                 <div class="chart-legend">
-                  Синий - задачи, Оранжевый - поднятые руки
+                  <div class="legend-item">
+                    <div class="legend-icon legend-blue"></div>
+                    <span>Создано задач</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-icon legend-orange"></div>
+                    <span>Поднятые руки</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Активность блоков -->
+              <!-- 4. Активность блоков -->
               <div class="analytics-card">
                 <h3 class="card-title">Активность блоков</h3>
-                <div class="table-container">
-                  <table class="analytics-table" id="blockActivityTable">
-                    <thead>
-                      <tr>
-                        <th>Блок</th>
-                        <th>Создано задач</th>
-                        <th>Закрыто задач</th>
-                        <th>Получено откликов</th>
-                        <th>% не выполнено в срок</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- Данные будут рендериться динамически -->
-                    </tbody>
-                  </table>
+                <div class="chart-container">
+                  <canvas id="blockActivityChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item">
+                    <div class="legend-icon legend-blue"></div>
+                    <span>Создано задач</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-icon legend-green"></div>
+                    <span>Закрыто задач</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Практиканты в офисе -->
+              <!-- 5. Практиканты в офисе -->
               <div class="analytics-card">
                 <h3 class="card-title">Практиканты в офисе</h3>
                 <div class="chart-container">
                   <canvas id="officeAttendanceChart"></canvas>
                 </div>
                 <div class="chart-legend">
-                  Синий - до обеда, Оранжевый - после обеда
+                  <div class="legend-item">
+                    <div class="legend-icon legend-light-blue"></div>
+                    <span>До обеда</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-icon legend-dark-blue"></div>
+                    <span>После обеда</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Прогресс по целям блока -->
+              <!-- 6. Прогресс по целям блока -->
               <div class="analytics-card">
                 <h3 class="card-title">Прогресс по целям блока</h3>
-                <div class="chart-container">
-                  <canvas id="blockGoalsChart"></canvas>
+                <div id="blockGoalsContainer">
+                  <!-- Прогресс-бары будут рендериться динамически -->
                 </div>
-                <div class="chart-legend">Процент выполнения каждой цели</div>
               </div>
 
-              <!-- Нагрузка на хостов -->
+              <!-- 7. Нагрузка на хостов -->
               <div class="analytics-card">
                 <h3 class="card-title">Нагрузка на хостов</h3>
-                <div class="table-container">
-                  <table class="analytics-table" id="hostLoadTable">
-                    <thead>
-                      <tr>
-                        <th>Хост</th>
-                        <th>Блок</th>
-                        <th>Активных задач</th>
-                        <th>Средняя оценка</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- Данные будут рендериться динамически -->
-                    </tbody>
-                  </table>
+                <div class="chart-container">
+                  <canvas id="hostLoadChart"></canvas>
                 </div>
+                <div class="chart-legend">Активные задачи практикантов</div>
               </div>
 
-              <!-- Критические уведомления -->
+              <!-- 8. Критические уведомления -->
               <div class="analytics-card">
                 <h3 class="card-title">Критические уведомления</h3>
                 <div id="criticalNotificationsList">

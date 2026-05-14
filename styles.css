@@ -804,7 +804,6 @@ input[type="date"].modal-input {
   gap: 8px;
   padding: 16px;
   background: transparent;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .host-tab {
@@ -1329,7 +1328,7 @@ input[type="date"].modal-input {
 /* Контейнеры графиков */
 .chart-container {
   position: relative;
-  height: 250px;
+  height: 400px;
   width: 100%;
   margin-bottom: 12px;
 }
@@ -1364,6 +1363,192 @@ input[type="date"].modal-input {
 
 .legend-blue {
   background-color: #2196f3;
+}
+
+.legend-green {
+  background-color: #4caf50;
+}
+
+.legend-light-blue {
+  background-color: #64b5f6;
+}
+
+.legend-dark-blue {
+  background-color: #1565c0;
+}
+
+/* Фильтр по периоду */
+.period-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: white;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.period-filter label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.period-filter select {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fafafa;
+  cursor: pointer;
+  color: #333;
+}
+
+.period-filter select:focus {
+  outline: 2px solid #2cb5b4;
+  border-color: #2cb5b4;
+}
+
+/* Контейнер прогресс-баров целей */
+#blockGoalsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.goal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.goal-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.goal-percentage {
+  font-weight: 600;
+  color: #2196f3;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 24px;
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #2196f3;
+  border-radius: 12px;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  min-width: 40px;
+}
+
+.progress-bar-fill::after {
+  content: attr(data-percent);
+}
+
+/* Список критических уведомлений */
+#criticalNotificationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.critical-notification {
+  display: flex;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.critical-notification.critical {
+  border-left-color: #e74c3c;
+}
+
+.critical-notification.warning {
+  border-left-color: #ff9800;
+}
+
+.critical-notification:hover {
+  background-color: #f0f0f0;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.notification-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.notification-date {
+  font-size: 11px;
+  color: #999;
+}
+
+.notification-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+}
+
+.notification-action button {
+  padding: 8px 16px;
+  background-color: #2cb5b4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.notification-action button:hover {
+  background-color: #25a09f;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 32px;
+  color: #999;
+  font-size: 14px;
 }
 
 /* Сетка метрик */
