@@ -331,7 +331,7 @@ const hostTasks = [
       { id: 3, text: "Настроить рабочее окружение", checked: false },
       { id: 4, text: "Пройти вводный тренинг", checked: false },
     ],
-    deadline: "2025-05-20",
+    deadline: "2026-05-20",
     contribution: "Обучение",
     operational: false,
   },
@@ -349,9 +349,392 @@ const hostTasks = [
       { id: 4, text: "Финализировать и отправить", checked: false },
       { id: 5, text: "Подготовить презентацию", checked: false },
     ],
-    deadline: "2025-05-25",
+    deadline: "2026-05-25",
     contribution: "Документация",
     operational: true,
+  },
+  {
+    id: 3,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Разработка API для аналитики",
+    description: "Создать REST API для получения аналитических данных.",
+    checklist: [
+      { id: 1, text: "Спроектировать структуру API", checked: true },
+      { id: 2, text: "Реализовать эндпоинты", checked: true },
+      { id: 3, text: "Добавить документацию", checked: true },
+      { id: 4, text: "Написать тесты", checked: true },
+      { id: 5, text: "Провести нагрузочное тестирование", checked: true },
+    ],
+    deadline: "2026-05-15",
+    contribution: "Разработка",
+    operational: false,
+  },
+  {
+    id: 4,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Дизайн дашборда",
+    description: "Создать макеты для нового дашборда аналитики.",
+    checklist: [
+      { id: 1, text: "Исследование UI паттернов", checked: true },
+      { id: 2, text: "Создать wireframes", checked: true },
+      { id: 3, text: "Разработать визуальный стиль", checked: false },
+      { id: 4, text: "Создать прототип", checked: false },
+      { id: 5, text: "Провести юзабилити тест", checked: false },
+      { id: 6, text: "Финализировать дизайн", checked: false },
+    ],
+    deadline: "2026-05-30",
+    contribution: "Дизайн",
+    operational: false,
+  },
+  {
+    id: 5,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Оптимизация базы данных",
+    description: "Проанализировать и оптимизировать медленные запросы.",
+    checklist: [
+      { id: 1, text: "Найти медленные запросы", checked: true },
+      { id: 2, text: "Добавить индексы", checked: false },
+      { id: 3, text: "Оптимизировать JOIN операции", checked: false },
+      { id: 4, text: "Настроить кэширование", checked: false },
+    ],
+    deadline: "2026-05-18",
+    contribution: "Бэкенд",
+    operational: true,
+  },
+  {
+    id: 6,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Написание технической документации",
+    description: "Документировать новые модули системы.",
+    checklist: [
+      { id: 1, text: "Изучить существующую документацию", checked: true },
+      { id: 2, text: "Написать описание архитектуры", checked: false },
+      { id: 3, text: "Документировать API", checked: false },
+      { id: 4, text: "Создать гайд по установке", checked: false },
+      { id: 5, text: "Добавить примеры использования", checked: false },
+    ],
+    deadline: "2025-05-22",
+    contribution: "Документация",
+    operational: false,
+  },
+];
+
+// Массив активных задач из ленты
+const feedTasks = [
+  {
+    id: 201,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Анализ конкурентов",
+    description: "Провести анализ конкурентов в сфере финтех.",
+    checklist: [
+      { id: 1, text: "Собрать данные о конкурентах", checked: true },
+      { id: 2, text: "Проанализировать продукты", checked: true },
+      { id: 3, text: "Подготовить отчёт", checked: false },
+    ],
+    deadline: "2025-05-18",
+    contribution: "Аналитика",
+    operational: false,
+  },
+  {
+    id: 202,
+    internId: 1,
+    internName: "Иван Иванов",
+    title: "Тестирование мобильного приложения",
+    description: "Провести функциональное тестирование мобильного приложения.",
+    checklist: [
+      { id: 1, text: "Тестирование авторизации", checked: true },
+      { id: 2, text: "Тестирование платежей", checked: false },
+      { id: 3, text: "Тестирование уведомлений", checked: false },
+      { id: 4, text: "Подготовить баг-репорт", checked: false },
+    ],
+    deadline: "2025-05-22",
+    contribution: "QA",
+    operational: true,
+  },
+  {
+    id: 203,
+    internId: 2,
+    internName: "Мария Петрова",
+    title: "Написание статей для блога",
+    description: "Подготовить 3 статьи для корпоративного блога.",
+    checklist: [
+      { id: 1, text: "Выбрать темы", checked: true },
+      { id: 2, text: "Написать первую статью", checked: true },
+      { id: 3, text: "Написать вторую статью", checked: false },
+      { id: 4, text: "Написать третью статью", checked: false },
+    ],
+    deadline: "2025-05-25",
+    contribution: "Контент",
+    operational: false,
+  },
+];
+
+// Массив истории рейтингов по неделям для аналитики
+const ratingHistory = [
+  { internId: 1, week: "Неделя 1", rating: 4.2 },
+  { internId: 1, week: "Неделя 2", rating: 4.4 },
+  { internId: 1, week: "Неделя 3", rating: 4.5 },
+  { internId: 1, week: "Неделя 4", rating: 4.7 },
+  { internId: 1, week: "Неделя 5", rating: 4.8 },
+  { internId: 2, week: "Неделя 1", rating: 4.0 },
+  { internId: 2, week: "Неделя 2", rating: 4.1 },
+  { internId: 2, week: "Неделя 3", rating: 4.3 },
+  { internId: 2, week: "Неделя 4", rating: 4.4 },
+  { internId: 2, week: "Неделя 5", rating: 4.5 },
+  { internId: 3, week: "Неделя 1", rating: 4.3 },
+  { internId: 3, week: "Неделя 2", rating: 4.5 },
+  { internId: 3, week: "Неделя 3", rating: 4.6 },
+  { internId: 3, week: "Неделя 4", rating: 4.7 },
+  { internId: 3, week: "Неделя 5", rating: 4.9 },
+  { internId: 4, week: "Неделя 1", rating: 4.1 },
+  { internId: 4, week: "Неделя 2", rating: 4.2 },
+  { internId: 4, week: "Неделя 3", rating: 4.4 },
+  { internId: 4, week: "Неделя 4", rating: 4.5 },
+  { internId: 4, week: "Неделя 5", rating: 4.7 },
+];
+
+// Массив выполненных задач с типами (host - от хоста, feed - из ленты)
+const completedTasks = [
+  {
+    internId: 1,
+    taskId: 101,
+    title: "Анализ данных",
+    type: "host",
+    completedAt: "2025-05-01",
+    rating: 4.5,
+  },
+  {
+    internId: 1,
+    taskId: 102,
+    title: "Отчёт по проекту",
+    type: "feed",
+    completedAt: "2025-05-03",
+    rating: 4.8,
+  },
+  {
+    internId: 1,
+    taskId: 103,
+    title: "Тестирование API",
+    type: "host",
+    completedAt: "2025-05-05",
+    rating: 4.2,
+  },
+  {
+    internId: 1,
+    taskId: 104,
+    title: "Документация",
+    type: "feed",
+    completedAt: "2025-05-08",
+    rating: 4.6,
+  },
+  {
+    internId: 2,
+    taskId: 105,
+    title: "Разработка модуля",
+    type: "host",
+    completedAt: "2025-05-02",
+    rating: 4.3,
+  },
+  {
+    internId: 2,
+    taskId: 106,
+    title: "Баг-фикс",
+    type: "feed",
+    completedAt: "2025-05-04",
+    rating: 4.7,
+  },
+  {
+    internId: 2,
+    taskId: 107,
+    title: "Оптимизация",
+    type: "host",
+    completedAt: "2025-05-07",
+    rating: 4.5,
+  },
+  {
+    internId: 3,
+    taskId: 108,
+    title: "Дизайн интерфейса",
+    type: "host",
+    completedAt: "2025-05-01",
+    rating: 4.9,
+  },
+  {
+    internId: 3,
+    taskId: 109,
+    title: "Прототипирование",
+    type: "feed",
+    completedAt: "2025-05-03",
+    rating: 4.8,
+  },
+  {
+    internId: 3,
+    taskId: 110,
+    title: "Юзабилити тесты",
+    type: "host",
+    completedAt: "2025-05-06",
+    rating: 4.7,
+  },
+  {
+    internId: 4,
+    taskId: 111,
+    title: "ML модель",
+    type: "host",
+    completedAt: "2025-05-02",
+    rating: 4.6,
+  },
+  {
+    internId: 4,
+    taskId: 112,
+    title: "Предобработка данных",
+    type: "feed",
+    completedAt: "2025-05-05",
+    rating: 4.8,
+  },
+];
+
+// Массив отзывов о практикантах
+const reviews = [
+  {
+    internId: 1,
+    author: "Алексей Петров",
+    text: "Отличная работа, быстро справился с задачей",
+    rating: 5,
+    date: "2025-05-08",
+  },
+  {
+    internId: 1,
+    author: "Мария Иванова",
+    text: "Хорошее качество кода, но нужно улучшить документацию",
+    rating: 4,
+    date: "2025-05-05",
+  },
+  {
+    internId: 2,
+    author: "Дмитрий Сидоров",
+    text: "Профессиональный подход, рекомендую",
+    rating: 5,
+    date: "2025-05-07",
+  },
+  {
+    internId: 3,
+    author: "Елена Козлова",
+    text: "Творческий подход к дизайну",
+    rating: 5,
+    date: "2025-05-06",
+  },
+  {
+    internId: 4,
+    author: "Олег Иванов",
+    text: "Хороший анализ данных",
+    rating: 4,
+    date: "2025-05-05",
+  },
+];
+
+// Массив целей блоков
+const blockGoals = [
+  { block: "Аналитика", goal: "Улучшение процессов", progress: 75 },
+  { block: "Аналитика", goal: "Автоматизация отчётов", progress: 60 },
+  { block: "IT", goal: "Модернизация инфраструктуры", progress: 45 },
+  { block: "IT", goal: "Внедрение CI/CD", progress: 80 },
+  { block: "Маркетинг", goal: "Запуск кампании", progress: 30 },
+  { block: "Маркетинг", goal: "Увеличение конверсии", progress: 55 },
+];
+
+// Еженедельная статистика (задачи и поднятые руки)
+const weeklyStats = [
+  { week: "Неделя 1", tasksCreated: 12, handsRaised: 8 },
+  { week: "Неделя 2", tasksCreated: 15, handsRaised: 10 },
+  { week: "Неделя 3", tasksCreated: 18, handsRaised: 12 },
+  { week: "Неделя 4", tasksCreated: 14, handsRaised: 9 },
+  { week: "Неделя 5", tasksCreated: 20, handsRaised: 15 },
+];
+
+// Скорость отклика по блокам (в часах)
+const responseTimeByBlock = [
+  { block: "Аналитика", avgResponseTime: 1.5 },
+  { block: "IT", avgResponseTime: 2.2 },
+  { block: "Маркетинг", avgResponseTime: 1.8 },
+  { block: "Продукт", avgResponseTime: 2.5 },
+  { block: "Разработка", avgResponseTime: 1.2 },
+];
+
+// Средние оценки по блокам
+const avgRatingByBlock = [
+  { block: "Аналитика", avgRating: 4.6 },
+  { block: "IT", avgRating: 4.4 },
+  { block: "Маркетинг", avgRating: 4.7 },
+  { block: "Продукт", avgRating: 4.5 },
+  { block: "Разработка", avgRating: 4.8 },
+];
+
+// Активность блоков
+const blockActivity = [
+  {
+    block: "Аналитика",
+    tasksCreated: 45,
+    tasksClosed: 38,
+    responses: 42,
+    overduePercent: 8,
+  },
+  {
+    block: "IT",
+    tasksCreated: 52,
+    tasksClosed: 45,
+    responses: 48,
+    overduePercent: 12,
+  },
+  {
+    block: "Маркетинг",
+    tasksCreated: 38,
+    tasksClosed: 32,
+    responses: 35,
+    overduePercent: 5,
+  },
+  {
+    block: "Продукт",
+    tasksCreated: 41,
+    tasksClosed: 36,
+    responses: 39,
+    overduePercent: 10,
+  },
+  {
+    block: "Разработка",
+    tasksCreated: 58,
+    tasksClosed: 52,
+    responses: 55,
+    overduePercent: 7,
+  },
+];
+
+// Нагрузка на хостов
+const hostLoad = [
+  {
+    hostId: 102,
+    hostName: "Мария Иванова",
+    block: "Маркетинг",
+    activeTasks: 6,
+    avgRating: 4.7,
+  },
+  {
+    hostId: 104,
+    hostName: "Елена Козлова",
+    block: "Аналитика",
+    activeTasks: 8,
+    avgRating: 4.8,
+  },
+  {
+    hostId: 105,
+    hostName: "Олег Иванов",
+    block: "Маркетинг",
+    activeTasks: 4,
+    avgRating: 4.5,
   },
 ];
 
@@ -825,6 +1208,11 @@ function switchScreen(screenId) {
   const activeNav = document.querySelector(`.nav-item[data-nav="${screenId}"]`);
   if (activeNav) {
     activeNav.classList.add("active");
+  }
+
+  // Инициализируем аналитику при открытии экрана аналитики
+  if (screenId === "analytics-screen") {
+    initAnalytics();
   }
 }
 
@@ -1630,7 +2018,7 @@ function renderEmployeesList(filterText = "") {
     const roleLabels = {
       employee: "Сотрудник",
       host: "Хост",
-      supervisor: "Руководитель",
+      supervisor: "Куратор",
     };
 
     employeeItem.innerHTML = `
@@ -1678,7 +2066,7 @@ function showEmployeeProfile(employee) {
   const roleLabels = {
     employee: "Сотрудник",
     host: "Хост",
-    supervisor: "Руководитель",
+    supervisor: "Куратор",
   };
   employeePublicRole.textContent = roleLabels[employee.role];
 
@@ -2159,101 +2547,6 @@ createAndCompleteConfirm.addEventListener("click", function () {
   newCompleteContributionField.classList.remove("hidden");
 });
 
-// Функция для рендеринга критических уведомлений
-function renderCriticalNotifications(sortByDate = true) {
-  const notificationsList = document.getElementById(
-    "critical-notifications-list",
-  );
-  notificationsList.innerHTML = "";
-
-  let notifications = [...criticalNotifications];
-
-  if (sortByDate) {
-    notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  notifications.forEach((notification) => {
-    const card = document.createElement("div");
-    card.className = `notification-card ${notification.critical ? "critical" : ""}`;
-
-    const iconSvg = getNotificationIcon(notification.type);
-    const date = new Date(notification.date);
-    const formattedDate = date.toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    card.innerHTML = `
-            <div class="notification-header">
-              <svg class="notification-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                ${iconSvg}
-              </svg>
-              <span class="notification-title">${notification.title}</span>
-              <span class="notification-date">${formattedDate}</span>
-            </div>
-            <p class="notification-text">${notification.text}</p>
-            <div class="notification-action">
-              <button class="notification-btn" data-notification-id="${notification.id}">Перейти</button>
-            </div>
-          `;
-    notificationsList.appendChild(card);
-  });
-}
-
-// Делегирование событий для кнопок "Перейти" в критических уведомлениях
-const criticalNotificationsList = document.getElementById(
-  "critical-notifications-list",
-);
-if (criticalNotificationsList) {
-  criticalNotificationsList.addEventListener("click", function (e) {
-    const btn = e.target.closest(".notification-btn");
-    if (!btn) return;
-
-    const notificationId = btn.getAttribute("data-notification-id");
-    const notification = criticalNotifications.find(
-      (n) => n.id === parseInt(notificationId),
-    );
-    if (notification) {
-      alert(`Переход к: ${notification.title}`);
-    }
-  });
-}
-
-// Функция для получения иконки уведомления по типу
-function getNotificationIcon(type) {
-  const icons = {
-    "task-not-completed":
-      '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>',
-    "inactive-intern":
-      '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
-    "employee-violation":
-      '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>',
-    "low-response-rate":
-      '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>',
-    "intern-refusing":
-      '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>',
-    "host-overload":
-      '<rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>',
-    "goal-not-achieved":
-      '<circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path>',
-  };
-  return icons[type] || icons["task-not-completed"];
-}
-
-// Обработчик кнопки сортировки уведомлений
-let notificationsSortAscending = false;
-document
-  .getElementById("sortNotificationsBtn")
-  .addEventListener("click", function () {
-    notificationsSortAscending = !notificationsSortAscending;
-    this.textContent = notificationsSortAscending
-      ? "Сортировать по дате ↑"
-      : "Сортировать по дате ↓";
-    renderCriticalNotifications(notificationsSortAscending);
-  });
-
 // Обновлённый обработчик переключения роли для показа/скрытия меню Аналитика
 roleSelector.addEventListener("change", function () {
   const selectedOption = this.options[this.selectedIndex];
@@ -2266,27 +2559,39 @@ roleSelector.addEventListener("change", function () {
   const createTaskBtn = document.getElementById("createTaskBtn");
   const supervisorMenuItems = document.querySelectorAll(".supervisor-only");
   const hostMenuItems = document.querySelectorAll(".host-only");
+  const supervisorTabs = document.getElementById("supervisorTabs");
 
   if (currentRole === "employee") {
     raiseHandBtn.style.display = "none";
     createTaskBtn.style.display = "flex";
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "none"));
+    if (supervisorTabs) supervisorTabs.style.display = "none";
   } else if (currentRole === "host") {
     raiseHandBtn.style.display = "none";
     createTaskBtn.style.display = "flex";
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "flex"));
+    if (supervisorTabs) supervisorTabs.style.display = "none";
   } else if (currentRole === "supervisor") {
     raiseHandBtn.style.display = "none";
     createTaskBtn.style.display = "flex";
     supervisorMenuItems.forEach((item) => (item.style.display = "flex"));
-    hostMenuItems.forEach((item) => (item.style.display = "none"));
+    // Для куратора также показываем элементы хоста (включая аналитику)
+    hostMenuItems.forEach((item) => {
+      if (item.classList.contains("supervisor-only")) {
+        item.style.display = "flex";
+      } else {
+        item.style.display = "none";
+      }
+    });
+    if (supervisorTabs) supervisorTabs.style.display = "flex";
   } else {
     raiseHandBtn.style.display = "flex";
     createTaskBtn.style.display = "none";
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "none"));
+    if (supervisorTabs) supervisorTabs.style.display = "none";
   }
 
   // Обновляем название "Мои задачи" в зависимости от роли
@@ -2312,7 +2617,7 @@ roleSelector.addEventListener("change", function () {
   // Перерисовываем профиль
   renderProfile();
 
-  // Если руководитель, рендерим критические уведомления
+  // Если куратор, рендерим критические уведомления
   if (currentRole === "supervisor") {
     renderCriticalNotifications();
   } else {
@@ -2921,6 +3226,1324 @@ document
 
     alert("Профиль обновлён");
   });
+
+// ==================== АНАЛИТИКА ====================
+
+// Переменные для хранения графиков
+let ratingChart = null;
+let taskTypeChart = null;
+let weeklyTasksChart = null;
+
+// Переменные для хранения графиков куратора
+let supervisorTaskTypeChart = null;
+let supervisorWeeklyTasksChart = null;
+let responseTimeChart = null;
+let avgRatingChart = null;
+let tasksAndHandsChart = null;
+let officeAttendanceChart = null;
+let blockGoalsChart = null;
+
+// Текущий выбранный практикант для аналитики
+let selectedInternId = 1;
+
+// Инициализация аналитики
+function initAnalytics() {
+  const analyticsScreen = document.getElementById("analytics-screen");
+  if (!analyticsScreen) return;
+
+  // Показываем/скрываем секции в зависимости от роли
+  const hostAnalytics = document.getElementById("host-analytics");
+  const supervisorAnalytics = document.getElementById("supervisor-analytics");
+  const internSelector = document.getElementById("internSelector");
+  const supervisorInternSelector = document.getElementById(
+    "supervisorInternSelector",
+  );
+  const supervisorTabs = document.getElementById("supervisorTabs");
+
+  if (currentRole === "host") {
+    hostAnalytics.style.display = "block";
+    supervisorAnalytics.style.display = "none";
+    if (internSelector) internSelector.style.display = "block";
+    if (supervisorTabs) supervisorTabs.style.display = "none";
+    if (supervisorInternSelector)
+      supervisorInternSelector.style.display = "none";
+    populateInternSelector();
+    renderHostAnalytics();
+  } else if (currentRole === "supervisor") {
+    hostAnalytics.style.display = "none";
+    supervisorAnalytics.style.display = "block";
+    if (internSelector) internSelector.style.display = "none";
+    if (supervisorInternSelector)
+      supervisorInternSelector.style.display = "block";
+    if (supervisorTabs) supervisorTabs.style.display = "flex";
+    populateInternSelector();
+    renderSupervisorAnalytics();
+    // Инициализируем вкладки куратора
+    initSupervisorTabs();
+  } else {
+    analyticsScreen.innerHTML = `
+      <div class="feed-placeholder">
+        <h2>Доступ запрещён</h2>
+        <p>У вас нет прав для просмотра аналитики</p>
+      </div>
+    `;
+  }
+}
+
+// Инициализация вкладок куратора
+function initSupervisorTabs() {
+  const supervisorTabs = document.getElementById("supervisorTabs");
+  if (!supervisorTabs) return;
+
+  const tabs = supervisorTabs.querySelectorAll(".host-tab");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", function () {
+      // Убираем активный класс со всех вкладок
+      tabs.forEach((t) => t.classList.remove("active"));
+      // Добавляем активный класс на текущую вкладку
+      this.classList.add("active");
+
+      // Скрываем весь контент
+      document.getElementById("my-interns-content").style.display = "none";
+      document.getElementById("general-analytics-content").style.display =
+        "none";
+
+      // Показываем/скрываем селектор практика в зависимости от вкладки
+      const supervisorInternSelector = document.getElementById(
+        "supervisorInternSelector",
+      );
+      if (supervisorInternSelector) {
+        const tabName = this.getAttribute("data-tab");
+        supervisorInternSelector.style.display =
+          tabName === "my-interns" ? "block" : "none";
+      }
+
+      // Показываем нужный контент
+      const tabName = this.getAttribute("data-tab");
+      if (tabName === "my-interns") {
+        document.getElementById("my-interns-content").style.display = "block";
+        renderSupervisorInternAnalytics();
+      } else {
+        document.getElementById("general-analytics-content").style.display =
+          "block";
+        renderSupervisorGeneralAnalytics();
+      }
+    });
+  });
+}
+
+// Заполнение селектора практикантов
+function populateInternSelector() {
+  // Заполняем селектор для хоста
+  const hostSelector = document.getElementById("selectedIntern");
+  if (hostSelector) {
+    hostSelector.innerHTML = "";
+    allUsers.forEach((intern) => {
+      const option = document.createElement("option");
+      option.value = intern.id;
+      option.textContent = intern.name;
+      hostSelector.appendChild(option);
+    });
+
+    // Устанавливаем обработчик изменения для хоста
+    hostSelector.addEventListener("change", function () {
+      selectedInternId = parseInt(this.value);
+      if (currentRole === "host") {
+        renderHostAnalytics();
+      }
+    });
+  }
+
+  // Заполняем селектор для куратора
+  const supervisorSelector = document.getElementById(
+    "selectedSupervisorIntern",
+  );
+  if (supervisorSelector) {
+    supervisorSelector.innerHTML = "";
+    allUsers.forEach((intern) => {
+      const option = document.createElement("option");
+      option.value = intern.id;
+      option.textContent = intern.name;
+      supervisorSelector.appendChild(option);
+    });
+
+    // Устанавливаем обработчик изменения для куратора
+    supervisorSelector.addEventListener("change", function () {
+      selectedInternId = parseInt(this.value);
+      if (currentRole === "supervisor") {
+        // Обновляем аналитику для выбранного практики
+        renderSupervisorInternAnalytics();
+      }
+    });
+  }
+}
+
+// Рендеринг аналитики хоста
+function renderHostAnalytics() {
+  renderInternMetrics();
+  renderTaskTypeChart();
+  renderAnalyticsSchedule();
+  renderWeeklyTasksChart();
+  renderActiveTasksList();
+  renderRecentReviews();
+}
+
+// Рендеринг метрик выбранного практика
+function renderInternMetrics() {
+  const metricsCard = document.getElementById("internMetrics");
+  if (!metricsCard) return;
+
+  const intern = allUsers.find((u) => u.id === selectedInternId);
+  if (!intern) {
+    metricsCard.style.display = "none";
+    return;
+  }
+
+  metricsCard.style.display = "block";
+
+  const completedTasksCount = completedTasks.filter(
+    (t) => t.internId === intern.id,
+  ).length;
+
+  const avgRating =
+    completedTasks
+      .filter((t) => t.internId === intern.id)
+      .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
+
+  const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
+  const overallProgress =
+    activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
+      activeTasks.length || 0;
+
+  document.getElementById("metricRating").textContent =
+    intern.rating.toFixed(1);
+  document.getElementById("metricCompletedTasks").textContent =
+    completedTasksCount;
+  document.getElementById("metricAvgRating").textContent = avgRating.toFixed(1);
+  document.getElementById("metricProgress").textContent =
+    Math.round(overallProgress) + "%";
+}
+
+// Рендеринг списка практикантов
+function renderInternsTable() {
+  const container = document.getElementById("internsList");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  allUsers.forEach((intern) => {
+    const completedTasksCount = completedTasks.filter(
+      (t) => t.internId === intern.id,
+    ).length;
+    const avgRating =
+      completedTasks
+        .filter((t) => t.internId === intern.id)
+        .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
+    const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
+    const overallProgress =
+      activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
+        activeTasks.length || 0;
+
+    const item = document.createElement("div");
+    item.className = `intern-list-item ${selectedInternId === intern.id ? "active" : ""}`;
+    item.innerHTML = `
+      <div class="intern-item-header">
+        <span class="intern-item-name">${intern.name}</span>
+        <span class="intern-item-rating">${intern.rating}</span>
+      </div>
+      <div class="intern-item-details">
+        <span class="intern-item-block">${intern.block}</span>
+        <span class="intern-item-tasks">Выполнено: ${completedTasksCount}</span>
+        <span class="intern-item-avg">Оценка: ${avgRating.toFixed(1)}</span>
+      </div>
+      <div class="intern-item-progress">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: ${overallProgress}%"></div>
+        </div>
+        <span>${Math.round(overallProgress)}%</span>
+      </div>
+    `;
+
+    // Клик по элементу выбирает практика
+    item.addEventListener("click", () => {
+      selectedInternId = intern.id;
+      document.getElementById("selectedIntern").value = intern.id;
+      renderHostAnalytics();
+    });
+
+    container.appendChild(item);
+  });
+}
+
+// Рендеринг графика динамики рейтинга
+function renderRatingChart() {
+  const ctx = document.getElementById("ratingChart");
+  if (!ctx) return;
+
+  const internHistory = ratingHistory.filter(
+    (h) => h.internId === selectedInternId,
+  );
+
+  if (ratingChart) {
+    ratingChart.destroy();
+  }
+
+  ratingChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: internHistory.map((h) => h.week),
+      datasets: [
+        {
+          label: "Рейтинг",
+          data: internHistory.map((h) => h.rating),
+          borderColor: "#4CAF50",
+          backgroundColor: "rgba(76, 175, 80, 0.1)",
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 5,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг графика распределения задач по типу
+function renderTaskTypeChart() {
+  const ctx = document.getElementById("taskTypeChart");
+  if (!ctx) return;
+
+  const internTasks = completedTasks.filter(
+    (t) => t.internId === selectedInternId,
+  );
+  const hostTasks = internTasks.filter((t) => t.type === "host").length;
+  const feedTasks = internTasks.filter((t) => t.type === "feed").length;
+
+  if (taskTypeChart) {
+    taskTypeChart.destroy();
+  }
+
+  taskTypeChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["От хоста", "Из ленты"],
+      datasets: [
+        {
+          data: [hostTasks, feedTasks],
+          backgroundColor: ["#2196F3", "#FF9800"],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг расписания в аналитике
+function renderAnalyticsSchedule() {
+  const container = document.getElementById("analyticsSchedule");
+  if (!container) return;
+
+  const intern = allUsers.find((u) => u.id === selectedInternId);
+  if (!intern) return;
+
+  container.innerHTML = `
+    <table class="schedule-table">
+      ${intern.schedule
+        .map(
+          (day) => `
+        <tr>
+          <th>${day.day}</th>
+          <td><span class="schedule-status ${day.status}">${getScheduleStatusText(day.status)}</span></td>
+        </tr>
+      `,
+        )
+        .join("")}
+    </table>
+  `;
+}
+
+// Рендеринг графика закрытых задач по неделям
+function renderWeeklyTasksChart() {
+  const ctx = document.getElementById("weeklyTasksChart");
+  if (!ctx) return;
+
+  const internTasks = completedTasks.filter(
+    (t) => t.internId === selectedInternId,
+  );
+
+  // Группируем по неделям
+  const weeklyData = {};
+  internTasks.forEach((task) => {
+    const week = getWeekNumber(task.completedAt);
+    weeklyData[week] = (weeklyData[week] || 0) + 1;
+  });
+
+  const weeks = Object.keys(weeklyData).sort();
+  const counts = weeks.map((w) => weeklyData[w]);
+
+  if (weeklyTasksChart) {
+    weeklyTasksChart.destroy();
+  }
+
+  weeklyTasksChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: weeks.map((w) => `Неделя ${w}`),
+      datasets: [
+        {
+          label: "Закрыто задач",
+          data: counts,
+          borderColor: "#2196F3",
+          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг списка активных задач
+function renderActiveTasksList() {
+  const container = document.getElementById("activeTasksList");
+  if (!container) return;
+
+  const activeTasks = hostTasks.filter((t) => t.internId === selectedInternId);
+
+  if (activeTasks.length === 0) {
+    container.innerHTML = "<p>Нет активных задач</p>";
+    return;
+  }
+
+  // Get current sort type from active button
+  const sortButtons = document.querySelectorAll("#taskSortButtons .sort-btn");
+  let sortType = "deadline";
+  sortButtons.forEach((btn) => {
+    if (btn.classList.contains("active")) {
+      sortType = btn.dataset.sort;
+    }
+  });
+
+  // Sort tasks
+  const sortedTasks = sortTasks(activeTasks, sortType);
+
+  container.innerHTML = sortedTasks
+    .map((task) => {
+      const progress = calculateProgress(task);
+      const progressColorClass = getProgressColorClass(progress);
+      const deadlineInfo = getDeadlineInfo(task.deadline);
+      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
+      const completedCount = task.checklist.filter(
+        (item) => item.checked,
+      ).length;
+      const totalCount = task.checklist.length;
+
+      return `
+        <div class="task-progress-card" data-task-id="${task.id}">
+          <div class="task-status-badge ${statusBadge.class}">${statusBadge.text}</div>
+          <div class="task-card-header">
+            <div class="task-card-title">${task.title}</div>
+            <div class="task-card-percent">${progress}%</div>
+          </div>
+          <div class="task-deadline-info">
+            <div class="deadline-indicator ${deadlineInfo.indicatorClass}"></div>
+            <span>${deadlineInfo.text}</span>
+          </div>
+          <div class="task-progress-bar">
+            <div class="task-progress-fill ${progressColorClass}" style="width: ${progress}%"></div>
+          </div>
+          <div class="task-footer-info">${completedCount} из ${totalCount} пунктов выполнено</div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+// Сортировка задач
+function sortTasks(tasks, sortType) {
+  const sorted = [...tasks];
+  switch (sortType) {
+    case "deadline":
+      return sorted.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    case "progress":
+      return sorted.sort((a, b) => calculateProgress(b) - calculateProgress(a));
+    case "name":
+      return sorted.sort((a, b) => a.title.localeCompare(b.title, "ru"));
+    default:
+      return sorted;
+  }
+}
+
+// Получение класса цвета для прогресса
+function getProgressColorClass(progress) {
+  if (progress === 100) return "complete";
+  if (progress >= 70) return "high";
+  if (progress >= 30) return "medium";
+  return "low";
+}
+
+// Получение информации о дедлайне
+function getDeadlineInfo(deadline) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadlineDate = new Date(deadline);
+  deadlineDate.setHours(0, 0, 0, 0);
+
+  const diffTime = deadlineDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return {
+      status: "overdue",
+      indicatorClass: "overdue",
+      text: `Просрочена (${formatDate(deadline)})`,
+    };
+  } else if (diffDays === 0) {
+    return {
+      status: "today",
+      indicatorClass: "today",
+      text: "Дедлайн сегодня",
+    };
+  } else if (diffDays === 1) {
+    return {
+      status: "tomorrow",
+      indicatorClass: "tomorrow",
+      text: "Завтра",
+    };
+  } else if (diffDays <= 5) {
+    return {
+      status: "soon",
+      indicatorClass: "soon",
+      text: `Скоро дедлайн (${formatDate(deadline)})`,
+    };
+  } else {
+    return {
+      status: "normal",
+      indicatorClass: "normal",
+      text: `В норме (${formatDate(deadline)})`,
+    };
+  }
+}
+
+// Получение бейджа статуса задачи
+function getStatusBadge(progress, deadlineStatus) {
+  if (progress === 100) {
+    return { class: "ready", text: "[Готово]" };
+  }
+  if (deadlineStatus === "overdue") {
+    return { class: "overdue", text: "[Просрочено]" };
+  }
+  if (deadlineStatus === "today" || deadlineStatus === "tomorrow") {
+    return { class: "urgent", text: "[Срочно]" };
+  }
+  return { class: "in-progress", text: "[В работе]" };
+}
+
+// Рендеринг последних отзывов
+function renderRecentReviews() {
+  const container = document.getElementById("recentReviews");
+  if (!container) return;
+
+  const internReviews = reviews.filter((r) => r.internId === selectedInternId);
+
+  if (internReviews.length === 0) {
+    container.innerHTML = "<p>Нет отзывов</p>";
+    return;
+  }
+
+  container.innerHTML = internReviews
+    .map(
+      (review) => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-author">${review.author}</span>
+          <span class="review-rating">${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}</span>
+        </div>
+        <div class="review-text">${review.text}</div>
+        <div class="review-date">${review.date}</div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+// Рендеринг аналитики куратора
+function renderSupervisorAnalytics() {
+  // По умолчанию показываем вкладку "Мои практиканты"
+  renderSupervisorInternAnalytics();
+}
+
+// Рендеринг аналитики для вкладки "Мои практиканты"
+function renderSupervisorInternAnalytics() {
+  renderSupervisorInternMetrics();
+  renderSupervisorTaskTypeChart();
+  renderSupervisorAnalyticsSchedule();
+  renderSupervisorWeeklyTasksChart();
+  renderSupervisorActiveTasksList();
+  renderSupervisorRecentReviews();
+}
+
+// Рендеринг аналитики для вкладки "Общая аналитика"
+function renderSupervisorGeneralAnalytics() {
+  renderResponseTimeChart();
+  renderAvgRatingChart();
+  renderTasksAndHandsChart();
+  renderBlockActivityTable();
+  renderOfficeAttendanceChart();
+  renderBlockGoalsChart();
+  renderHostLoadTable();
+  renderCriticalNotifications();
+}
+
+// Рендеринг графика скорости отклика по блокам
+function renderResponseTimeChart() {
+  const ctx = document.getElementById("responseTimeChart");
+  if (!ctx) return;
+
+  if (responseTimeChart) {
+    responseTimeChart.destroy();
+  }
+
+  responseTimeChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: responseTimeByBlock.map((b) => b.block),
+      datasets: [
+        {
+          label: "Время отклика (часы)",
+          data: responseTimeByBlock.map((b) => b.avgResponseTime),
+          backgroundColor: "#FF9800",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг графика средней оценки по блокам
+function renderAvgRatingChart() {
+  const ctx = document.getElementById("avgRatingChart");
+  if (!ctx) return;
+
+  if (avgRatingChart) {
+    avgRatingChart.destroy();
+  }
+
+  avgRatingChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: avgRatingByBlock.map((b) => b.block),
+      datasets: [
+        {
+          label: "Средняя оценка",
+          data: avgRatingByBlock.map((b) => b.avgRating),
+          backgroundColor: "#4CAF50",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 5,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг графика задач и поднятых рук по неделям
+function renderTasksAndHandsChart() {
+  const ctx = document.getElementById("tasksAndHandsChart");
+  if (!ctx) return;
+
+  if (tasksAndHandsChart) {
+    tasksAndHandsChart.destroy();
+  }
+
+  tasksAndHandsChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: weeklyStats.map((s) => s.week),
+      datasets: [
+        {
+          label: "Создано задач",
+          data: weeklyStats.map((s) => s.tasksCreated),
+          borderColor: "#2196F3",
+          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: "Поднято рук",
+          data: weeklyStats.map((s) => s.handsRaised),
+          borderColor: "#FF9800",
+          backgroundColor: "rgba(255, 152, 0, 0.1)",
+          tension: 0.3,
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг таблицы активности блоков
+function renderBlockActivityTable() {
+  const tbody = document.querySelector("#blockActivityTable tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = blockActivity
+    .map(
+      (block) => `
+      <tr>
+        <td>${block.block}</td>
+        <td>${block.tasksCreated}</td>
+        <td>${block.tasksClosed}</td>
+        <td>${block.responses}</td>
+        <td>${block.overduePercent}%</td>
+      </tr>
+    `,
+    )
+    .join("");
+}
+
+// Рендеринг графика посещаемости офиса
+function renderOfficeAttendanceChart() {
+  const ctx = document.getElementById("officeAttendanceChart");
+  if (!ctx) return;
+
+  const days = ["Пн", "Вт", "Ср", "Чт", "Пт"];
+  const morningCounts = [0, 0, 0, 0, 0];
+  const afternoonCounts = [0, 0, 0, 0, 0];
+
+  allUsers.forEach((user) => {
+    user.schedule.forEach((day) => {
+      const dayIndex = days.indexOf(day.day);
+      if (dayIndex === -1) return;
+
+      if (day.status === "morning") {
+        morningCounts[dayIndex]++;
+      } else if (day.status === "afternoon") {
+        afternoonCounts[dayIndex]++;
+      }
+    });
+  });
+
+  if (officeAttendanceChart) {
+    officeAttendanceChart.destroy();
+  }
+
+  officeAttendanceChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: "До обеда",
+          data: morningCounts,
+          backgroundColor: "#2196F3",
+        },
+        {
+          label: "После обеда",
+          data: afternoonCounts,
+          backgroundColor: "#FF9800",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          labels: {
+            usePointStyle: true,
+            boxWidth: 8,
+            padding: 15,
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг графика целей блоков
+function renderBlockGoalsChart() {
+  const ctx = document.getElementById("blockGoalsChart");
+  if (!ctx) return;
+
+  if (blockGoalsChart) {
+    blockGoalsChart.destroy();
+  }
+
+  blockGoalsChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: blockGoals.map((g) => `${g.block}: ${g.goal}`),
+      datasets: [
+        {
+          label: "Прогресс",
+          data: blockGoals.map((g) => g.progress),
+          backgroundColor: blockGoals.map((g) =>
+            g.progress >= 80
+              ? "#4CAF50"
+              : g.progress >= 50
+                ? "#FF9800"
+                : "#F44336",
+          ),
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          min: 0,
+          max: 100,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг таблицы нагрузки на хостов
+function renderHostLoadTable() {
+  const tbody = document.querySelector("#hostLoadTable tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = hostLoad
+    .map(
+      (host) => `
+      <tr>
+        <td>${host.hostName}</td>
+        <td>${host.block}</td>
+        <td>${host.activeTasks}</td>
+        <td>${host.avgRating}</td>
+      </tr>
+    `,
+    )
+    .join("");
+}
+
+// Рендеринг критических уведомлений
+function renderCriticalNotifications() {
+  const container = document.getElementById("criticalNotificationsList");
+  if (!container) return;
+
+  container.innerHTML = criticalNotifications
+    .map(
+      (notif) => `
+      <div class="critical-notification ${notif.critical ? "critical" : "warning"}">
+        <div class="notification-title">${notif.title}</div>
+        <div class="notification-text">${notif.text}</div>
+        <div class="notification-date">${notif.date}</div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+// Вспомогательная функция для получения номера недели
+function getWeekNumber(dateString) {
+  const date = new Date(dateString);
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+
+// Рендеринг метрик выбранного практика для куратора
+function renderSupervisorInternMetrics() {
+  const metricsCard = document.getElementById("supervisorInternMetrics");
+  if (!metricsCard) return;
+
+  const intern = allUsers.find((u) => u.id === selectedInternId);
+  if (!intern) {
+    metricsCard.style.display = "none";
+    return;
+  }
+
+  metricsCard.style.display = "block";
+
+  const completedTasksCount = completedTasks.filter(
+    (t) => t.internId === intern.id,
+  ).length;
+
+  const avgRating =
+    completedTasks
+      .filter((t) => t.internId === intern.id)
+      .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
+
+  const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
+  const overallProgress =
+    activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
+      activeTasks.length || 0;
+
+  document.getElementById("supervisorMetricRating").textContent =
+    intern.rating.toFixed(1);
+  document.getElementById("supervisorMetricCompletedTasks").textContent =
+    completedTasksCount;
+  document.getElementById("supervisorMetricAvgRating").textContent =
+    avgRating.toFixed(1);
+  document.getElementById("supervisorMetricProgress").textContent =
+    Math.round(overallProgress) + "%";
+}
+
+// Рендеринг графика распределения задач по типу для куратора
+function renderSupervisorTaskTypeChart() {
+  const ctx = document.getElementById("supervisorTaskTypeChart");
+  if (!ctx) return;
+
+  const internTasks = completedTasks.filter(
+    (t) => t.internId === selectedInternId,
+  );
+  const hostTasksCount = internTasks.filter((t) => t.type === "host").length;
+  const feedTasksCount = internTasks.filter((t) => t.type === "feed").length;
+
+  if (supervisorTaskTypeChart) {
+    supervisorTaskTypeChart.destroy();
+  }
+
+  supervisorTaskTypeChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["От хоста", "Из ленты"],
+      datasets: [
+        {
+          data: [hostTasksCount, feedTasksCount],
+          backgroundColor: ["#2196F3", "#FF9800"],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг расписания для куратора
+function renderSupervisorAnalyticsSchedule() {
+  const container = document.getElementById("supervisorAnalyticsSchedule");
+  if (!container) return;
+
+  const intern = allUsers.find((u) => u.id === selectedInternId);
+  if (!intern) return;
+
+  container.innerHTML = `
+    <table class="schedule-table">
+      ${intern.schedule
+        .map(
+          (day) => `
+        <tr>
+          <th>${day.day}</th>
+          <td><span class="schedule-status ${day.status}">${getScheduleStatusText(day.status)}</span></td>
+        </tr>
+      `,
+        )
+        .join("")}
+    </table>
+  `;
+}
+
+// Рендеринг графика закрытых задач по неделям для куратора
+function renderSupervisorWeeklyTasksChart() {
+  const ctx = document.getElementById("supervisorWeeklyTasksChart");
+  if (!ctx) return;
+
+  const internTasks = completedTasks.filter(
+    (t) => t.internId === selectedInternId,
+  );
+
+  // Группируем по неделям
+  const weeklyData = {};
+  internTasks.forEach((task) => {
+    const week = getWeekNumber(task.completedAt);
+    weeklyData[week] = (weeklyData[week] || 0) + 1;
+  });
+
+  const weeks = Object.keys(weeklyData).sort();
+  const counts = weeks.map((w) => weeklyData[w]);
+
+  if (supervisorWeeklyTasksChart) {
+    supervisorWeeklyTasksChart.destroy();
+  }
+
+  supervisorWeeklyTasksChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: weeks.map((w) => `Неделя ${w}`),
+      datasets: [
+        {
+          label: "Закрыто задач",
+          data: counts,
+          borderColor: "#2196F3",
+          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+          },
+        },
+      },
+    },
+  });
+}
+
+// Рендеринг списка активных задач для куратора
+function renderSupervisorActiveTasksList() {
+  const container = document.getElementById("supervisorActiveTasksList");
+  if (!container) return;
+
+  const internActiveTasks = hostTasks.filter(
+    (t) => t.internId === selectedInternId,
+  );
+
+  if (internActiveTasks.length === 0) {
+    container.innerHTML = "<p>Нет активных задач</p>";
+    return;
+  }
+
+  // Get current sort type from active button
+  const sortButtons = document.querySelectorAll(
+    "#supervisorTaskSortButtons .sort-btn",
+  );
+  let sortType = "deadline";
+  sortButtons.forEach((btn) => {
+    if (btn.classList.contains("active")) {
+      sortType = btn.dataset.sort;
+    }
+  });
+
+  // Sort tasks
+  const sortedTasks = sortTasks(internActiveTasks, sortType);
+
+  container.innerHTML = sortedTasks
+    .map((task) => {
+      const progress = calculateProgress(task);
+      const progressColorClass = getProgressColorClass(progress);
+      const deadlineInfo = getDeadlineInfo(task.deadline);
+      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
+      const completedCount = task.checklist.filter(
+        (item) => item.checked,
+      ).length;
+      const totalCount = task.checklist.length;
+
+      return `
+        <div class="task-progress-card" data-task-id="${task.id}">
+          <div class="task-status-badge ${statusBadge.class}">${statusBadge.text}</div>
+          <div class="task-card-header">
+            <div class="task-card-title">${task.title}</div>
+            <div class="task-card-percent">${progress}%</div>
+          </div>
+          <div class="task-deadline-info">
+            <div class="deadline-indicator ${deadlineInfo.indicatorClass}"></div>
+            <span>${deadlineInfo.text}</span>
+          </div>
+          <div class="task-progress-bar">
+            <div class="task-progress-fill ${progressColorClass}" style="width: ${progress}%"></div>
+          </div>
+          <div class="task-footer-info">${completedCount} из ${totalCount} пунктов выполнено</div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+// Рендеринг последних отзывов для куратора
+function renderSupervisorRecentReviews() {
+  const container = document.getElementById("supervisorRecentReviews");
+  if (!container) return;
+
+  const internReviews = reviews.filter((r) => r.internId === selectedInternId);
+
+  if (internReviews.length === 0) {
+    container.innerHTML = "<p>Нет отзывов</p>";
+    return;
+  }
+
+  container.innerHTML = internReviews
+    .map(
+      (review) => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-author">${review.author}</span>
+          <span class="review-rating">${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}</span>
+        </div>
+        <div class="review-text">${review.text}</div>
+        <div class="review-date">${review.date}</div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+// Вспомогательная функция для получения текста статуса расписания
+function getScheduleStatusText(status) {
+  switch (status) {
+    case "morning":
+      return "до обеда";
+    case "afternoon":
+      return "после обеда";
+    case "out":
+      return "не в офисе";
+    default:
+      return status;
+  }
+}
+
+// ----- Event Listeners for Task Progress Chart -----
+
+// Sort buttons for host analytics
+const taskSortButtons = document.getElementById("taskSortButtons");
+if (taskSortButtons) {
+  taskSortButtons.addEventListener("click", function (e) {
+    const sortBtn = e.target.closest(".sort-btn");
+    if (!sortBtn) return;
+
+    // Update active state
+    taskSortButtons.querySelectorAll(".sort-btn").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    sortBtn.classList.add("active");
+
+    // Re-render tasks with new sort
+    renderActiveTasksList();
+  });
+}
+
+// Sort buttons for supervisor analytics
+const supervisorTaskSortButtons = document.getElementById(
+  "supervisorTaskSortButtons",
+);
+if (supervisorTaskSortButtons) {
+  supervisorTaskSortButtons.addEventListener("click", function (e) {
+    const sortBtn = e.target.closest(".sort-btn");
+    if (!sortBtn) return;
+
+    // Update active state
+    supervisorTaskSortButtons.querySelectorAll(".sort-btn").forEach((btn) => {
+      btn.classList.remove("active");
+    });
+    sortBtn.classList.add("active");
+
+    // Re-render tasks with new sort
+    renderSupervisorActiveTasksList();
+  });
+}
+
+// Task card clicks to open checklist modal (host)
+const activeTasksList = document.getElementById("activeTasksList");
+if (activeTasksList) {
+  activeTasksList.addEventListener("click", function (e) {
+    const taskCard = e.target.closest(".task-progress-card");
+    if (!taskCard) return;
+
+    const taskId = parseInt(taskCard.dataset.taskId);
+    openTaskChecklistModal(taskId);
+  });
+}
+
+// Task card clicks to open checklist modal (supervisor)
+const supervisorActiveTasksList = document.getElementById(
+  "supervisorActiveTasksList",
+);
+if (supervisorActiveTasksList) {
+  supervisorActiveTasksList.addEventListener("click", function (e) {
+    const taskCard = e.target.closest(".task-progress-card");
+    if (!taskCard) return;
+
+    const taskId = parseInt(taskCard.dataset.taskId);
+    openTaskChecklistModal(taskId);
+  });
+}
+
+// Close checklist modal
+const taskChecklistClose = document.getElementById("taskChecklistClose");
+if (taskChecklistClose) {
+  taskChecklistClose.addEventListener("click", function () {
+    const taskChecklistModal = document.getElementById("taskChecklistModal");
+    if (taskChecklistModal) {
+      taskChecklistModal.classList.remove("active");
+    }
+  });
+}
+
+// Close checklist modal on overlay click
+const taskChecklistModal = document.getElementById("taskChecklistModal");
+if (taskChecklistModal) {
+  taskChecklistModal.addEventListener("click", function (e) {
+    if (e.target === taskChecklistModal) {
+      taskChecklistModal.classList.remove("active");
+    }
+  });
+}
+
+// Checklist item checkboxes
+const taskChecklistItems = document.getElementById("taskChecklistItems");
+if (taskChecklistItems) {
+  taskChecklistItems.addEventListener("change", function (e) {
+    if (e.target.type === "checkbox") {
+      const checkbox = e.target;
+      const taskId = parseInt(checkbox.dataset.taskId);
+      const itemId = parseInt(checkbox.dataset.itemId);
+
+      // Update task in hostTasks array
+      const task = hostTasks.find((t) => t.id === taskId);
+      if (task) {
+        const checklistItem = task.checklist.find((item) => item.id === itemId);
+        if (checklistItem) {
+          checklistItem.checked = checkbox.checked;
+
+          // Update the text styling
+          const textElement = checkbox.nextElementSibling;
+          if (textElement) {
+            textElement.classList.toggle("checked", checkbox.checked);
+          }
+
+          // Re-render the task lists to update progress bars
+          renderActiveTasksList();
+          renderSupervisorActiveTasksList();
+        }
+      }
+    }
+  });
+}
+
+// Function to open task checklist modal
+function openTaskChecklistModal(taskId) {
+  const task = hostTasks.find((t) => t.id === taskId);
+  if (!task) return;
+
+  const modal = document.getElementById("taskChecklistModal");
+  const title = document.getElementById("taskChecklistTitle");
+  const itemsContainer = document.getElementById("taskChecklistItems");
+
+  if (!modal || !title || !itemsContainer) return;
+
+  title.textContent = task.title;
+
+  itemsContainer.innerHTML = task.checklist
+    .map(
+      (item) => `
+    <label class="checklist-item">
+      <input type="checkbox"
+             data-task-id="${task.id}"
+             data-item-id="${item.id}"
+             ${item.checked ? "checked" : ""}>
+      <span class="checklist-item-text ${item.checked ? "checked" : ""}">${item.text}</span>
+    </label>
+  `,
+    )
+    .join("");
+
+  modal.classList.add("active");
+}
 
 // Инициализация - рендерим задачи при загрузке
 renderTasks();

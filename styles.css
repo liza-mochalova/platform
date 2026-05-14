@@ -803,7 +803,7 @@ input[type="date"].modal-input {
   display: flex;
   gap: 8px;
   padding: 16px;
-  background: white;
+  background: transparent;
   border-bottom: 1px solid #e0e0e0;
 }
 
@@ -827,6 +827,59 @@ input[type="date"].modal-input {
 .host-tab.active {
   background: #2cb5b4;
   color: white;
+}
+
+/* Контейнер для селектора и метрик в одной рамке */
+.analytics-metrics-container {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Стили для селектора практикантов внутри контейнера */
+.analytics-metrics-container .intern-selector {
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0 0 16px 0;
+  margin-bottom: 16px;
+  box-shadow: none;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.analytics-metrics-container .intern-selector:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.intern-selector label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.intern-selector .modal-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+/* Стили для карточек метрик внутри контейнера */
+.analytics-metrics-container .analytics-card.metrics-cards {
+  background-color: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  box-shadow: none;
 }
 
 .tab-content {
@@ -1246,4 +1299,646 @@ input[type="date"].modal-input {
   text-align: center;
   color: #999;
   font-size: 14px;
+}
+
+/* ==================== АНАЛИТИКА ==================== */
+
+.screen-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Карточки аналитики */
+.analytics-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+/* Контейнеры графиков */
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.chart-legend {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-orange {
+  background-color: #ff9800;
+}
+
+.legend-blue {
+  background-color: #2196f3;
+}
+
+/* Сетка метрик */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.metric-item {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Таблицы аналитики */
+.table-container {
+  overflow-x: auto;
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.analytics-table thead {
+  background-color: #f5f5f5;
+}
+
+.analytics-table th {
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.analytics-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+}
+
+.analytics-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.analytics-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.analytics-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Расписание */
+.schedule-container {
+  overflow-x: auto;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.schedule-table th,
+.schedule-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.schedule-table th {
+  font-weight: 600;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.schedule-table td {
+  color: #666;
+}
+
+/* Активные задачи */
+.active-task-item {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.task-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.task-progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.task-progress .progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  margin-right: 12px;
+  overflow: hidden;
+}
+
+.task-progress .progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.task-progress span {
+  font-size: 12px;
+  color: #666;
+  min-width: 40px;
+}
+
+.task-deadline {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Отзывы */
+.review-item {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.review-author {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.review-rating {
+  font-size: 14px;
+  color: #ffc107;
+}
+
+.review-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.review-date {
+  font-size: 11px;
+  color: #999;
+}
+
+/* Критические уведомления */
+.critical-notification {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 4px solid;
+}
+
+.critical-notification.critical {
+  background-color: #fef2f2;
+  border-color: #e74c3c;
+}
+
+.critical-notification.warning {
+  background-color: #fff8e6;
+  border-color: #f5a623;
+}
+
+.notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.notification-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.notification-date {
+  font-size: 11px;
+  color: #999;
+}
+
+/* Секция аналитики */
+.analytics-section {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Список практикантов */
+.interns-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.intern-list-item {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.intern-list-item:hover {
+  background-color: #f9f9f9;
+  border-color: #2cb5b4;
+}
+
+.intern-list-item.active {
+  background-color: #f0f9f9;
+  border-color: #2cb5b4;
+  box-shadow: 0 2px 8px rgba(44, 181, 180, 0.15);
+}
+
+.intern-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.intern-item-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.intern-item-rating {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4caf50;
+}
+
+.intern-item-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.intern-item-block {
+  font-size: 13px;
+  color: #666;
+  background-color: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.intern-item-tasks,
+.intern-item-avg {
+  font-size: 13px;
+  color: #666;
+}
+
+.intern-item-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intern-item-progress .progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.intern-item-progress .progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.intern-item-progress span {
+  font-size: 12px;
+  color: #666;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* ----- Task Progress Chart Styles ----- */
+
+/* Sort buttons */
+.task-sort-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sort-btn {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sort-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #d0d0d0;
+}
+
+.sort-btn.active {
+  background-color: #2cb5b4;
+  color: white;
+  border-color: #2cb5b4;
+}
+
+/* Task progress card */
+.task-progress-card {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-progress-card:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.task-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.task-card-percent {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  font-family: "Courier New", monospace;
+  flex-shrink: 0;
+}
+
+/* Task status badge */
+.task-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.task-status-badge.ready {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.task-status-badge.in-progress {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.task-status-badge.urgent {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+.task-status-badge.overdue {
+  background-color: #fecaca;
+  color: #dc2626;
+}
+
+/* Task deadline info */
+.task-deadline-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.deadline-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.deadline-indicator.normal {
+  background-color: #10b981;
+}
+
+.deadline-indicator.soon {
+  background-color: #f59e0b;
+}
+
+.deadline-indicator.tomorrow {
+  background-color: #f97316;
+}
+
+.deadline-indicator.today {
+  background-color: #ef4444;
+}
+
+.deadline-indicator.overdue {
+  background-color: #ef4444;
+  position: relative;
+}
+
+.deadline-indicator.overdue::after {
+  content: "!";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 6px;
+  font-weight: bold;
+}
+
+/* Progress bar */
+.task-progress-bar {
+  height: 10px;
+  background-color: #e8e8e8;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.task-progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.task-progress-fill.low {
+  background-color: #ef4444;
+}
+
+.task-progress-fill.medium {
+  background-color: #f59e0b;
+}
+
+.task-progress-fill.high {
+  background-color: #10b981;
+}
+
+.task-progress-fill.complete {
+  background-color: #3b82f6;
+}
+
+/* Task footer info */
+.task-footer-info {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Checklist modal items */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.checklist-item:last-child {
+  border-bottom: none;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checklist-item-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.checklist-item-text.checked {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* Responsive styles */
+@media (max-width: 480px) {
+  .task-card-header {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .task-card-percent {
+    align-self: flex-start;
+  }
+
+  .task-sort-buttons {
+    gap: 6px;
+  }
+
+  .sort-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
 }

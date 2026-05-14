@@ -7,6 +7,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Шаг 1 - Базовая структура</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   </head>
   <body>
     <div class="app">
@@ -50,7 +51,7 @@
           <option value="intern">Практикант</option>
           <option value="employee">Сотрудник</option>
           <option value="host">Хост</option>
-          <option value="supervisor">Руководитель практики</option>
+          <option value="supervisor">Куратор практики</option>
         </select>
         <div class="notification-icon" id="notifBtn">
           <svg
@@ -144,6 +145,350 @@
           <div id="employees-content" class="tab-content" style="display: none">
             <div id="employees-list">
               <!-- Список сотрудников будет рендериться здесь -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Экран аналитики -->
+        <div id="analytics-screen" class="screen">
+          <h2 class="screen-title">Аналитика</h2>
+
+          <!-- Вкладки для куратора -->
+          <div class="host-tabs" id="supervisorTabs" style="display: none">
+            <button class="host-tab active" data-tab="my-interns">
+              Мои практиканты
+            </button>
+            <button class="host-tab" data-tab="general-analytics">
+              Общая аналитика
+            </button>
+          </div>
+
+          <!-- Секция аналитики хоста -->
+          <div id="host-analytics" class="analytics-section">
+            <!-- Контейнер с селектором и метриками -->
+            <div class="analytics-metrics-container">
+              <!-- Переключатель между практикантами (для хоста) -->
+              <div class="intern-selector" id="internSelector">
+                <label for="selectedIntern">Выберите практиканта:</label>
+                <select class="modal-select" id="selectedIntern">
+                  <!-- Опции будут рендериться динамически -->
+                </select>
+              </div>
+
+              <!-- Метрики выбранного практика -->
+              <div
+                class="analytics-card metrics-cards"
+                id="internMetrics"
+                style="display: none">
+                <div class="metrics-grid">
+                  <div class="metric-item">
+                    <div class="metric-label">Рейтинг</div>
+                    <div class="metric-value" id="metricRating">-</div>
+                  </div>
+                  <div class="metric-item">
+                    <div class="metric-label">Выполнено задач</div>
+                    <div class="metric-value" id="metricCompletedTasks">-</div>
+                  </div>
+                  <div class="metric-item">
+                    <div class="metric-label">Средняя оценка</div>
+                    <div class="metric-value" id="metricAvgRating">-</div>
+                  </div>
+                  <div class="metric-item">
+                    <div class="metric-label">Прогресс по текущим задачам</div>
+                    <div class="metric-value" id="metricProgress">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Активные задачи -->
+            <div class="analytics-card">
+              <h3 class="card-title">Активные задачи</h3>
+              <!-- Кнопки сортировки -->
+              <div class="task-sort-buttons" id="taskSortButtons">
+                <button class="sort-btn active" data-sort="deadline">
+                  По дедлайну
+                </button>
+                <button class="sort-btn" data-sort="progress">
+                  По прогрессу
+                </button>
+                <button class="sort-btn" data-sort="name">По названию</button>
+              </div>
+              <div id="activeTasksList">
+                <!-- Задачи будут рендериться динамически -->
+              </div>
+            </div>
+
+            <!-- Распределение задач по типу -->
+            <div class="analytics-card">
+              <h3 class="card-title">
+                Распределение выполненных задач по типу
+              </h3>
+              <div class="chart-container">
+                <canvas id="taskTypeChart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-icon legend-orange"></div>
+                  <span>из ленты</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-icon legend-blue"></div>
+                  <span>от хоста</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Расписание практиканта -->
+            <div class="analytics-card">
+              <h3 class="card-title">Расписание практиканта</h3>
+              <div class="schedule-container" id="analyticsSchedule">
+                <!-- Расписание будет рендериться динамически -->
+              </div>
+            </div>
+
+            <!-- Количество закрытых задач по неделям -->
+            <div class="analytics-card">
+              <h3 class="card-title">Количество закрытых задач по неделям</h3>
+              <div class="chart-container">
+                <canvas id="weeklyTasksChart"></canvas>
+              </div>
+              <div class="chart-legend">Задачи, закрытые каждую неделю</div>
+            </div>
+
+            <!-- Последние отзывы -->
+            <div class="analytics-card">
+              <h3 class="card-title">Последние отзывы</h3>
+              <div id="recentReviews">
+                <!-- Отзывы будут рендериться динамически -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Секция аналитики куратора -->
+          <div
+            id="supervisor-analytics"
+            class="analytics-section"
+            style="display: none">
+            <!-- Контент для вкладки "Мои практиканты" -->
+            <div id="my-interns-content" class="tab-content">
+              <!-- Контейнер с селектором и метриками -->
+              <div class="analytics-metrics-container">
+                <!-- Переключатель между практикантами (для куратора) -->
+                <div class="intern-selector" id="supervisorInternSelector">
+                  <label for="selectedSupervisorIntern"
+                    >Выберите практиканта:</label
+                  >
+                  <select class="modal-select" id="selectedSupervisorIntern">
+                    <!-- Опции будут рендериться динамически -->
+                  </select>
+                </div>
+
+                <!-- Метрики выбранного практика -->
+                <div
+                  class="analytics-card metrics-cards"
+                  id="supervisorInternMetrics"
+                  style="display: none">
+                  <div class="metrics-grid">
+                    <div class="metric-item">
+                      <div class="metric-label">Рейтинг</div>
+                      <div class="metric-value" id="supervisorMetricRating">
+                        -
+                      </div>
+                    </div>
+                    <div class="metric-item">
+                      <div class="metric-label">Выполнено задач</div>
+                      <div
+                        class="metric-value"
+                        id="supervisorMetricCompletedTasks">
+                        -
+                      </div>
+                    </div>
+                    <div class="metric-item">
+                      <div class="metric-label">Средняя оценка</div>
+                      <div class="metric-value" id="supervisorMetricAvgRating">
+                        -
+                      </div>
+                    </div>
+                    <div class="metric-item">
+                      <div class="metric-label">
+                        Прогресс по текущим задачам
+                      </div>
+                      <div class="metric-value" id="supervisorMetricProgress">
+                        -
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="analytics-card">
+                <h3 class="card-title">Активные задачи</h3>
+                <!-- Кнопки сортировки -->
+                <div class="task-sort-buttons" id="supervisorTaskSortButtons">
+                  <button class="sort-btn active" data-sort="deadline">
+                    По дедлайну
+                  </button>
+                  <button class="sort-btn" data-sort="progress">
+                    По прогрессу
+                  </button>
+                  <button class="sort-btn" data-sort="name">По названию</button>
+                </div>
+                <div id="supervisorActiveTasksList">
+                  <!-- Задачи будут рендериться динамически -->
+                </div>
+              </div>
+
+              <div class="analytics-card">
+                <h3 class="card-title">
+                  Распределение выполненных задач по типу
+                </h3>
+                <div class="chart-container">
+                  <canvas id="supervisorTaskTypeChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  <div class="legend-item">
+                    <div class="legend-icon legend-orange"></div>
+                    <span>из ленты</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-icon legend-blue"></div>
+                    <span>от хоста</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="analytics-card">
+                <h3 class="card-title">Расписание практиканта</h3>
+                <div
+                  class="schedule-container"
+                  id="supervisorAnalyticsSchedule">
+                  <!-- Расписание будет рендериться динамически -->
+                </div>
+              </div>
+
+              <div class="analytics-card">
+                <h3 class="card-title">Количество закрытых задач по неделям</h3>
+                <div class="chart-container">
+                  <canvas id="supervisorWeeklyTasksChart"></canvas>
+                </div>
+                <div class="chart-legend">Задачи, закрытые каждую неделю</div>
+              </div>
+
+              <div class="analytics-card">
+                <h3 class="card-title">Последние отзывы</h3>
+                <div id="supervisorRecentReviews">
+                  <!-- Отзывы будут рендериться динамически -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Контент для вкладки "Общая аналитика" -->
+            <div
+              id="general-analytics-content"
+              class="tab-content"
+              style="display: none">
+              <!-- Скорость отклика по блокам -->
+              <div class="analytics-card">
+                <h3 class="card-title">Скорость отклика по блокам</h3>
+                <div class="chart-container">
+                  <canvas id="responseTimeChart"></canvas>
+                </div>
+                <div class="chart-legend">Среднее время отклика в часах</div>
+              </div>
+
+              <!-- Средняя оценка по блокам -->
+              <div class="analytics-card">
+                <h3 class="card-title">
+                  Средняя оценка за выполнение задач по блокам
+                </h3>
+                <div class="chart-container">
+                  <canvas id="avgRatingChart"></canvas>
+                </div>
+                <div class="chart-legend">Оценка от 1 до 5</div>
+              </div>
+
+              <!-- Количество задач и поднятых рук по неделям -->
+              <div class="analytics-card">
+                <h3 class="card-title">
+                  Количество задач и поднятых рук по неделям
+                </h3>
+                <div class="chart-container">
+                  <canvas id="tasksAndHandsChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  Синий - задачи, Оранжевый - поднятые руки
+                </div>
+              </div>
+
+              <!-- Активность блоков -->
+              <div class="analytics-card">
+                <h3 class="card-title">Активность блоков</h3>
+                <div class="table-container">
+                  <table class="analytics-table" id="blockActivityTable">
+                    <thead>
+                      <tr>
+                        <th>Блок</th>
+                        <th>Создано задач</th>
+                        <th>Закрыто задач</th>
+                        <th>Получено откликов</th>
+                        <th>% не выполнено в срок</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Данные будут рендериться динамически -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Практиканты в офисе -->
+              <div class="analytics-card">
+                <h3 class="card-title">Практиканты в офисе</h3>
+                <div class="chart-container">
+                  <canvas id="officeAttendanceChart"></canvas>
+                </div>
+                <div class="chart-legend">
+                  Синий - до обеда, Оранжевый - после обеда
+                </div>
+              </div>
+
+              <!-- Прогресс по целям блока -->
+              <div class="analytics-card">
+                <h3 class="card-title">Прогресс по целям блока</h3>
+                <div class="chart-container">
+                  <canvas id="blockGoalsChart"></canvas>
+                </div>
+                <div class="chart-legend">Процент выполнения каждой цели</div>
+              </div>
+
+              <!-- Нагрузка на хостов -->
+              <div class="analytics-card">
+                <h3 class="card-title">Нагрузка на хостов</h3>
+                <div class="table-container">
+                  <table class="analytics-table" id="hostLoadTable">
+                    <thead>
+                      <tr>
+                        <th>Хост</th>
+                        <th>Блок</th>
+                        <th>Активных задач</th>
+                        <th>Средняя оценка</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Данные будут рендериться динамически -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Критические уведомления -->
+              <div class="analytics-card">
+                <h3 class="card-title">Критические уведомления</h3>
+                <div id="criticalNotificationsList">
+                  <!-- Уведомления будут рендериться динамически -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -658,390 +1003,6 @@
             <div class="profile-section-title">Активные приглашения</div>
             <div id="active-invitations-list">
               <!-- Список приглашённых практикантов будет рендериться здесь -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Экран аналитики (для руководителя) -->
-        <div id="analytics-screen" class="screen">
-          <h2 class="screen-title">Аналитика</h2>
-
-          <!-- Графики-заглушки -->
-          <div class="profile-container" style="margin-bottom: 16px">
-            <div class="profile-section">
-              <div class="profile-section-title">
-                Скорость отклика по блокам
-              </div>
-              <div
-                style="
-                  background: #f9f9f9;
-                  padding: 20px;
-                  border-radius: 8px;
-                  text-align: center;
-                  color: #999;
-                ">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="200"
-                  height="120"
-                  viewBox="0 0 200 120">
-                  <rect
-                    x="20"
-                    y="60"
-                    width="25"
-                    height="50"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <rect
-                    x="55"
-                    y="30"
-                    width="25"
-                    height="80"
-                    fill="#92c143"
-                    rx="2" />
-                  <rect
-                    x="90"
-                    y="45"
-                    width="25"
-                    height="65"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <rect
-                    x="125"
-                    y="20"
-                    width="25"
-                    height="90"
-                    fill="#92c143"
-                    rx="2" />
-                  <rect
-                    x="160"
-                    y="50"
-                    width="25"
-                    height="60"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <text
-                    x="32"
-                    y="120"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Аналитика
-                  </text>
-                  <text
-                    x="67"
-                    y="120"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Маркетинг
-                  </text>
-                  <text
-                    x="102"
-                    y="120"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    IT
-                  </text>
-                  <text
-                    x="137"
-                    y="120"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Разработка
-                  </text>
-                  <text
-                    x="172"
-                    y="120"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Продукт
-                  </text>
-                </svg>
-                <p style="font-size: 12px; margin-top: 8px">
-                  Среднее время отклика (часы)
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-container" style="margin-bottom: 16px">
-            <div class="profile-section">
-              <div class="profile-section-title">
-                Задачи и поднятые руки по неделям
-              </div>
-              <div
-                style="
-                  background: #f9f9f9;
-                  padding: 20px;
-                  border-radius: 8px;
-                  text-align: center;
-                  color: #999;
-                ">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="280"
-                  height="120"
-                  viewBox="0 0 280 120">
-                  <line
-                    x1="30"
-                    y1="100"
-                    x2="270"
-                    y2="100"
-                    stroke="#ddd"
-                    stroke-width="1" />
-                  <line
-                    x1="30"
-                    y1="20"
-                    x2="30"
-                    y2="100"
-                    stroke="#ddd"
-                    stroke-width="1" />
-                  <polyline
-                    points="30,80 80,60 130,70 180,40 230,50 270,30"
-                    fill="none"
-                    stroke="#2cb5b4"
-                    stroke-width="2" />
-                  <circle cx="30" cy="80" r="4" fill="#2cb5b4" />
-                  <circle cx="80" cy="60" r="4" fill="#2cb5b4" />
-                  <circle cx="130" cy="70" r="4" fill="#2cb5b4" />
-                  <circle cx="180" cy="40" r="4" fill="#2cb5b4" />
-                  <circle cx="230" cy="50" r="4" fill="#2cb5b4" />
-                  <circle cx="270" cy="30" r="4" fill="#2cb5b4" />
-                  <text
-                    x="30"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.1
-                  </text>
-                  <text
-                    x="80"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.2
-                  </text>
-                  <text
-                    x="130"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.3
-                  </text>
-                  <text
-                    x="180"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.4
-                  </text>
-                  <text
-                    x="230"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.5
-                  </text>
-                  <text
-                    x="270"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Нед.6
-                  </text>
-                  <text x="20" y="25" font-size="8" fill="#2cb5b4">Задачи</text>
-                  <polyline
-                    points="30,90 80,75 130,85 180,65 230,70 270,55"
-                    fill="none"
-                    stroke="#92c143"
-                    stroke-width="2" />
-                  <circle cx="30" cy="90" r="4" fill="#92c143" />
-                  <circle cx="80" cy="75" r="4" fill="#92c143" />
-                  <circle cx="130" cy="85" r="4" fill="#92c143" />
-                  <circle cx="180" cy="65" r="4" fill="#92c143" />
-                  <circle cx="230" cy="70" r="4" fill="#92c143" />
-                  <circle cx="270" cy="55" r="4" fill="#92c143" />
-                  <text x="20" y="35" font-size="8" fill="#92c143">Руки</text>
-                </svg>
-                <p style="font-size: 12px; margin-top: 8px">
-                  Количество задач и поднятых рук
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-container" style="margin-bottom: 16px">
-            <div class="profile-section">
-              <div class="profile-section-title">Практиканты в офисе</div>
-              <div
-                style="
-                  background: #f9f9f9;
-                  padding: 20px;
-                  border-radius: 8px;
-                  text-align: center;
-                  color: #999;
-                ">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="280"
-                  height="120"
-                  viewBox="0 0 280 120">
-                  <line
-                    x1="30"
-                    y1="100"
-                    x2="270"
-                    y2="100"
-                    stroke="#ddd"
-                    stroke-width="1" />
-                  <line
-                    x1="30"
-                    y1="20"
-                    x2="30"
-                    y2="100"
-                    stroke="#ddd"
-                    stroke-width="1" />
-                  <rect
-                    x="35"
-                    y="40"
-                    width="30"
-                    height="55"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <rect
-                    x="75"
-                    y="30"
-                    width="30"
-                    height="65"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <rect
-                    x="115"
-                    y="50"
-                    width="30"
-                    height="45"
-                    fill="#92c143"
-                    rx="2" />
-                  <rect
-                    x="155"
-                    y="35"
-                    width="30"
-                    height="60"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <rect
-                    x="195"
-                    y="45"
-                    width="30"
-                    height="50"
-                    fill="#92c143"
-                    rx="2" />
-                  <rect
-                    x="235"
-                    y="55"
-                    width="30"
-                    height="40"
-                    fill="#2cb5b4"
-                    rx="2" />
-                  <text
-                    x="50"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Пн
-                  </text>
-                  <text
-                    x="90"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Вт
-                  </text>
-                  <text
-                    x="130"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Ср
-                  </text>
-                  <text
-                    x="170"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Чт
-                  </text>
-                  <text
-                    x="210"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Пт
-                  </text>
-                  <text
-                    x="250"
-                    y="115"
-                    font-size="8"
-                    fill="#666"
-                    text-anchor="middle">
-                    Сб
-                  </text>
-                  <text x="20" y="25" font-size="8" fill="#2cb5b4">
-                    До обеда
-                  </text>
-                  <text x="20" y="35" font-size="8" fill="#92c143">
-                    После обеда
-                  </text>
-                </svg>
-                <p style="font-size: 12px; margin-top: 8px">
-                  Количество практикантов по дням недели
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Критические уведомления -->
-          <div class="profile-container">
-            <div class="profile-section">
-              <div
-                class="profile-section-title"
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                ">
-                Критические уведомления
-                <button
-                  id="sortNotificationsBtn"
-                  style="
-                    background: none;
-                    border: 1px solid #e0e0e0;
-                    padding: 4px 12px;
-                    border-radius: 6px;
-                    font-size: 11px;
-                    color: #666;
-                    cursor: pointer;
-                  ">
-                  Сортировать по дате ↓
-                </button>
-              </div>
-              <div id="critical-notifications-list">
-                <!-- Уведомления будут рендериться здесь -->
-              </div>
             </div>
           </div>
         </div>
@@ -1572,6 +1533,24 @@
           </button>
           <button class="modal-btn primary" id="hostTaskConfirm">
             Создать задачу
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно "Чек-лист задачи" -->
+    <div class="modal-overlay" id="taskChecklistModal">
+      <div class="modal">
+        <h3 class="modal-title" id="taskChecklistTitle">Задача</h3>
+        <div class="modal-field">
+          <label class="modal-label">Чек-лист</label>
+          <div id="taskChecklistItems">
+            <!-- Пункты чек-листа будут рендериться динамически -->
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="modal-btn primary" id="taskChecklistClose">
+            Закрыть
           </button>
         </div>
       </div>
