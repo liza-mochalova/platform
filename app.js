@@ -508,7 +508,7 @@ const completedTasks = [
     taskId: 101,
     title: "Анализ данных",
     type: "host",
-    completedAt: "2025-05-01",
+    completedAt: "2025-04-01",
     rating: 4.5,
   },
   {
@@ -516,7 +516,7 @@ const completedTasks = [
     taskId: 102,
     title: "Отчёт по проекту",
     type: "feed",
-    completedAt: "2025-05-03",
+    completedAt: "2025-04-03",
     rating: 4.8,
   },
   {
@@ -524,7 +524,7 @@ const completedTasks = [
     taskId: 103,
     title: "Тестирование API",
     type: "host",
-    completedAt: "2025-05-05",
+    completedAt: "2025-04-08",
     rating: 4.2,
   },
   {
@@ -532,12 +532,140 @@ const completedTasks = [
     taskId: 104,
     title: "Документация",
     type: "feed",
+    completedAt: "2025-04-10",
+    rating: 4.6,
+  },
+  {
+    internId: 1,
+    taskId: 105,
+    title: "Анализ требований",
+    type: "host",
+    completedAt: "2025-04-15",
+    rating: 4.4,
+  },
+  {
+    internId: 1,
+    taskId: 106,
+    title: "Отчёт по аналитике",
+    type: "feed",
+    completedAt: "2025-04-18",
+    rating: 4.7,
+  },
+  {
+    internId: 1,
+    taskId: 107,
+    title: "Тестирование UI",
+    type: "host",
+    completedAt: "2025-04-22",
+    rating: 4.3,
+  },
+  {
+    internId: 1,
+    taskId: 108,
+    title: "Документация API",
+    type: "feed",
+    completedAt: "2025-04-25",
+    rating: 4.5,
+  },
+  {
+    internId: 1,
+    taskId: 109,
+    title: "Анализ данных",
+    type: "host",
+    completedAt: "2025-05-01",
+    rating: 4.5,
+  },
+  {
+    internId: 1,
+    taskId: 110,
+    title: "Отчёт по проекту",
+    type: "feed",
+    completedAt: "2025-05-03",
+    rating: 4.8,
+  },
+  {
+    internId: 1,
+    taskId: 111,
+    title: "Тестирование API",
+    type: "host",
+    completedAt: "2025-05-05",
+    rating: 4.2,
+  },
+  {
+    internId: 1,
+    taskId: 112,
+    title: "Документация",
+    type: "feed",
     completedAt: "2025-05-08",
     rating: 4.6,
   },
   {
+    internId: 1,
+    taskId: 113,
+    title: "Анализ требований",
+    type: "host",
+    completedAt: "2025-05-12",
+    rating: 4.4,
+  },
+  {
+    internId: 1,
+    taskId: 114,
+    title: "Отчёт по аналитике",
+    type: "feed",
+    completedAt: "2025-05-15",
+    rating: 4.7,
+  },
+  {
     internId: 2,
-    taskId: 105,
+    taskId: 115,
+    title: "Разработка модуля",
+    type: "host",
+    completedAt: "2025-04-02",
+    rating: 4.3,
+  },
+  {
+    internId: 2,
+    taskId: 116,
+    title: "Баг-фикс",
+    type: "feed",
+    completedAt: "2025-04-04",
+    rating: 4.7,
+  },
+  {
+    internId: 2,
+    taskId: 117,
+    title: "Оптимизация",
+    type: "host",
+    completedAt: "2025-04-07",
+    rating: 4.5,
+  },
+  {
+    internId: 2,
+    taskId: 118,
+    title: "Разработка фичи",
+    type: "feed",
+    completedAt: "2025-04-12",
+    rating: 4.6,
+  },
+  {
+    internId: 2,
+    taskId: 119,
+    title: "Баг-фикс",
+    type: "host",
+    completedAt: "2025-04-16",
+    rating: 4.4,
+  },
+  {
+    internId: 2,
+    taskId: 120,
+    title: "Оптимизация",
+    type: "feed",
+    completedAt: "2025-04-20",
+    rating: 4.8,
+  },
+  {
+    internId: 2,
+    taskId: 121,
     title: "Разработка модуля",
     type: "host",
     completedAt: "2025-05-02",
@@ -545,7 +673,7 @@ const completedTasks = [
   },
   {
     internId: 2,
-    taskId: 106,
+    taskId: 122,
     title: "Баг-фикс",
     type: "feed",
     completedAt: "2025-05-04",
@@ -553,15 +681,71 @@ const completedTasks = [
   },
   {
     internId: 2,
-    taskId: 107,
+    taskId: 123,
     title: "Оптимизация",
     type: "host",
     completedAt: "2025-05-07",
     rating: 4.5,
   },
   {
+    internId: 2,
+    taskId: 124,
+    title: "Разработка фичи",
+    type: "feed",
+    completedAt: "2025-05-11",
+    rating: 4.6,
+  },
+  {
     internId: 3,
-    taskId: 108,
+    taskId: 125,
+    title: "Дизайн интерфейса",
+    type: "host",
+    completedAt: "2025-04-01",
+    rating: 4.9,
+  },
+  {
+    internId: 3,
+    taskId: 126,
+    title: "Прототипирование",
+    type: "feed",
+    completedAt: "2025-04-03",
+    rating: 4.8,
+  },
+  {
+    internId: 3,
+    taskId: 127,
+    title: "Юзабилити тесты",
+    type: "host",
+    completedAt: "2025-04-06",
+    rating: 4.7,
+  },
+  {
+    internId: 3,
+    taskId: 128,
+    title: "Дизайн компонентов",
+    type: "feed",
+    completedAt: "2025-04-10",
+    rating: 4.9,
+  },
+  {
+    internId: 3,
+    taskId: 129,
+    title: "Прототипирование",
+    type: "host",
+    completedAt: "2025-04-14",
+    rating: 4.8,
+  },
+  {
+    internId: 3,
+    taskId: 130,
+    title: "Юзабилити тесты",
+    type: "feed",
+    completedAt: "2025-04-18",
+    rating: 4.7,
+  },
+  {
+    internId: 3,
+    taskId: 131,
     title: "Дизайн интерфейса",
     type: "host",
     completedAt: "2025-05-01",
@@ -569,7 +753,7 @@ const completedTasks = [
   },
   {
     internId: 3,
-    taskId: 109,
+    taskId: 132,
     title: "Прототипирование",
     type: "feed",
     completedAt: "2025-05-03",
@@ -577,15 +761,71 @@ const completedTasks = [
   },
   {
     internId: 3,
-    taskId: 110,
+    taskId: 133,
     title: "Юзабилити тесты",
     type: "host",
     completedAt: "2025-05-06",
     rating: 4.7,
   },
   {
+    internId: 3,
+    taskId: 134,
+    title: "Дизайн компонентов",
+    type: "feed",
+    completedAt: "2025-05-10",
+    rating: 4.9,
+  },
+  {
     internId: 4,
-    taskId: 111,
+    taskId: 135,
+    title: "ML модель",
+    type: "host",
+    completedAt: "2025-04-02",
+    rating: 4.6,
+  },
+  {
+    internId: 4,
+    taskId: 136,
+    title: "Предобработка данных",
+    type: "feed",
+    completedAt: "2025-04-05",
+    rating: 4.8,
+  },
+  {
+    internId: 4,
+    taskId: 137,
+    title: "Обучение модели",
+    type: "host",
+    completedAt: "2025-04-09",
+    rating: 4.7,
+  },
+  {
+    internId: 4,
+    taskId: 138,
+    title: "Оценка качества",
+    type: "feed",
+    completedAt: "2025-04-13",
+    rating: 4.9,
+  },
+  {
+    internId: 4,
+    taskId: 139,
+    title: "ML модель",
+    type: "host",
+    completedAt: "2025-04-17",
+    rating: 4.6,
+  },
+  {
+    internId: 4,
+    taskId: 140,
+    title: "Предобработка данных",
+    type: "feed",
+    completedAt: "2025-04-21",
+    rating: 4.8,
+  },
+  {
+    internId: 4,
+    taskId: 141,
     title: "ML модель",
     type: "host",
     completedAt: "2025-05-02",
@@ -593,11 +833,27 @@ const completedTasks = [
   },
   {
     internId: 4,
-    taskId: 112,
+    taskId: 142,
     title: "Предобработка данных",
     type: "feed",
     completedAt: "2025-05-05",
     rating: 4.8,
+  },
+  {
+    internId: 4,
+    taskId: 143,
+    title: "Обучение модели",
+    type: "host",
+    completedAt: "2025-05-09",
+    rating: 4.7,
+  },
+  {
+    internId: 4,
+    taskId: 144,
+    title: "Оценка качества",
+    type: "feed",
+    completedAt: "2025-05-13",
+    rating: 4.9,
   },
 ];
 
@@ -3522,6 +3778,11 @@ function renderRatingChart() {
     ratingChart.destroy();
   }
 
+  const ratings = internHistory.map((h) => h.rating);
+  const minValue = Math.min(...ratings);
+  const maxValue = Math.max(...ratings);
+  const yMin = Math.floor(minValue / 10) * 10;
+
   ratingChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -3529,9 +3790,10 @@ function renderRatingChart() {
       datasets: [
         {
           label: "Рейтинг",
-          data: internHistory.map((h) => h.rating),
-          borderColor: "#4CAF50",
-          backgroundColor: "rgba(76, 175, 80, 0.1)",
+          data: ratings,
+          borderColor: "#10b981",
+          backgroundColor: "rgba(16, 185, 129, 0.1)",
+          borderWidth: 2,
           tension: 0.3,
           fill: true,
         },
@@ -3547,8 +3809,29 @@ function renderRatingChart() {
       },
       scales: {
         y: {
-          min: 0,
+          min: yMin < 0 ? 0 : yMin,
           max: 5,
+          grid: {
+            color: "rgba(0, 0, 0, 0.05)",
+            lineWidth: 1,
+          },
+          ticks: {
+            color: "#333",
+            font: {
+              size: 10,
+            },
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
+          ticks: {
+            color: "#333",
+            font: {
+              size: 10,
+            },
+          },
         },
       },
     },
@@ -3571,13 +3854,13 @@ function renderTaskTypeChart() {
   }
 
   taskTypeChart = new Chart(ctx, {
-    type: "pie",
+    type: "doughnut",
     data: {
       labels: ["От хоста", "Из ленты"],
       datasets: [
         {
           data: [hostTasks, feedTasks],
-          backgroundColor: ["#2196F3", "#FF9800"],
+          backgroundColor: ["#2cb5b4", "#f59e0b"],
         },
       ],
     },
@@ -3586,7 +3869,29 @@ function renderTaskTypeChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
+          align: "center",
+          labels: {
+            color: "#333",
+            font: {
+              size: 12,
+            },
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 20,
+          },
+        },
+        datalabels: {
+          display: true,
+          color: "#333",
+          font: {
+            size: 12,
+            weight: "normal",
+          },
+          formatter: function (value) {
+            return value;
+          },
         },
       },
     },
@@ -3640,6 +3945,9 @@ function renderWeeklyTasksChart() {
     weeklyTasksChart.destroy();
   }
 
+  const minValue = Math.min(...counts);
+  const yMin = Math.floor(minValue / 10) * 10;
+
   weeklyTasksChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -3648,10 +3956,11 @@ function renderWeeklyTasksChart() {
         {
           label: "Закрыто задач",
           data: counts,
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          borderColor: "#2cb5b4",
+          backgroundColor: "rgba(44, 181, 180, 0.1)",
+          borderWidth: 2,
           tension: 0.3,
-          fill: true,
+          fill: false,
         },
       ],
     },
@@ -3662,14 +3971,44 @@ function renderWeeklyTasksChart() {
         legend: {
           display: false,
         },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 8,
+          formatter: function (value) {
+            return value;
+          },
+          color: "#333",
+          font: {
+            size: 12,
+            weight: "normal",
+          },
+        },
       },
       scales: {
         y: {
+          display: false,
           beginAtZero: true,
+          min: yMin < 0 ? 0 : yMin,
+          grace: "10%",
+        },
+        x: {
           ticks: {
-            stepSize: 1,
+            font: {
+              size: 10,
+              color: "#333",
+            },
+          },
+          grid: {
+            display: false,
           },
         },
+      },
+      interaction: {
+        mode: "nearest",
+        axis: "x",
+        intersect: false,
       },
     },
   });
@@ -3702,13 +4041,16 @@ function renderActiveTasksList() {
   container.innerHTML = sortedTasks
     .map((task) => {
       const progress = calculateProgress(task);
-      const progressColorClass = getProgressColorClass(progress);
       const deadlineInfo = getDeadlineInfo(task.deadline);
       const statusBadge = getStatusBadge(progress, deadlineInfo.status);
       const completedCount = task.checklist.filter(
         (item) => item.checked,
       ).length;
       const totalCount = task.checklist.length;
+
+      // Use red color only for overdue tasks
+      const progressColorClass =
+        deadlineInfo.status === "overdue" ? "overdue" : "";
 
       return `
         <div class="task-progress-card" data-task-id="${task.id}">
@@ -3876,6 +4218,10 @@ function renderResponseTimeChart() {
     responseTimeChart.destroy();
   }
 
+  const maxValue = Math.max(
+    ...responseTimeByBlock.map((b) => b.avgResponseTime),
+  );
+
   responseTimeChart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -3884,8 +4230,13 @@ function renderResponseTimeChart() {
         {
           label: "Среднее время отклика (часы)",
           data: responseTimeByBlock.map((b) => b.avgResponseTime),
-          backgroundColor: "#2196F3",
-          borderRadius: 4,
+          backgroundColor: "#2cb5b4",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
       ],
     },
@@ -3911,9 +4262,10 @@ function renderResponseTimeChart() {
           formatter: function (value) {
             return value.toFixed(1) + " ч";
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -3921,11 +4273,14 @@ function renderResponseTimeChart() {
         y: {
           display: false,
           beginAtZero: true,
+          suggestedMax: maxValue * 1.15,
+          grace: "15%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -3946,6 +4301,8 @@ function renderAvgRatingChart() {
     avgRatingChart.destroy();
   }
 
+  const maxValue = Math.max(...avgRatingByBlock.map((b) => b.avgRating));
+
   avgRatingChart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -3954,8 +4311,13 @@ function renderAvgRatingChart() {
         {
           label: "Средняя оценка (1–5)",
           data: avgRatingByBlock.map((b) => b.avgRating),
-          backgroundColor: "#4CAF50",
-          borderRadius: 4,
+          backgroundColor: "#10b981",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
       ],
     },
@@ -3981,9 +4343,10 @@ function renderAvgRatingChart() {
           formatter: function (value) {
             return value.toFixed(1);
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -3991,12 +4354,14 @@ function renderAvgRatingChart() {
         y: {
           display: false,
           min: 0,
-          max: 5,
+          suggestedMax: Math.max(maxValue * 1.2, 5.5),
+          grace: "15%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -4017,6 +4382,11 @@ function renderTasksAndHandsChart() {
     tasksAndHandsChart.destroy();
   }
 
+  const tasksCreated = weeklyStats.map((s) => s.tasksCreated);
+  const handsRaised = weeklyStats.map((s) => s.handsRaised);
+  const minValue = Math.min(...tasksCreated, ...handsRaised);
+  const yMin = Math.floor(minValue / 10) * 10;
+
   tasksAndHandsChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -4024,17 +4394,19 @@ function renderTasksAndHandsChart() {
       datasets: [
         {
           label: "Создано задач",
-          data: weeklyStats.map((s) => s.tasksCreated),
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          data: tasksCreated,
+          borderColor: "#2cb5b4",
+          backgroundColor: "rgba(44, 181, 180, 0.1)",
+          borderWidth: 2,
           tension: 0.3,
           fill: false,
         },
         {
           label: "Поднято рук",
-          data: weeklyStats.map((s) => s.handsRaised),
-          borderColor: "#FF9800",
-          backgroundColor: "rgba(255, 152, 0, 0.1)",
+          data: handsRaised,
+          borderColor: "#f59e0b",
+          backgroundColor: "rgba(245, 158, 11, 0.1)",
+          borderWidth: 2,
           tension: 0.3,
           fill: false,
         },
@@ -4045,7 +4417,18 @@ function renderTasksAndHandsChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
+          align: "center",
+          labels: {
+            color: "#333",
+            font: {
+              size: 12,
+            },
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 20,
+          },
         },
         tooltip: {
           mode: "index",
@@ -4059,9 +4442,10 @@ function renderTasksAndHandsChart() {
           formatter: function (value) {
             return value;
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -4069,11 +4453,14 @@ function renderTasksAndHandsChart() {
         y: {
           display: false,
           beginAtZero: true,
+          min: yMin < 0 ? 0 : yMin,
+          grace: "10%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -4136,6 +4523,8 @@ function renderOfficeAttendanceChart() {
     officeAttendanceChart.destroy();
   }
 
+  const maxValue = Math.max(...morningCounts, ...afternoonCounts);
+
   officeAttendanceChart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -4144,14 +4533,24 @@ function renderOfficeAttendanceChart() {
         {
           label: "До обеда",
           data: morningCounts,
-          backgroundColor: "#64b5f6",
-          borderRadius: 4,
+          backgroundColor: "#2cb5b4",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
         {
           label: "После обеда",
           data: afternoonCounts,
-          backgroundColor: "#1565c0",
-          borderRadius: 4,
+          backgroundColor: "#94a3b8",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
       ],
     },
@@ -4160,7 +4559,18 @@ function renderOfficeAttendanceChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
+          align: "center",
+          labels: {
+            color: "#333",
+            font: {
+              size: 12,
+            },
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 20,
+          },
         },
         tooltip: {
           mode: "index",
@@ -4174,9 +4584,10 @@ function renderOfficeAttendanceChart() {
           formatter: function (value) {
             return value;
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -4184,11 +4595,14 @@ function renderOfficeAttendanceChart() {
         y: {
           display: false,
           beginAtZero: true,
+          suggestedMax: maxValue * 1.15,
+          grace: "15%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -4256,6 +4670,11 @@ function renderBlockActivityChart() {
     blockActivityChart.destroy();
   }
 
+  const maxValue = Math.max(
+    ...blockActivity.map((b) => b.tasksCreated),
+    ...blockActivity.map((b) => b.tasksClosed),
+  );
+
   blockActivityChart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -4264,14 +4683,24 @@ function renderBlockActivityChart() {
         {
           label: "Создано задач",
           data: blockActivity.map((b) => b.tasksCreated),
-          backgroundColor: "#2196F3",
-          borderRadius: 4,
+          backgroundColor: "#2cb5b4",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
         {
           label: "Закрыто задач",
           data: blockActivity.map((b) => b.tasksClosed),
-          backgroundColor: "#4CAF50",
-          borderRadius: 4,
+          backgroundColor: "#10b981",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
       ],
     },
@@ -4280,7 +4709,18 @@ function renderBlockActivityChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
+          align: "center",
+          labels: {
+            color: "#333",
+            font: {
+              size: 12,
+            },
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 20,
+          },
         },
         tooltip: {
           mode: "index",
@@ -4301,9 +4741,10 @@ function renderBlockActivityChart() {
           formatter: function (value) {
             return value;
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -4311,11 +4752,14 @@ function renderBlockActivityChart() {
         y: {
           display: false,
           beginAtZero: true,
+          suggestedMax: maxValue * 1.15,
+          grace: "15%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -4336,6 +4780,8 @@ function renderHostLoadChart() {
     hostLoadChart.destroy();
   }
 
+  const maxValue = Math.max(...hostLoad.map((h) => h.activeTasks));
+
   hostLoadChart = new Chart(ctx, {
     type: "bar",
     data: {
@@ -4344,8 +4790,13 @@ function renderHostLoadChart() {
         {
           label: "Активные задачи практикантов",
           data: hostLoad.map((h) => h.activeTasks),
-          backgroundColor: "#FF9800",
-          borderRadius: 4,
+          backgroundColor: "#f59e0b",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
         },
       ],
     },
@@ -4376,9 +4827,10 @@ function renderHostLoadChart() {
           formatter: function (value) {
             return value;
           },
+          color: "#333",
           font: {
-            size: 14,
-            weight: "bold",
+            size: 12,
+            weight: "normal",
           },
         },
       },
@@ -4386,11 +4838,14 @@ function renderHostLoadChart() {
         y: {
           display: false,
           beginAtZero: true,
+          suggestedMax: maxValue * 1.15,
+          grace: "15%",
         },
         x: {
           ticks: {
             font: {
               size: 10,
+              color: "#333",
             },
           },
           grid: {
@@ -4512,13 +4967,13 @@ function renderSupervisorTaskTypeChart() {
   }
 
   supervisorTaskTypeChart = new Chart(ctx, {
-    type: "pie",
+    type: "doughnut",
     data: {
       labels: ["От хоста", "Из ленты"],
       datasets: [
         {
           data: [hostTasksCount, feedTasksCount],
-          backgroundColor: ["#2196F3", "#FF9800"],
+          backgroundColor: ["#2cb5b4", "#f59e0b"],
         },
       ],
     },
@@ -4527,7 +4982,29 @@ function renderSupervisorTaskTypeChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
+          align: "center",
+          labels: {
+            color: "#333",
+            font: {
+              size: 12,
+            },
+            usePointStyle: true,
+            pointStyle: "circle",
+            padding: 20,
+          },
+        },
+        datalabels: {
+          display: true,
+          color: "#333",
+          font: {
+            size: 12,
+            weight: "normal",
+          },
+          formatter: function (value) {
+            return value;
+          },
         },
       },
     },
@@ -4581,6 +5058,9 @@ function renderSupervisorWeeklyTasksChart() {
     supervisorWeeklyTasksChart.destroy();
   }
 
+  const minValue = Math.min(...counts);
+  const yMin = Math.floor(minValue / 10) * 10;
+
   supervisorWeeklyTasksChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -4589,10 +5069,11 @@ function renderSupervisorWeeklyTasksChart() {
         {
           label: "Закрыто задач",
           data: counts,
-          borderColor: "#2196F3",
-          backgroundColor: "rgba(33, 150, 243, 0.1)",
+          borderColor: "#2cb5b4",
+          backgroundColor: "rgba(44, 181, 180, 0.1)",
+          borderWidth: 2,
           tension: 0.3,
-          fill: true,
+          fill: false,
         },
       ],
     },
@@ -4603,14 +5084,44 @@ function renderSupervisorWeeklyTasksChart() {
         legend: {
           display: false,
         },
+        datalabels: {
+          display: true,
+          anchor: "end",
+          align: "top",
+          offset: 8,
+          formatter: function (value) {
+            return value;
+          },
+          color: "#333",
+          font: {
+            size: 12,
+            weight: "normal",
+          },
+        },
       },
       scales: {
         y: {
+          display: false,
           beginAtZero: true,
+          min: yMin < 0 ? 0 : yMin,
+          grace: "10%",
+        },
+        x: {
           ticks: {
-            stepSize: 1,
+            font: {
+              size: 10,
+              color: "#333",
+            },
+          },
+          grid: {
+            display: false,
           },
         },
+      },
+      interaction: {
+        mode: "nearest",
+        axis: "x",
+        intersect: false,
       },
     },
   });
@@ -4647,13 +5158,16 @@ function renderSupervisorActiveTasksList() {
   container.innerHTML = sortedTasks
     .map((task) => {
       const progress = calculateProgress(task);
-      const progressColorClass = getProgressColorClass(progress);
       const deadlineInfo = getDeadlineInfo(task.deadline);
       const statusBadge = getStatusBadge(progress, deadlineInfo.status);
       const completedCount = task.checklist.filter(
         (item) => item.checked,
       ).length;
       const totalCount = task.checklist.length;
+
+      // Use red color only for overdue tasks
+      const progressColorClass =
+        deadlineInfo.status === "overdue" ? "overdue" : "";
 
       return `
         <div class="task-progress-card" data-task-id="${task.id}">
