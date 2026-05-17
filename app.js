@@ -2325,45 +2325,61 @@ function renderNotifications() {
   });
 }
 
-// Делегирование событий для элементов уведомлений в выпадающем списке
-const dropdownNotificationsList = document.getElementById("notificationsList");
-if (dropdownNotificationsList) {
-  dropdownNotificationsList.addEventListener("click", function (e) {
-    const item = e.target.closest(".notification-item");
-    if (!item) return;
+// Флаги для предотвращения дублирования обработчиков событий
+let notificationEventListenersAttached = false;
 
-    const notificationId = item.getAttribute("data-notification-id");
-    const notification = notifications.find(
-      (n) => n.id === parseInt(notificationId),
-    );
-    if (notification) {
-      // Помечаем как прочитанное
-      notification.unread = false;
+// Функция для инициализации обработчиков событий уведомлений
+function initNotificationEventListeners() {
+  if (notificationEventListenersAttached) return;
+
+  // Делегирование событий для элементов уведомлений в выпадающем списке
+  const dropdownNotificationsList =
+    document.getElementById("notificationsList");
+  if (dropdownNotificationsList) {
+    dropdownNotificationsList.addEventListener("click", function (e) {
+      const item = e.target.closest(".notification-item");
+      if (!item) return;
+
+      const notificationId = item.getAttribute("data-notification-id");
+      const notification = notifications.find(
+        (n) => n.id === parseInt(notificationId),
+      );
+      if (notification) {
+        // Помечаем как прочитанное
+        notification.unread = false;
+        renderNotifications();
+        alert(`Переход к уведомлению: ${notification.title}`);
+      }
+    });
+  }
+
+  // Обработчик кнопки уведомлений
+  const notificationsDropdown = document.getElementById(
+    "notificationsDropdown",
+  );
+  notifBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    notificationsDropdown.classList.toggle("active");
+    if (notificationsDropdown.classList.contains("active")) {
       renderNotifications();
-      alert(`Переход к уведомлению: ${notification.title}`);
     }
   });
+
+  // Закрытие выпадающего списка при клике вне его
+  document.addEventListener("click", function (e) {
+    if (
+      !notificationsDropdown.contains(e.target) &&
+      !notifBtn.contains(e.target)
+    ) {
+      notificationsDropdown.classList.remove("active");
+    }
+  });
+
+  notificationEventListenersAttached = true;
 }
 
-// Обработчик кнопки уведомлений
-const notificationsDropdown = document.getElementById("notificationsDropdown");
-notifBtn.addEventListener("click", function (e) {
-  e.stopPropagation();
-  notificationsDropdown.classList.toggle("active");
-  if (notificationsDropdown.classList.contains("active")) {
-    renderNotifications();
-  }
-});
-
-// Закрытие выпадающего списка при клике вне его
-document.addEventListener("click", function (e) {
-  if (
-    !notificationsDropdown.contains(e.target) &&
-    !notifBtn.contains(e.target)
-  ) {
-    notificationsDropdown.classList.remove("active");
-  }
-});
+// Инициализация обработчиков событий
+initNotificationEventListeners();
 
 // Обработчики модального окна "Поднять руку"
 const raiseHandBtn = document.getElementById("raiseHandBtn");
