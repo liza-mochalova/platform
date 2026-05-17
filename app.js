@@ -1002,11 +1002,35 @@ const hostLoad = [
   },
 ];
 
-// Функция для расчёта прогресса задачи
+// Функция для расчёта прогресса задачи с мемоизацией
+const progressCache = new Map();
+
 function calculateProgress(task) {
+  // Create a cache key based on task ID and checklist state
+  const cacheKey = `${task.id}_${task.checklist.map((item) => (item.checked ? "1" : "0")).join("")}`;
+
+  // Return cached result if available
+  if (progressCache.has(cacheKey)) {
+    return progressCache.get(cacheKey);
+  }
+
   const total = task.checklist.length;
   const checked = task.checklist.filter((item) => item.checked).length;
-  return Math.round((checked / total) * 100);
+  const progress = Math.round((checked / total) * 100);
+
+  // Cache the result
+  progressCache.set(cacheKey, progress);
+
+  return progress;
+}
+
+// Invalidate cache for a specific task when its checklist changes
+function invalidateProgressCache(taskId) {
+  for (const key of progressCache.keys()) {
+    if (key.startsWith(taskId + "_")) {
+      progressCache.delete(key);
+    }
+  }
 }
 
 // Функция для применения штрафа за отказ от задачи
@@ -1018,7 +1042,10 @@ function applyTaskRejectionPenalty(internId, penaltyAmount = -0.3) {
     renderUsersList();
     // Обновляем рейтинг в профиле, если это текущий пользователь
     if (currentRole === "intern" && internId === currentInternId) {
-      document.getElementById("currentUserRating").textContent = intern.rating;
+      const currentUserRating = document.getElementById("currentUserRating");
+      if (currentUserRating) {
+        currentUserRating.textContent = intern.rating;
+      }
     }
     return intern.rating;
   }
@@ -1112,23 +1139,14 @@ function renderDraftTaskCard(task) {
 function renderHostTasks() {
   const myTasksContent = document.getElementById("my-tasks-content");
   const internTasksContent = document.getElementById("intern-tasks-content");
-  const hostTabs = document.getElementById("hostTabs");
+  const pendingApprovalContent = document.getElementById(
+    "pending-approval-content",
+  );
 
   // Очищаем контейнеры
   if (myTasksContent) myTasksContent.innerHTML = "";
   if (internTasksContent) internTasksContent.innerHTML = "";
-  // Очищаем экран задач для практики - удаляем только карточки задач
-  const existingCards = myTasksScreen.querySelectorAll(".host-task-card");
-  existingCards.forEach((card) => card.remove());
-  const existingPlaceholders =
-    myTasksScreen.querySelectorAll(".feed-placeholder");
-  existingPlaceholders.forEach((ph) => ph.remove());
-
-  // Показываем/скрываем вкладки для хоста и куратора
-  if (hostTabs) {
-    hostTabs.style.display =
-      currentRole === "host" || currentRole === "supervisor" ? "flex" : "none";
-  }
+  if (pendingApprovalContent) pendingApprovalContent.innerHTML = "";
 
   if (currentRole === "intern") {
     // Показываем кнопку создания черновика для практики
@@ -1137,6 +1155,18 @@ function renderHostTasks() {
       createDraftBtn.style.display = currentRole === "intern" ? "flex" : "none";
     }
 
+    // Скрываем вкладки для практики
+    const hostTabs = document.getElementById("hostTabs");
+    if (hostTabs) hostTabs.style.display = "none";
+
+    // Скрываем все контенты вкладок и показываем только my-tasks-content
+    document
+      .querySelectorAll("#mytasks-screen .tab-content")
+      .forEach((content) => {
+        content.style.display = "none";
+      });
+    if (myTasksContent) myTasksContent.style.display = "block";
+
     // Для практики показываем его задачи с чек-листами (фильтруем по internId)
     const internTasks = hostTasks.filter((t) => t.internId === currentInternId);
     const internDraftTasks = draftTasks.filter(
@@ -1144,7 +1174,7 @@ function renderHostTasks() {
     );
 
     if (internTasks.length === 0 && internDraftTasks.length === 0) {
-      myTasksScreen.innerHTML = `
+      myTasksContent.innerHTML = `
               <div class="feed-placeholder">
                 <h2>Нет задач</h2>
                 <p>У вас пока нет назначенных задач</p>
@@ -1154,88 +1184,62 @@ function renderHostTasks() {
       // Сначала показываем черновики
       internDraftTasks.forEach((task) => {
         const card = renderDraftTaskCard(task);
-        myTasksScreen.appendChild(card);
+        myTasksContent.appendChild(card);
       });
 
       // Затем активные задачи
       internTasks.forEach((task) => {
         const card = renderHostTaskCard(task);
-        myTasksScreen.appendChild(card);
+        myTasksContent.appendChild(card);
       });
     }
 
     // Добавляем обработчики для чекбоксов
-    const checkboxes = myTasksScreen.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = myTasksContent.querySelectorAll(
+      'input[type="checkbox"]',
+    );
     checkboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", function () {
-        const taskId = parseInt(this.getAttribute("data-task-id"));
-        const itemId = parseInt(this.getAttribute("data-item-id"));
+      checkbox.addEventListener("change", handleCheckboxChange);
+    });
 
-        // Обновляем состояние в массиве
-        const task = hostTasks.find((t) => t.id === taskId);
-        if (task) {
-          const item = task.checklist.find((i) => i.id === itemId);
-          if (item) {
-            item.checked = this.checked;
+    // Named function for checkbox change handler (to avoid deprecated arguments.callee)
+    function handleCheckboxChange() {
+      const taskId = parseInt(this.getAttribute("data-task-id"));
+      const itemId = parseInt(this.getAttribute("data-item-id"));
 
-            // Перерисовываем карточку для обновления прогресса
-            const card = myTasksScreen.querySelector(
-              `[data-task-id="${taskId}"]`,
+      // Обновляем состояние в массиве
+      const task = hostTasks.find((t) => t.id === taskId);
+      if (task) {
+        const item = task.checklist.find((i) => i.id === itemId);
+        if (item) {
+          item.checked = this.checked;
+
+          // Перерисовываем карточку для обновления прогресса
+          const card = myTasksContent.querySelector(
+            `[data-task-id="${taskId}"]`,
+          );
+          if (card) {
+            const newCard = renderHostTaskCard(task);
+            card.replaceWith(newCard);
+
+            // Добавляем обработчики для новой карточки
+            const newCheckboxes = newCard.querySelectorAll(
+              'input[type="checkbox"]',
             );
-            if (card) {
-              const newCard = renderHostTaskCard(task);
-              card.replaceWith(newCard);
+            newCheckboxes.forEach((cb) => {
+              cb.addEventListener("change", handleCheckboxChange);
+            });
 
-              // Добавляем обработчики для новой карточки
-              const newCheckboxes = newCard.querySelectorAll(
-                'input[type="checkbox"]',
-              );
-              newCheckboxes.forEach((cb) => {
-                cb.addEventListener("change", function () {
-                  const tId = parseInt(this.getAttribute("data-task-id"));
-                  const iId = parseInt(this.getAttribute("data-item-id"));
-                  const t = hostTasks.find((t) => t.id === tId);
-                  if (t) {
-                    const i = t.checklist.find((i) => i.id === iId);
-                    if (i) {
-                      i.checked = this.checked;
-                      const c = myTasksScreen.querySelector(
-                        `[data-task-id="${tId}"]`,
-                      );
-                      if (c) {
-                        const nc = renderHostTaskCard(t);
-                        c.replaceWith(nc);
-                        const ncb = nc.querySelectorAll(
-                          'input[type="checkbox"]',
-                        );
-                        ncb.forEach((cb) => {
-                          cb.addEventListener("change", arguments.callee);
-                        });
-                        const notifyBtn = nc.querySelector(".notify-btn");
-                        if (notifyBtn) {
-                          notifyBtn.addEventListener("click", function () {
-                            alert(
-                              "Уведомление отправлено хосту о задаче #" + tId,
-                            );
-                          });
-                        }
-                      }
-                    }
-                  }
-                });
+            const notifyBtn = newCard.querySelector(".notify-btn");
+            if (notifyBtn) {
+              notifyBtn.addEventListener("click", function () {
+                alert("Уведомление отправлено хосту о задаче #" + taskId);
               });
-
-              const notifyBtn = newCard.querySelector(".notify-btn");
-              if (notifyBtn) {
-                notifyBtn.addEventListener("click", function () {
-                  alert("Уведомление отправлено хосту о задаче #" + taskId);
-                });
-              }
             }
           }
         }
-      });
-    });
+      }
+    }
   } else if (currentRole === "host") {
     // Для хоста показываем вкладки с задачами
     // Вкладка "Мои задачи" - задачи сотрудника
@@ -1334,27 +1338,56 @@ function renderHostTasks() {
         });
       }
     }
+
+    // Вкладка "Задачи на согласовании"
+    const pendingApprovalContent = document.getElementById(
+      "pending-approval-content",
+    );
+    if (pendingApprovalContent) {
+      // Для хоста показываем черновики задач, которые требуют согласования
+      if (draftTasks.length === 0) {
+        pendingApprovalContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач на согласовании</h2>
+                  <p>Нет черновиков, требующих вашего согласования</p>
+                </div>
+              `;
+      } else {
+        draftTasks.forEach((task) => {
+          const card = renderDraftTaskCard(task);
+          pendingApprovalContent.appendChild(card);
+        });
+      }
+    }
   } else if (currentRole === "employee") {
     // Для сотрудника показываем созданные ими задачи
     const employeeTasks = tasks.filter((t) => t.authorId === currentEmployeeId);
 
-    // Очищаем контейнер перед рендерингом
-    myTasksScreen.innerHTML = "";
+    // Скрываем вкладки для сотрудника
+    const hostTabs = document.getElementById("hostTabs");
+    if (hostTabs) hostTabs.style.display = "none";
+
+    // Скрываем все контенты вкладок и показываем только my-tasks-content
+    document
+      .querySelectorAll("#mytasks-screen .tab-content")
+      .forEach((content) => {
+        content.style.display = "none";
+      });
+    if (myTasksContent) myTasksContent.style.display = "block";
 
     if (employeeTasks.length === 0) {
-      myTasksScreen.innerHTML = `
+      myTasksContent.innerHTML = `
             <div class="feed-placeholder">
               <h2>Нет задач</h2>
               <p>Вы ещё не создали ни одной задачи</p>
             </div>
           `;
-      return;
+    } else {
+      employeeTasks.forEach((task) => {
+        const card = renderEmployeeTaskCard(task);
+        myTasksContent.appendChild(card);
+      });
     }
-
-    employeeTasks.forEach((task) => {
-      const card = renderEmployeeTaskCard(task);
-      myTasksScreen.appendChild(card);
-    });
   } else if (currentRole === "supervisor") {
     // Для куратора показываем вкладки с задачами
     // Вкладка "Созданные задачи" - задачи куратора
@@ -1500,17 +1533,29 @@ if (internTasksContent) {
         // Открываем модальное окно редактирования задачи
         const hostTaskModal = document.getElementById("hostTaskModal");
 
+        // Cache DOM elements
+        const hostTaskName = document.getElementById("hostTaskName");
+        const hostTaskDescription = document.getElementById(
+          "hostTaskDescription",
+        );
+        const hostTaskEffort = document.getElementById("hostTaskEffort");
+        const hostTaskDeadline = document.getElementById("hostTaskDeadline");
+        const hostTaskGoal = document.getElementById("hostTaskGoal");
+        const hostTaskOperational = document.getElementById(
+          "hostTaskOperational",
+        );
+        const checklistContainer = document.getElementById("hostTaskChecklist");
+
         // Заполняем поля формы данными задачи
-        document.getElementById("hostTaskName").value = task.title;
-        document.getElementById("hostTaskDescription").value = task.description;
-        document.getElementById("hostTaskEffort").value = task.effort || "";
-        document.getElementById("hostTaskDeadline").value = task.deadline;
-        document.getElementById("hostTaskGoal").value = task.contribution || "";
-        document.getElementById("hostTaskOperational").checked =
-          task.operational || false;
+        if (hostTaskName) hostTaskName.value = task.title;
+        if (hostTaskDescription) hostTaskDescription.value = task.description;
+        if (hostTaskEffort) hostTaskEffort.value = task.effort || "";
+        if (hostTaskDeadline) hostTaskDeadline.value = task.deadline;
+        if (hostTaskGoal) hostTaskGoal.value = task.contribution || "";
+        if (hostTaskOperational)
+          hostTaskOperational.checked = task.operational || false;
 
         // Заполняем чек-лист
-        const checklistContainer = document.getElementById("hostTaskChecklist");
         checklistContainer.innerHTML = "";
         task.checklist.forEach((item, index) => {
           const row = document.createElement("div");
@@ -1645,29 +1690,6 @@ function renderRaisedHands() {
   });
 }
 
-// Функция для открытия модалки приглашения
-function openInviteModal(intern) {
-  const inviteModal = document.getElementById("inviteModal");
-  const inviteTask = document.getElementById("inviteTask");
-  const inviteComment = document.getElementById("inviteComment");
-
-  // Заполняем dropdown задачами текущего сотрудника + опцию "Нет задачи"
-  inviteTask.innerHTML = '<option value="">-- Выберите задачу --</option>';
-  const employeeTasks = tasks.filter((t) => t.authorId === currentEmployeeId);
-  employeeTasks.forEach((task) => {
-    inviteTask.innerHTML += `<option value="${task.id}">${task.title}</option>`;
-  });
-  // Добавляем опцию "Нет подходящей задачи"
-  inviteTask.innerHTML +=
-    '<option value="no-task">+ Нет подходящей задачи, создам при завершении</option>';
-
-  // Сохраняем ID практиканта для отправки приглашения
-  inviteModal.setAttribute("data-intern-id", intern.id);
-
-  // Открываем модалку
-  inviteModal.classList.add("active");
-}
-
 // Функция для переключения экранов
 function switchScreen(screenId) {
   // Скрываем все экраны
@@ -1697,6 +1719,12 @@ function switchScreen(screenId) {
   // Инициализируем аналитику при открытии экрана аналитики
   if (screenId === "analytics-screen") {
     initAnalytics();
+  }
+
+  // Инициализируем список пользователей при открытии экрана пользователей
+  if (screenId === "users-screen") {
+    renderUsersList();
+    renderEmployeesList();
   }
 }
 
@@ -1871,20 +1899,25 @@ feedContent.addEventListener("click", function (e) {
 });
 
 // Обработчик для кнопки "Отмена" в модальном окне отклика
-document.getElementById("respondCancel").addEventListener("click", function () {
-  const respondModal = document.getElementById("respondModal");
-  respondModal.classList.remove("active");
-});
+const respondCancel = document.getElementById("respondCancel");
+if (respondCancel) {
+  respondCancel.addEventListener("click", function () {
+    const respondModal = document.getElementById("respondModal");
+    if (respondModal) {
+      respondModal.classList.remove("active");
+    }
+  });
+}
 
 // Обработчик для кнопки "Отправить отклик" в модальном окне
-document
-  .getElementById("respondConfirm")
-  .addEventListener("click", function () {
+const respondConfirm = document.getElementById("respondConfirm");
+if (respondConfirm) {
+  respondConfirm.addEventListener("click", function () {
     const respondModal = document.getElementById("respondModal");
     const respondTimeInput = document.getElementById("respondTime");
-    const taskId = respondModal.dataset.taskId;
+    const taskId = respondModal ? respondModal.dataset.taskId : null;
 
-    if (!respondTimeInput.value) {
+    if (!respondTimeInput || !respondTimeInput.value) {
       alert("Пожалуйста, укажите время прихода");
       return;
     }
@@ -1893,8 +1926,11 @@ document
     alert("Отклик отправлен");
 
     // Закрываем модальное окно
-    respondModal.classList.remove("active");
+    if (respondModal) {
+      respondModal.classList.remove("active");
+    }
   });
+}
 
 // Обработчики навигации
 const navItems = document.querySelectorAll(".nav-item");
@@ -2126,7 +2162,7 @@ function updateProfileSchedule(contentId, schedule) {
         (day) => `
       <div class="schedule-row">
         <span class="day-label">${day.day}</span>
-        <span class="schedule-status ${day.status}">${statusText[day.status]}</span>
+        <span class="schedule-status ${day.status}" data-status="${day.status}">${statusText[day.status]}</span>
       </div>
     `,
       )
@@ -2336,65 +2372,73 @@ const raiseHandCancel = document.getElementById("raiseHandCancel");
 const raiseHandTime = document.getElementById("raiseHandTime");
 
 // Открытие модального окна
-raiseHandBtn.addEventListener("click", function () {
-  raiseHandModal.classList.add("active");
-  // Устанавливаем текущее время по умолчанию
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  raiseHandTime.value = now.toISOString().slice(0, 16);
-  // Сбрасываем чекбоксы
-  document
-    .querySelectorAll(".help-block-checkbox")
-    .forEach((cb) => (cb.checked = false));
-});
+if (raiseHandBtn && raiseHandModal && raiseHandTime) {
+  raiseHandBtn.addEventListener("click", function () {
+    raiseHandModal.classList.add("active");
+    // Устанавливаем текущее время по умолчанию
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    raiseHandTime.value = now.toISOString().slice(0, 16);
+    // Сбрасываем чекбоксы
+    document
+      .querySelectorAll(".help-block-checkbox")
+      .forEach((cb) => (cb.checked = false));
+  });
+}
 
 // Закрытие модального окна по кнопке "Отмена"
-raiseHandCancel.addEventListener("click", function () {
-  raiseHandModal.classList.remove("active");
-  // Очищаем поля
-  raiseHandTime.value = "";
-  document
-    .querySelectorAll(".help-block-checkbox")
-    .forEach((cb) => (cb.checked = false));
-});
-
-// Подтверждение поднятия руки
-raiseHandConfirm.addEventListener("click", function () {
-  const time = raiseHandTime.value;
-
-  // Собираем выбранные блоки
-  const selectedBlocks = [];
-  document.querySelectorAll(".help-block-checkbox:checked").forEach((cb) => {
-    selectedBlocks.push(cb.value);
-  });
-
-  if (!time) {
-    alert("Пожалуйста, выберите время");
-    return;
-  }
-
-  let blockText =
-    selectedBlocks.length > 0 ? selectedBlocks.join(", ") : "Любой блок";
-  alert("Рука поднята\n\nВремя: " + time + "\nБлоки: " + blockText);
-  raiseHandModal.classList.remove("active");
-  // Очищаем поля
-  raiseHandTime.value = "";
-  document
-    .querySelectorAll(".help-block-checkbox")
-    .forEach((cb) => (cb.checked = false));
-});
-
-// Закрытие модального окна при клике на оверлей
-raiseHandModal.addEventListener("click", function (e) {
-  if (e.target === raiseHandModal) {
+if (raiseHandCancel && raiseHandModal && raiseHandTime) {
+  raiseHandCancel.addEventListener("click", function () {
     raiseHandModal.classList.remove("active");
     // Очищаем поля
     raiseHandTime.value = "";
     document
       .querySelectorAll(".help-block-checkbox")
       .forEach((cb) => (cb.checked = false));
-  }
-});
+  });
+}
+
+// Подтверждение поднятия руки
+if (raiseHandConfirm && raiseHandModal && raiseHandTime) {
+  raiseHandConfirm.addEventListener("click", function () {
+    const time = raiseHandTime.value;
+
+    // Собираем выбранные блоки
+    const selectedBlocks = [];
+    document.querySelectorAll(".help-block-checkbox:checked").forEach((cb) => {
+      selectedBlocks.push(cb.value);
+    });
+
+    if (!time) {
+      alert("Пожалуйста, выберите время");
+      return;
+    }
+
+    let blockText =
+      selectedBlocks.length > 0 ? selectedBlocks.join(", ") : "Любой блок";
+    alert("Рука поднята\n\nВремя: " + time + "\nБлоки: " + blockText);
+    raiseHandModal.classList.remove("active");
+    // Очищаем поля
+    raiseHandTime.value = "";
+    document
+      .querySelectorAll(".help-block-checkbox")
+      .forEach((cb) => (cb.checked = false));
+  });
+}
+
+// Закрытие модального окна при клике на оверлей
+if (raiseHandModal && raiseHandTime) {
+  raiseHandModal.addEventListener("click", function (e) {
+    if (e.target === raiseHandModal) {
+      raiseHandModal.classList.remove("active");
+      // Очищаем поля
+      raiseHandTime.value = "";
+      document
+        .querySelectorAll(".help-block-checkbox")
+        .forEach((cb) => (cb.checked = false));
+    }
+  });
+}
 
 // Обработчик кнопки "Детали" в профиле
 const detailsBtn = document.getElementById("detailsBtn");
@@ -2424,80 +2468,86 @@ const inviteCancel = document.getElementById("inviteCancel");
 const inviteConfirm = document.getElementById("inviteConfirm");
 
 // Закрытие модального окна по кнопке "Отмена"
-inviteCancel.addEventListener("click", function () {
-  inviteModal.classList.remove("active");
-  // Очищаем поля
-  inviteTask.value = "";
-  inviteComment.value = "";
-});
+if (inviteCancel && inviteModal && inviteTask && inviteComment) {
+  inviteCancel.addEventListener("click", function () {
+    inviteModal.classList.remove("active");
+    // Очищаем поля
+    inviteTask.value = "";
+    inviteComment.value = "";
+  });
+}
 
 // Отправка приглашения
-inviteConfirm.addEventListener("click", function () {
-  const taskId = inviteTask.value;
-  const comment = inviteComment.value;
-  const internId = inviteModal.getAttribute("data-intern-id");
-  // Ищем практиканта в both arrays (raisedHands or allUsers)
-  const intern =
-    raisedHands.find((i) => i.id === parseInt(internId)) ||
-    allUsers.find((i) => i.id === parseInt(internId));
+if (inviteConfirm && inviteModal && inviteTask && inviteComment) {
+  inviteConfirm.addEventListener("click", function () {
+    const taskId = inviteTask.value;
+    const comment = inviteComment.value;
+    const internId = inviteModal.getAttribute("data-intern-id");
+    // Ищем практиканта в both arrays (raisedHands or allUsers)
+    const intern =
+      raisedHands.find((i) => i.id === parseInt(internId)) ||
+      allUsers.find((i) => i.id === parseInt(internId));
 
-  if (!taskId) {
-    alert("Пожалуйста, выберите задачу");
-    return;
-  }
+    if (!taskId) {
+      alert("Пожалуйста, выберите задачу");
+      return;
+    }
 
-  if (intern) {
-    let message = "Приглашение отправлено практиканту " + intern.name;
-    let taskName = "";
+    if (intern) {
+      let message = "Приглашение отправлено практиканту " + intern.name;
+      let taskName = "";
 
-    if (taskId === "no-task") {
-      message += "\n\nЗадача будет создана при завершении работы";
-      taskName = "Будет создана";
-    } else {
-      const task = tasks.find((t) => t.id === parseInt(taskId));
-      if (task) {
-        message += "\n\nЗадача: " + task.title;
-        taskName = task.title;
+      if (taskId === "no-task") {
+        message += "\n\nЗадача будет создана при завершении работы";
+        taskName = "Будет создана";
+      } else {
+        const task = tasks.find((t) => t.id === parseInt(taskId));
+        if (task) {
+          message += "\n\nЗадача: " + task.title;
+          taskName = task.title;
+        }
       }
+      if (comment) {
+        message += "\nКомментарий: " + comment;
+      }
+      alert(message);
+
+      // Добавляем приглашение в список активных
+      const invitationId = Date.now();
+      activeInvitations.push({
+        id: invitationId,
+        internId: intern.id,
+        name: intern.name,
+        block: intern.block,
+        rating: intern.rating,
+        avatar: intern.avatar,
+        taskId: taskId === "no-task" ? "no-task" : parseInt(taskId),
+        taskName: taskName,
+        comment: comment,
+      });
+
+      // Перерисовываем активные приглашения в профиле
+      renderActiveInvitations();
+
+      inviteModal.classList.remove("active");
+      // Очищаем поля
+      inviteTask.value = "";
+      inviteComment.value = "";
     }
-    if (comment) {
-      message += "\nКомментарий: " + comment;
-    }
-    alert(message);
-
-    // Добавляем приглашение в список активных
-    const invitationId = Date.now();
-    activeInvitations.push({
-      id: invitationId,
-      internId: intern.id,
-      name: intern.name,
-      block: intern.block,
-      rating: intern.rating,
-      avatar: intern.avatar,
-      taskId: taskId === "no-task" ? "no-task" : parseInt(taskId),
-      taskName: taskName,
-      comment: comment,
-    });
-
-    // Перерисовываем активные приглашения в профиле
-    renderActiveInvitations();
-
-    inviteModal.classList.remove("active");
-    // Очищаем поля
-    inviteTask.value = "";
-    inviteComment.value = "";
-  }
-});
+  });
+}
 
 // Закрытие модального окна при клике на оверлей
-inviteModal.addEventListener("click", function (e) {
-  if (e.target === inviteModal) {
-    inviteModal.classList.remove("active");
-    // Очищаем поля
-    inviteTask.value = "";
-    inviteComment.value = "";
-  }
-});
+if (inviteModal && inviteTask && inviteComment) {
+  inviteModal.addEventListener("click", function (e) {
+    if (e.target === inviteModal) {
+      inviteModal.classList.remove("active");
+      // Очищаем поля
+      inviteTask.value = "";
+      inviteComment.value = "";
+    }
+  });
+}
 
 // Обработчики модального окна "Создать задачу"
 const createTaskBtn = document.getElementById("createTaskBtn");
@@ -2515,106 +2565,31 @@ const goalFields = document.getElementById("goalFields");
 const contributionField = document.getElementById("contributionField");
 
 // Открытие модального окна
-createTaskBtn.addEventListener("click", function () {
-  createTaskModal.classList.add("active");
-  // Устанавливаем дату по умолчанию (через неделю)
-  const defaultDate = new Date();
-  defaultDate.setDate(defaultDate.getDate() + 7);
-  taskDeadline.value = defaultDate.toISOString().split("T")[0];
-});
+if (createTaskBtn && createTaskModal && taskDeadline) {
+  createTaskBtn.addEventListener("click", function () {
+    createTaskModal.classList.add("active");
+    // Устанавливаем дату по умолчанию (через неделю)
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 7);
+    taskDeadline.value = defaultDate.toISOString().split("T")[0];
+  });
+}
 
 // Закрытие модального окна по кнопке "Отмена"
-createTaskCancel.addEventListener("click", function () {
-  createTaskModal.classList.remove("active");
-  // Очищаем поля
-  taskName.value = "";
-  taskDescription.value = "";
-  taskEffort.value = "";
-  taskDeadline.value = "";
-  taskOperational.checked = false;
-  taskGoal.value = "";
-  taskContribution.value = "";
-  // Показываем поля цели и вклада
-  goalFields.classList.remove("hidden");
-  contributionField.classList.remove("hidden");
-});
-
-// Обработчик чекбокса "Операционная задача"
-taskOperational.addEventListener("change", function () {
-  if (this.checked) {
-    // Скрываем поля цели и вклада
-    goalFields.classList.add("hidden");
-    contributionField.classList.add("hidden");
-    // Автоматически вычисляем вклад
-    const effort = parseFloat(taskEffort.value) || 0;
-    const contribution = Math.max(0.1, effort * 0.1);
-    taskContribution.value = contribution.toFixed(1);
-  } else {
-    // Показываем поля цели и вклада
-    goalFields.classList.remove("hidden");
-    contributionField.classList.remove("hidden");
-    taskContribution.value = "";
-  }
-});
-
-// Обработчик изменения трудозатрат для операционной задачи
-taskEffort.addEventListener("input", function () {
-  if (taskOperational.checked) {
-    const effort = parseFloat(this.value) || 0;
-    const contribution = Math.max(0.1, effort * 0.1);
-    taskContribution.value = contribution.toFixed(1);
-  }
-});
-
-// Подтверждение создания задачи
-createTaskConfirm.addEventListener("click", function () {
-  // Валидация полей
-  if (!taskName.value.trim()) {
-    alert("Пожалуйста, введите название задачи");
-    return;
-  }
-  if (!taskDescription.value.trim()) {
-    alert("Пожалуйста, введите описание задачи");
-    return;
-  }
-  if (!taskEffort.value || parseFloat(taskEffort.value) <= 0) {
-    alert("Пожалуйста, укажите трудозатраты");
-    return;
-  }
-  if (!taskDeadline.value) {
-    alert("Пожалуйста, укажите срок выполнения");
-    return;
-  }
-  if (!taskOperational.checked && !taskGoal.value) {
-    alert("Пожалуйста, выберите цель блока");
-    return;
-  }
-  if (
-    !taskOperational.checked &&
-    (!taskContribution.value || parseFloat(taskContribution.value) <= 0)
-  ) {
-    alert("Пожалуйста, укажите вклад в цель");
-    return;
-  }
-
-  alert("Задача создана");
-  createTaskModal.classList.remove("active");
-  // Очищаем поля
-  taskName.value = "";
-  taskDescription.value = "";
-  taskEffort.value = "";
-  taskDeadline.value = "";
-  taskOperational.checked = false;
-  taskGoal.value = "";
-  taskContribution.value = "";
-  // Показываем поля цели и вклада
-  goalFields.classList.remove("hidden");
-  contributionField.classList.remove("hidden");
-});
-
-// Закрытие модального окна при клике на оверлей
-createTaskModal.addEventListener("click", function (e) {
-  if (e.target === createTaskModal) {
+if (
+  createTaskCancel &&
+  createTaskModal &&
+  taskName &&
+  taskDescription &&
+  taskEffort &&
+  taskDeadline &&
+  taskOperational &&
+  taskGoal &&
+  taskContribution &&
+  goalFields &&
+  contributionField
+) {
+  createTaskCancel.addEventListener("click", function () {
     createTaskModal.classList.remove("active");
     // Очищаем поля
     taskName.value = "";
@@ -2627,8 +2602,136 @@ createTaskModal.addEventListener("click", function (e) {
     // Показываем поля цели и вклада
     goalFields.classList.remove("hidden");
     contributionField.classList.remove("hidden");
-  }
-});
+  });
+}
+
+// Обработчик чекбокса "Операционная задача"
+if (
+  taskOperational &&
+  goalFields &&
+  contributionField &&
+  taskEffort &&
+  taskContribution
+) {
+  taskOperational.addEventListener("change", function () {
+    if (this.checked) {
+      // Скрываем поля цели и вклада
+      goalFields.classList.add("hidden");
+      contributionField.classList.add("hidden");
+      // Автоматически вычисляем вклад
+      const effort = parseFloat(taskEffort.value) || 0;
+      const contribution = Math.max(0.1, effort * 0.1);
+      taskContribution.value = contribution.toFixed(1);
+    } else {
+      // Показываем поля цели и вклада
+      goalFields.classList.remove("hidden");
+      contributionField.classList.remove("hidden");
+      taskContribution.value = "";
+    }
+  });
+}
+
+// Обработчик изменения трудозатрат для операционной задачи
+if (taskEffort && taskOperational && taskContribution) {
+  taskEffort.addEventListener("input", function () {
+    if (taskOperational.checked) {
+      const effort = parseFloat(this.value) || 0;
+      const contribution = Math.max(0.1, effort * 0.1);
+      taskContribution.value = contribution.toFixed(1);
+    }
+  });
+}
+
+// Подтверждение создания задачи
+if (
+  createTaskConfirm &&
+  createTaskModal &&
+  taskName &&
+  taskDescription &&
+  taskEffort &&
+  taskDeadline &&
+  taskOperational &&
+  taskGoal &&
+  taskContribution &&
+  goalFields &&
+  contributionField
+) {
+  createTaskConfirm.addEventListener("click", function () {
+    // Валидация полей
+    if (!taskName.value.trim()) {
+      alert("Пожалуйста, введите название задачи");
+      return;
+    }
+    if (!taskDescription.value.trim()) {
+      alert("Пожалуйста, введите описание задачи");
+      return;
+    }
+    if (!taskEffort.value || parseFloat(taskEffort.value) <= 0) {
+      alert("Пожалуйста, укажите трудозатраты");
+      return;
+    }
+    if (!taskDeadline.value) {
+      alert("Пожалуйста, укажите срок выполнения");
+      return;
+    }
+    if (!taskOperational.checked && !taskGoal.value) {
+      alert("Пожалуйста, выберите цель блока");
+      return;
+    }
+    if (
+      !taskOperational.checked &&
+      (!taskContribution.value || parseFloat(taskContribution.value) <= 0)
+    ) {
+      alert("Пожалуйста, укажите вклад в цель");
+      return;
+    }
+
+    alert("Задача создана");
+    createTaskModal.classList.remove("active");
+    // Очищаем поля
+    taskName.value = "";
+    taskDescription.value = "";
+    taskEffort.value = "";
+    taskDeadline.value = "";
+    taskOperational.checked = false;
+    taskGoal.value = "";
+    taskContribution.value = "";
+    // Показываем поля цели и вклада
+    goalFields.classList.remove("hidden");
+    contributionField.classList.remove("hidden");
+  });
+}
+
+// Закрытие модального окна при клике на оверлей
+if (
+  createTaskModal &&
+  taskName &&
+  taskDescription &&
+  taskEffort &&
+  taskDeadline &&
+  taskOperational &&
+  taskGoal &&
+  taskContribution &&
+  goalFields &&
+  contributionField
+) {
+  createTaskModal.addEventListener("click", function (e) {
+    if (e.target === createTaskModal) {
+      createTaskModal.classList.remove("active");
+      // Очищаем поля
+      taskName.value = "";
+      taskDescription.value = "";
+      taskEffort.value = "";
+      taskDeadline.value = "";
+      taskOperational.checked = false;
+      taskGoal.value = "";
+      taskContribution.value = "";
+      // Показываем поля цели и вклада
+      goalFields.classList.remove("hidden");
+      contributionField.classList.remove("hidden");
+    }
+  });
+}
 
 // Функция для рендеринга списка пользователей (практиканты)
 function renderUsersList(filterText = "") {
@@ -3248,7 +3351,7 @@ roleSelector.addEventListener("change", function () {
   const selectedOption = this.options[this.selectedIndex];
   const roleName = selectedOption.text;
   currentRole = this.value;
-  alert("Переключено на " + roleName);
+  // alert("Переключено на " + roleName); // Убрали alert, чтобы не блокировать выполнение
 
   // Переключаем кнопки в зависимости от роли
   const raiseHandBtn = document.getElementById("raiseHandBtn");
@@ -3256,6 +3359,7 @@ roleSelector.addEventListener("change", function () {
   const supervisorMenuItems = document.querySelectorAll(".supervisor-only");
   const hostMenuItems = document.querySelectorAll(".host-only");
   const supervisorTabs = document.getElementById("supervisorTabs");
+  const hostTabs = document.getElementById("hostTabs");
 
   if (currentRole === "employee") {
     raiseHandBtn.style.display = "none";
@@ -3263,17 +3367,17 @@ roleSelector.addEventListener("change", function () {
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "none"));
     if (supervisorTabs) supervisorTabs.style.display = "none";
+    if (hostTabs) hostTabs.style.display = "none";
   } else if (currentRole === "host") {
     raiseHandBtn.style.display = "none";
     createTaskBtn.style.display = "flex";
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "flex"));
     if (supervisorTabs) supervisorTabs.style.display = "none";
+    if (hostTabs) hostTabs.style.display = "flex";
   } else if (currentRole === "supervisor") {
     raiseHandBtn.style.display = "none";
-    // Для куратора показываем кнопку "Создать задачу" только в режиме задач
-    createTaskBtn.style.display =
-      supervisorFeedMode === "tasks" ? "flex" : "none";
+    createTaskBtn.style.display = "flex";
     supervisorMenuItems.forEach((item) => (item.style.display = "flex"));
     // Для куратора также показываем элементы хоста (включая аналитику)
     hostMenuItems.forEach((item) => {
@@ -3284,12 +3388,14 @@ roleSelector.addEventListener("change", function () {
       }
     });
     if (supervisorTabs) supervisorTabs.style.display = "flex";
+    if (hostTabs) hostTabs.style.display = "flex";
   } else {
     raiseHandBtn.style.display = "flex";
     createTaskBtn.style.display = "none";
     supervisorMenuItems.forEach((item) => (item.style.display = "none"));
     hostMenuItems.forEach((item) => (item.style.display = "none"));
     if (supervisorTabs) supervisorTabs.style.display = "none";
+    if (hostTabs) hostTabs.style.display = "none";
   }
 
   // Обновляем название "Мои задачи" в зависимости от роли
@@ -3306,11 +3412,48 @@ roleSelector.addEventListener("change", function () {
     }
   }
 
+  // Если хост или куратор, сначала настраиваем вкладки
+  if (currentRole === "host" || currentRole === "supervisor") {
+    const hostTabs = document.getElementById("hostTabs");
+    if (hostTabs) {
+      // Сбрасываем активные вкладки
+      const tabs = hostTabs.querySelectorAll(".host-tab");
+      tabs.forEach((t) => t.classList.remove("active"));
+      // Активируем первую вкладку
+      tabs[0].classList.add("active");
+      // Скрываем только контенты вкладок в mytasks-screen
+      const mytasksScreen = document.getElementById("mytasks-screen");
+      if (mytasksScreen) {
+        mytasksScreen.querySelectorAll(".tab-content").forEach((content) => {
+          content.style.display = "none";
+        });
+      }
+      // Показываем контент первой вкладки
+      const firstTabId = tabs[0].getAttribute("data-tab");
+      const firstContent = document.getElementById(firstTabId + "-content");
+      if (firstContent) {
+        firstContent.style.display = "block";
+      }
+    }
+  }
+
   // Перерисовываем ленту в зависимости от роли
   renderTasks();
 
-  // Перерисовываем "Мои задачи" в зависимости от роли
+  // Перерисовываем "Мои задачи" в зависимости от роли (после настройки вкладок)
   renderHostTasks();
+
+  // Перерисовываем аналитику, если экран аналитики активен
+  const activeScreen = document.querySelector(".screen.active");
+  if (activeScreen && activeScreen.id === "analytics-screen") {
+    if (currentRole === "host") {
+      populateInternSelector();
+      renderHostAnalytics();
+    } else if (currentRole === "supervisor") {
+      populateInternSelector();
+      renderSupervisorAnalytics();
+    }
+  }
 
   // Перерисовываем профиль
   renderProfile();
@@ -3495,18 +3638,25 @@ document
 document
   .getElementById("hostTaskConfirm")
   .addEventListener("click", function () {
+    // Cache DOM elements
     const hostTaskModal = document.getElementById("hostTaskModal");
+    const taskTypeComplex = document.getElementById("taskTypeComplex");
+    const hostTaskName = document.getElementById("hostTaskName");
+    const hostTaskDescription = document.getElementById("hostTaskDescription");
+    const hostTaskGoal = document.getElementById("hostTaskGoal");
+    const hostTaskOperational = document.getElementById("hostTaskOperational");
+    const hostTaskEffort = document.getElementById("hostTaskEffort");
+    const hostTaskDeadline = document.getElementById("hostTaskDeadline");
+
     const internName = hostTaskModal.dataset.internName;
     const isEditMode = hostTaskModal.dataset.editMode === "true";
-    const isComplex = document.getElementById("taskTypeComplex")?.checked;
+    const isComplex = taskTypeComplex?.checked;
 
     // Получаем данные формы
-    const name = document.getElementById("hostTaskName").value.trim();
-    const description = document
-      .getElementById("hostTaskDescription")
-      .value.trim();
-    const goal = document.getElementById("hostTaskGoal").value;
-    const operational = document.getElementById("hostTaskOperational").checked;
+    const name = hostTaskName.value.trim();
+    const description = hostTaskDescription.value.trim();
+    const goal = hostTaskGoal.value;
+    const operational = hostTaskOperational.checked;
 
     // Валидация общих полей
     if (!name || !description) {
@@ -3554,8 +3704,8 @@ document
         " часов";
     } else {
       // Простая задача
-      effort = document.getElementById("hostTaskEffort").value.trim();
-      deadline = document.getElementById("hostTaskDeadline").value;
+      effort = hostTaskEffort.value.trim();
+      deadline = hostTaskDeadline.value;
 
       if (!effort || !deadline) {
         alert("Пожалуйста, заполните все обязательные поля");
@@ -3676,6 +3826,9 @@ hostTabs.forEach((tab) => {
     if (selectedContent) {
       selectedContent.style.display = "block";
     }
+
+    // Перерисовываем задачи при переключении вкладок, чтобы контент отображался корректно
+    renderHostTasks();
   });
 });
 
@@ -3711,11 +3864,23 @@ usersTabs.forEach((tab) => {
   });
 });
 
-// Обработчик поиска пользователей
+// Функция debounce для отложенного выполнения
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Обработчик поиска пользователей с debounce
 const usersSearch = document.getElementById("usersSearch");
 if (usersSearch) {
-  usersSearch.addEventListener("input", function () {
-    const filterText = this.value;
+  const debouncedSearch = debounce(function (filterText) {
     const activeTab = document.querySelector("#usersTabs .host-tab.active");
     if (activeTab) {
       const tabId = activeTab.getAttribute("data-tab");
@@ -3725,6 +3890,10 @@ if (usersSearch) {
         renderEmployeesList(filterText);
       }
     }
+  }, 300); // Задержка 300 мс
+
+  usersSearch.addEventListener("input", function () {
+    debouncedSearch(this.value);
   });
 }
 
@@ -3853,252 +4022,27 @@ document
     }
   });
 
-// Обработчик кнопки "Редактировать" для текущего профиля практиканта (устаревший код)
-const editCurrentUserBtn = document.getElementById("editCurrentUserBtn");
-if (editCurrentUserBtn) {
-  editCurrentUserBtn.addEventListener("click", function () {
-    const internData = currentUser.intern;
-
-    // Заполняем форму редактирования
-    const editCurrentUserName = document.getElementById("editCurrentUserName");
-    const editCurrentUserBlock = document.getElementById(
-      "editCurrentUserBlock",
-    );
-    const editCurrentUserInterests = document.getElementById(
-      "editCurrentUserInterests",
-    );
-
-    if (editCurrentUserName) editCurrentUserName.value = internData.name;
-    if (editCurrentUserBlock) editCurrentUserBlock.value = internData.block;
-    if (editCurrentUserInterests)
-      editCurrentUserInterests.value = internData.interests.join(", ");
-
-    // Заполняем расписание
-    const scheduleMap = {
-      Пн: "editCurrentScheduleMon",
-      Вт: "editCurrentScheduleTue",
-      Ср: "editCurrentScheduleWed",
-      Чт: "editCurrentScheduleThu",
-      Пт: "editCurrentScheduleFri",
-    };
-    internData.schedule.forEach((day) => {
-      const selectId = scheduleMap[day.day];
-      if (selectId) {
-        const select = document.getElementById(selectId);
-        if (select) select.value = day.status;
-      }
-    });
-
-    // Показываем форму, скрываем кнопки
-    const currentUserEditForm = document.getElementById("currentUserEditForm");
-    const currentUserEditButtons = document.getElementById(
-      "currentUserEditButtons",
-    );
-    const currentUserViewButtons = document.getElementById(
-      "currentUserViewButtons",
-    );
-
-    if (currentUserEditForm) currentUserEditForm.style.display = "block";
-    if (currentUserEditButtons) currentUserEditButtons.style.display = "none";
-    if (currentUserViewButtons) currentUserViewButtons.style.display = "none";
-  });
-}
-
-// Обработчик кнопки "Отмена" редактирования текущего профиля (устаревший код)
-const cancelCurrentUserEditBtn = document.getElementById(
-  "cancelCurrentUserEditBtn",
-);
-if (cancelCurrentUserEditBtn) {
-  cancelCurrentUserEditBtn.addEventListener("click", function () {
-    const currentUserEditForm = document.getElementById("currentUserEditForm");
-    const currentUserEditButtons = document.getElementById(
-      "currentUserEditButtons",
-    );
-    const currentUserViewButtons = document.getElementById(
-      "currentUserViewButtons",
-    );
-
-    if (currentUserEditForm) currentUserEditForm.style.display = "none";
-    if (currentUserEditButtons) currentUserEditButtons.style.display = "block";
-    if (currentUserViewButtons) currentUserViewButtons.style.display = "block";
-  });
-}
-
-// Обработчик кнопки "Сохранить" редактирования текущего профиля (устаревший код)
-const saveCurrentUserEditBtn = document.getElementById(
-  "saveCurrentUserEditBtn",
-);
-if (saveCurrentUserEditBtn) {
-  saveCurrentUserEditBtn.addEventListener("click", function () {
-    const internData = currentUser.intern;
-
-    // Обновляем данные
-    internData.name = document.getElementById("editCurrentUserName").value;
-    internData.block = document.getElementById("editCurrentUserBlock").value;
-
-    // Парсим интересы
-    const interestsText = document.getElementById(
-      "editCurrentUserInterests",
-    ).value;
-    internData.interests = interestsText
-      .split(",")
-      .map((i) => i.trim())
-      .filter((i) => i);
-
-    // Обновляем расписание
-    const scheduleMap = {
-      Пн: "editCurrentScheduleMon",
-      Вт: "editCurrentScheduleTue",
-      Ср: "editCurrentScheduleWed",
-      Чт: "editCurrentScheduleThu",
-      Пт: "editCurrentScheduleFri",
-    };
-    internData.schedule = [
-      {
-        day: "Пн",
-        status: document.getElementById(scheduleMap["Пн"]).value,
-      },
-      {
-        day: "Вт",
-        status: document.getElementById(scheduleMap["Вт"]).value,
-      },
-      {
-        day: "Ср",
-        status: document.getElementById(scheduleMap["Ср"]).value,
-      },
-      {
-        day: "Чт",
-        status: document.getElementById(scheduleMap["Чт"]).value,
-      },
-      {
-        day: "Пт",
-        status: document.getElementById(scheduleMap["Пт"]).value,
-      },
-    ];
-
-    // Обновляем отображение
-    renderProfile();
-
-    // Скрываем форму, показываем кнопки
-    const currentUserEditForm = document.getElementById("currentUserEditForm");
-    const currentUserEditButtons = document.getElementById(
-      "currentUserEditButtons",
-    );
-    const currentUserViewButtons = document.getElementById(
-      "currentUserViewButtons",
-    );
-
-    if (currentUserEditForm) currentUserEditForm.style.display = "none";
-    if (currentUserEditButtons) currentUserEditButtons.style.display = "block";
-    if (currentUserViewButtons) currentUserViewButtons.style.display = "block";
-
-    alert("Профиль обновлён");
-  });
-}
-
-// Обработчик кнопки "Редактировать" для профиля сотрудника (устаревший код)
-const editEmployeeBtn = document.getElementById("editEmployeeBtn");
-if (editEmployeeBtn) {
-  editEmployeeBtn.addEventListener("click", function () {
-    const employeeData =
-      currentRole === "employee"
-        ? currentUser.employee
-        : currentRole === "host"
-          ? currentUser.employee
-          : currentUser.supervisor;
-
-    // Заполняем форму редактирования
-    document.getElementById("editEmployeeName").value = employeeData.name;
-    document.getElementById("editEmployeeBlock").value = employeeData.block;
-
-    // Заполняем настройки уведомлений
-    document.getElementById("editNotifNewTasks").checked =
-      document.getElementById("notifNewTasks").checked;
-    document.getElementById("editNotifResponses").checked =
-      document.getElementById("notifResponses").checked;
-    document.getElementById("editNotifMessages").checked =
-      document.getElementById("notifMessages").checked;
-    document.getElementById("editNotifRating").checked =
-      document.getElementById("notifRating").checked;
-
-    // Показываем форму, скрываем кнопки
-    document.getElementById("employeeEditForm").style.display = "block";
-    document.getElementById("employeeEditButtons").style.display = "none";
-    document.getElementById("employeeViewButtons").style.display = "none";
-  });
-}
-
-// Обработчик кнопки "Отмена" редактирования профиля сотрудника (устаревший код)
-const cancelEmployeeEditBtn = document.getElementById("cancelEmployeeEditBtn");
-if (cancelEmployeeEditBtn) {
-  cancelEmployeeEditBtn.addEventListener("click", function () {
-    const employeeEditForm = document.getElementById("employeeEditForm");
-    const employeeEditButtons = document.getElementById("employeeEditButtons");
-    const employeeViewButtons = document.getElementById("employeeViewButtons");
-
-    if (employeeEditForm) employeeEditForm.style.display = "none";
-    if (employeeEditButtons) employeeEditButtons.style.display = "block";
-    if (employeeViewButtons) employeeViewButtons.style.display = "none";
-  });
-}
-
-// Обработчик кнопки "Сохранить" редактирования профиля сотрудника (устаревший код)
-const saveEmployeeEditBtn = document.getElementById("saveEmployeeEditBtn");
-if (saveEmployeeEditBtn) {
-  saveEmployeeEditBtn.addEventListener("click", function () {
-    const employeeData =
-      currentRole === "employee"
-        ? currentUser.employee
-        : currentRole === "host"
-          ? currentUser.employee
-          : currentUser.supervisor;
-
-    // Обновляем данные
-    employeeData.name = document.getElementById("editEmployeeName").value;
-    employeeData.block = document.getElementById("editEmployeeBlock").value;
-
-    // Обновляем настройки уведомлений
-    document.getElementById("notifNewTasks").checked =
-      document.getElementById("editNotifNewTasks").checked;
-    document.getElementById("notifResponses").checked =
-      document.getElementById("editNotifResponses").checked;
-    document.getElementById("notifMessages").checked =
-      document.getElementById("editNotifMessages").checked;
-    document.getElementById("notifRating").checked =
-      document.getElementById("editNotifRating").checked;
-
-    // Обновляем отображение
-    renderProfile();
-
-    // Скрываем форму, показываем кнопки
-    const employeeEditForm = document.getElementById("employeeEditForm");
-    const employeeEditButtons = document.getElementById("employeeEditButtons");
-    const employeeViewButtons = document.getElementById("employeeViewButtons");
-
-    if (employeeEditForm) employeeEditForm.style.display = "none";
-    if (employeeEditButtons) employeeEditButtons.style.display = "block";
-    if (employeeViewButtons) employeeViewButtons.style.display = "none";
-
-    alert("Профиль обновлён");
-  });
-}
-
 // ==================== АНАЛИТИКА ====================
 
-// Переменные для хранения графиков
-let ratingChart = null;
-let taskTypeChart = null;
-let weeklyTasksChart = null;
+// Переменные для хранения графиков - сгруппированы в объект
+const charts = {
+  // Хост графики
+  ratingChart: null,
+  taskTypeChart: null,
+  weeklyTasksChart: null,
 
-// Переменные для хранения графиков куратора
-let supervisorTaskTypeChart = null;
-let supervisorWeeklyTasksChart = null;
-let responseTimeChart = null;
-let avgRatingChart = null;
-let tasksAndHandsChart = null;
-let officeAttendanceChart = null;
-let blockActivityChart = null;
-let hostLoadChart = null;
+  // Куратор графики
+  supervisorTaskTypeChart: null,
+  supervisorWeeklyTasksChart: null,
+
+  // Общие аналитические графики
+  responseTimeChart: null,
+  avgRatingChart: null,
+  tasksAndHandsChart: null,
+  officeAttendanceChart: null,
+  blockActivityChart: null,
+  hostLoadChart: null,
+};
 
 // Текущий выбранный практикант для аналитики
 let selectedInternId = 1;
@@ -4107,6 +4051,18 @@ let selectedInternId = 1;
 function initAnalytics() {
   const analyticsScreen = document.getElementById("analytics-screen");
   if (!analyticsScreen) return;
+
+  // Восстанавливаем содержимое экрана аналитики, если оно было очищено
+  if (currentRole === "host" || currentRole === "supervisor") {
+    if (
+      !analyticsScreen.querySelector("#host-analytics") &&
+      !analyticsScreen.querySelector("#supervisor-analytics")
+    ) {
+      // Если содержимое было очищено, перезагружаем страницу или восстанавливаем структуру
+      // Для простоты, просто перерендерим при следующем открытии экрана
+      return;
+    }
+  }
 
   // Показываем/скрываем секции в зависимости от роли
   const hostAnalytics = document.getElementById("host-analytics");
@@ -4118,8 +4074,8 @@ function initAnalytics() {
   const supervisorTabs = document.getElementById("supervisorTabs");
 
   if (currentRole === "host") {
-    hostAnalytics.style.display = "block";
-    supervisorAnalytics.style.display = "none";
+    if (hostAnalytics) hostAnalytics.style.display = "block";
+    if (supervisorAnalytics) supervisorAnalytics.style.display = "none";
     if (internSelector) internSelector.style.display = "block";
     if (supervisorTabs) supervisorTabs.style.display = "none";
     if (supervisorInternSelector)
@@ -4127,8 +4083,8 @@ function initAnalytics() {
     populateInternSelector();
     renderHostAnalytics();
   } else if (currentRole === "supervisor") {
-    hostAnalytics.style.display = "none";
-    supervisorAnalytics.style.display = "block";
+    if (hostAnalytics) hostAnalytics.style.display = "none";
+    if (supervisorAnalytics) supervisorAnalytics.style.display = "block";
     if (internSelector) internSelector.style.display = "none";
     if (supervisorInternSelector)
       supervisorInternSelector.style.display = "block";
@@ -4149,10 +4105,16 @@ function initAnalytics() {
   }
 }
 
+// Флаг для отслеживания инициализации вкладок куратора
+let supervisorTabsInitialized = false;
+
 // Инициализация вкладок куратора
 function initSupervisorTabs() {
   const supervisorTabs = document.getElementById("supervisorTabs");
   if (!supervisorTabs) return;
+
+  // Если вкладки уже инициализированы, не добавляем обработчики повторно
+  if (supervisorTabsInitialized) return;
 
   const tabs = supervisorTabs.querySelectorAll(".host-tab");
   tabs.forEach((tab) => {
@@ -4189,6 +4151,9 @@ function initSupervisorTabs() {
       }
     });
   });
+
+  // Помечаем вкладки как инициализированные
+  supervisorTabsInitialized = true;
 }
 
 // Инициализация фильтра по периоду
@@ -4219,6 +4184,12 @@ function populateInternSelector() {
   // Заполняем селектор для хоста
   const hostSelector = document.getElementById("selectedIntern");
   if (hostSelector) {
+    // Удаляем старый обработчик, если он существует
+    const oldHostHandler = hostSelector._changeHandler;
+    if (oldHostHandler) {
+      hostSelector.removeEventListener("change", oldHostHandler);
+    }
+
     hostSelector.innerHTML = "";
     allUsers.forEach((intern) => {
       const option = document.createElement("option");
@@ -4228,12 +4199,14 @@ function populateInternSelector() {
     });
 
     // Устанавливаем обработчик изменения для хоста
-    hostSelector.addEventListener("change", function () {
+    const hostHandler = function () {
       selectedInternId = parseInt(this.value);
       if (currentRole === "host") {
         renderHostAnalytics();
       }
-    });
+    };
+    hostSelector.addEventListener("change", hostHandler);
+    hostSelector._changeHandler = hostHandler;
   }
 
   // Заполняем селектор для куратора
@@ -4241,6 +4214,12 @@ function populateInternSelector() {
     "selectedSupervisorIntern",
   );
   if (supervisorSelector) {
+    // Удаляем старый обработчик, если он существует
+    const oldSupervisorHandler = supervisorSelector._changeHandler;
+    if (oldSupervisorHandler) {
+      supervisorSelector.removeEventListener("change", oldSupervisorHandler);
+    }
+
     supervisorSelector.innerHTML = "";
     allUsers.forEach((intern) => {
       const option = document.createElement("option");
@@ -4250,13 +4229,15 @@ function populateInternSelector() {
     });
 
     // Устанавливаем обработчик изменения для куратора
-    supervisorSelector.addEventListener("change", function () {
+    const supervisorHandler = function () {
       selectedInternId = parseInt(this.value);
       if (currentRole === "supervisor") {
         // Обновляем аналитику для выбранного практики
         renderSupervisorInternAnalytics();
       }
-    });
+    };
+    supervisorSelector.addEventListener("change", supervisorHandler);
+    supervisorSelector._changeHandler = supervisorHandler;
   }
 }
 
@@ -4270,9 +4251,9 @@ function renderHostAnalytics() {
   renderRecentReviews();
 }
 
-// Рендеринг метрик выбранного практика
-function renderInternMetrics() {
-  const metricsCard = document.getElementById("internMetrics");
+// Общая функция для рендеринга метрик практика
+function renderInternMetricsCommon(metricsCardId, elementIds) {
+  const metricsCard = document.getElementById(metricsCardId);
   if (!metricsCard) return;
 
   const intern = allUsers.find((u) => u.id === selectedInternId);
@@ -4283,27 +4264,45 @@ function renderInternMetrics() {
 
   metricsCard.style.display = "block";
 
-  const completedTasksCount = completedTasks.filter(
+  // Filter once and reuse - combine redundant iterations
+  const internCompletedTasks = completedTasks.filter(
     (t) => t.internId === intern.id,
-  ).length;
+  );
+  const completedTasksCount = internCompletedTasks.length;
 
   const avgRating =
-    completedTasks
-      .filter((t) => t.internId === intern.id)
-      .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
+    internCompletedTasks.reduce((sum, t) => sum + t.rating, 0) /
+      completedTasksCount || 0;
 
   const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
   const overallProgress =
     activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
       activeTasks.length || 0;
 
-  document.getElementById("metricRating").textContent =
-    intern.rating.toFixed(1);
-  document.getElementById("metricCompletedTasks").textContent =
-    completedTasksCount;
-  document.getElementById("metricAvgRating").textContent = avgRating.toFixed(1);
-  document.getElementById("metricProgress").textContent =
-    Math.round(overallProgress) + "%";
+  // Cache DOM elements to avoid repeated queries
+  const ratingElement = document.getElementById(elementIds.rating);
+  const completedTasksElement = document.getElementById(
+    elementIds.completedTasks,
+  );
+  const avgRatingElement = document.getElementById(elementIds.avgRating);
+  const progressElement = document.getElementById(elementIds.progress);
+
+  if (ratingElement) ratingElement.textContent = intern.rating.toFixed(1);
+  if (completedTasksElement)
+    completedTasksElement.textContent = completedTasksCount;
+  if (avgRatingElement) avgRatingElement.textContent = avgRating.toFixed(1);
+  if (progressElement)
+    progressElement.textContent = Math.round(overallProgress) + "%";
+}
+
+// Рендеринг метрик выбранного практика
+function renderInternMetrics() {
+  renderInternMetricsCommon("internMetrics", {
+    rating: "metricRating",
+    completedTasks: "metricCompletedTasks",
+    avgRating: "metricAvgRating",
+    progress: "metricProgress",
+  });
 }
 
 // Рендеринг списка практикантов
@@ -4314,13 +4313,14 @@ function renderInternsTable() {
   container.innerHTML = "";
 
   allUsers.forEach((intern) => {
-    const completedTasksCount = completedTasks.filter(
+    // Filter once and reuse - combine redundant iterations
+    const internCompletedTasks = completedTasks.filter(
       (t) => t.internId === intern.id,
-    ).length;
+    );
+    const completedTasksCount = internCompletedTasks.length;
     const avgRating =
-      completedTasks
-        .filter((t) => t.internId === intern.id)
-        .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
+      internCompletedTasks.reduce((sum, t) => sum + t.rating, 0) /
+        completedTasksCount || 0;
     const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
     const overallProgress =
       activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
@@ -4366,8 +4366,8 @@ function renderRatingChart() {
     (h) => h.internId === selectedInternId,
   );
 
-  if (ratingChart) {
-    ratingChart.destroy();
+  if (charts.ratingChart) {
+    charts.ratingChart.destroy();
   }
 
   const ratings = internHistory.map((h) => h.rating);
@@ -4375,7 +4375,7 @@ function renderRatingChart() {
   const maxValue = Math.max(...ratings);
   const yMin = Math.floor(minValue / 10) * 10;
 
-  ratingChart = new Chart(ctx, {
+  charts.ratingChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: internHistory.map((h) => h.week),
@@ -4430,28 +4430,27 @@ function renderRatingChart() {
   });
 }
 
-// Рендеринг графика распределения задач по типу
-function renderTaskTypeChart() {
-  const ctx = document.getElementById("taskTypeChart");
+// Общая функция для рендеринга графика распределения задач по типу
+function renderTaskTypeChartCommon(ctx, chartInstance) {
   if (!ctx) return;
 
   const internTasks = completedTasks.filter(
     (t) => t.internId === selectedInternId,
   );
-  const hostTasks = internTasks.filter((t) => t.type === "host").length;
-  const feedTasks = internTasks.filter((t) => t.type === "feed").length;
+  const hostTasksCount = internTasks.filter((t) => t.type === "host").length;
+  const feedTasksCount = internTasks.filter((t) => t.type === "feed").length;
 
-  if (taskTypeChart) {
-    taskTypeChart.destroy();
+  if (chartInstance) {
+    chartInstance.destroy();
   }
 
-  taskTypeChart = new Chart(ctx, {
+  return new Chart(ctx, {
     type: "doughnut",
     data: {
       labels: ["От хоста", "Из ленты"],
       datasets: [
         {
-          data: [hostTasks, feedTasks],
+          data: [hostTasksCount, feedTasksCount],
           backgroundColor: ["#2cb5b4", "#f59e0b"],
         },
       ],
@@ -4488,6 +4487,12 @@ function renderTaskTypeChart() {
       },
     },
   });
+}
+
+// Рендеринг графика распределения задач по типу
+function renderTaskTypeChart() {
+  const ctx = document.getElementById("taskTypeChart");
+  charts.taskTypeChart = renderTaskTypeChartCommon(ctx, charts.taskTypeChart);
 }
 
 // Рендеринг расписания в аналитике
@@ -4533,14 +4538,14 @@ function renderWeeklyTasksChart() {
   const weeks = Object.keys(weeklyData).sort();
   const counts = weeks.map((w) => weeklyData[w]);
 
-  if (weeklyTasksChart) {
-    weeklyTasksChart.destroy();
+  if (charts.weeklyTasksChart) {
+    charts.weeklyTasksChart.destroy();
   }
 
   const minValue = Math.min(...counts);
   const yMin = Math.floor(minValue / 10) * 10;
 
-  weeklyTasksChart = new Chart(ctx, {
+  charts.weeklyTasksChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: weeks.map((w) => `Неделя ${w}`),
@@ -4606,20 +4611,26 @@ function renderWeeklyTasksChart() {
   });
 }
 
-// Рендеринг списка активных задач
-function renderActiveTasksList() {
-  const container = document.getElementById("activeTasksList");
+// Общая функция для рендеринга списка активных задач
+function renderActiveTasksListCommon(
+  containerId,
+  sortButtonsSelector,
+  filterIntern = true,
+) {
+  const container = document.getElementById(containerId);
   if (!container) return;
 
-  const activeTasks = hostTasks.filter((t) => t.internId === selectedInternId);
+  const tasksToRender = filterIntern
+    ? hostTasks.filter((t) => t.internId === selectedInternId)
+    : hostTasks.filter((t) => t.internId === selectedInternId);
 
-  if (activeTasks.length === 0) {
+  if (tasksToRender.length === 0) {
     container.innerHTML = "<p>Нет активных задач</p>";
     return;
   }
 
   // Get current sort type from active button
-  const sortButtons = document.querySelectorAll("#taskSortButtons .sort-btn");
+  const sortButtons = document.querySelectorAll(sortButtonsSelector);
   let sortType = "deadline";
   sortButtons.forEach((btn) => {
     if (btn.classList.contains("active")) {
@@ -4628,7 +4639,7 @@ function renderActiveTasksList() {
   });
 
   // Sort tasks
-  const sortedTasks = sortTasks(activeTasks, sortType);
+  const sortedTasks = sortTasks(tasksToRender, sortType);
 
   container.innerHTML = sortedTasks
     .map((task) => {
@@ -4696,6 +4707,15 @@ function renderActiveTasksList() {
       `;
     })
     .join("");
+}
+
+// Рендеринг списка активных задач
+function renderActiveTasksList() {
+  renderActiveTasksListCommon(
+    "activeTasksList",
+    "#taskSortButtons .sort-btn",
+    true,
+  );
 }
 
 // Сортировка задач
@@ -4839,15 +4859,15 @@ function renderResponseTimeChart() {
   const ctx = document.getElementById("responseTimeChart");
   if (!ctx) return;
 
-  if (responseTimeChart) {
-    responseTimeChart.destroy();
+  if (charts.responseTimeChart) {
+    charts.responseTimeChart.destroy();
   }
 
   const maxValue = Math.max(
     ...responseTimeByBlock.map((b) => b.avgResponseTime),
   );
 
-  responseTimeChart = new Chart(ctx, {
+  charts.responseTimeChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: responseTimeByBlock.map((b) => b.block),
@@ -4922,13 +4942,13 @@ function renderAvgRatingChart() {
   const ctx = document.getElementById("avgRatingChart");
   if (!ctx) return;
 
-  if (avgRatingChart) {
-    avgRatingChart.destroy();
+  if (charts.avgRatingChart) {
+    charts.avgRatingChart.destroy();
   }
 
   const maxValue = Math.max(...avgRatingByBlock.map((b) => b.avgRating));
 
-  avgRatingChart = new Chart(ctx, {
+  charts.avgRatingChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: avgRatingByBlock.map((b) => b.block),
@@ -5003,8 +5023,8 @@ function renderTasksAndHandsChart() {
   const ctx = document.getElementById("tasksAndHandsChart");
   if (!ctx) return;
 
-  if (tasksAndHandsChart) {
-    tasksAndHandsChart.destroy();
+  if (charts.tasksAndHandsChart) {
+    charts.tasksAndHandsChart.destroy();
   }
 
   const tasksCreated = weeklyStats.map((s) => s.tasksCreated);
@@ -5012,7 +5032,7 @@ function renderTasksAndHandsChart() {
   const minValue = Math.min(...tasksCreated, ...handsRaised);
   const yMin = Math.floor(minValue / 10) * 10;
 
-  tasksAndHandsChart = new Chart(ctx, {
+  charts.tasksAndHandsChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: weeklyStats.map((s) => s.week),
@@ -5144,13 +5164,13 @@ function renderOfficeAttendanceChart() {
     });
   });
 
-  if (officeAttendanceChart) {
-    officeAttendanceChart.destroy();
+  if (charts.officeAttendanceChart) {
+    charts.officeAttendanceChart.destroy();
   }
 
   const maxValue = Math.max(...morningCounts, ...afternoonCounts);
 
-  officeAttendanceChart = new Chart(ctx, {
+  charts.officeAttendanceChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"],
@@ -5291,8 +5311,8 @@ function renderBlockActivityChart() {
   const ctx = document.getElementById("blockActivityChart");
   if (!ctx) return;
 
-  if (blockActivityChart) {
-    blockActivityChart.destroy();
+  if (charts.blockActivityChart) {
+    charts.blockActivityChart.destroy();
   }
 
   const maxValue = Math.max(
@@ -5300,7 +5320,7 @@ function renderBlockActivityChart() {
     ...blockActivity.map((b) => b.tasksClosed),
   );
 
-  blockActivityChart = new Chart(ctx, {
+  charts.blockActivityChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: blockActivity.map((b) => b.block),
@@ -5401,13 +5421,13 @@ function renderHostLoadChart() {
   const ctx = document.getElementById("hostLoadChart");
   if (!ctx) return;
 
-  if (hostLoadChart) {
-    hostLoadChart.destroy();
+  if (charts.hostLoadChart) {
+    charts.hostLoadChart.destroy();
   }
 
   const maxValue = Math.max(...hostLoad.map((h) => h.activeTasks));
 
-  hostLoadChart = new Chart(ctx, {
+  charts.hostLoadChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels: hostLoad.map((h) => h.hostName.split(" ")[0]),
@@ -5500,15 +5520,23 @@ function renderCriticalNotifications() {
         <div class="notification-content">
           <div class="notification-title">${notif.title}</div>
           <div class="notification-text">${notif.text}</div>
-          <div class="notification-date">${formatDate(notif.date)}</div>
+          <div class="notification-date">${formatDateTime(notif.date)}</div>
         </div>
         <div class="notification-action">
-          <button onclick="handleNotificationAction(${notif.id})">Перейти</button>
+          <button class="notification-action-btn" data-notification-id="${notif.id}">Перейти</button>
         </div>
       </div>
     `,
     )
     .join("");
+
+  // Добавляем делегирование событий для кнопок уведомлений
+  container.addEventListener("click", function (e) {
+    if (e.target.classList.contains("notification-action-btn")) {
+      const notificationId = parseInt(e.target.dataset.notificationId);
+      handleNotificationAction(notificationId);
+    }
+  });
 }
 
 // Обработка нажатия на кнопку уведомления
@@ -5519,8 +5547,8 @@ function handleNotificationAction(notificationId) {
   }
 }
 
-// Форматирование даты
-function formatDate(dateString) {
+// Форматирование даты и времени
+function formatDateTime(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString("ru-RU", {
     day: "2-digit",
@@ -5541,99 +5569,21 @@ function getWeekNumber(dateString) {
 
 // Рендеринг метрик выбранного практика для куратора
 function renderSupervisorInternMetrics() {
-  const metricsCard = document.getElementById("supervisorInternMetrics");
-  if (!metricsCard) return;
-
-  const intern = allUsers.find((u) => u.id === selectedInternId);
-  if (!intern) {
-    metricsCard.style.display = "none";
-    return;
-  }
-
-  metricsCard.style.display = "block";
-
-  const completedTasksCount = completedTasks.filter(
-    (t) => t.internId === intern.id,
-  ).length;
-
-  const avgRating =
-    completedTasks
-      .filter((t) => t.internId === intern.id)
-      .reduce((sum, t) => sum + t.rating, 0) / completedTasksCount || 0;
-
-  const activeTasks = hostTasks.filter((t) => t.internId === intern.id);
-  const overallProgress =
-    activeTasks.reduce((sum, t) => sum + calculateProgress(t), 0) /
-      activeTasks.length || 0;
-
-  document.getElementById("supervisorMetricRating").textContent =
-    intern.rating.toFixed(1);
-  document.getElementById("supervisorMetricCompletedTasks").textContent =
-    completedTasksCount;
-  document.getElementById("supervisorMetricAvgRating").textContent =
-    avgRating.toFixed(1);
-  document.getElementById("supervisorMetricProgress").textContent =
-    Math.round(overallProgress) + "%";
+  renderInternMetricsCommon("supervisorInternMetrics", {
+    rating: "supervisorMetricRating",
+    completedTasks: "supervisorMetricCompletedTasks",
+    avgRating: "supervisorMetricAvgRating",
+    progress: "supervisorMetricProgress",
+  });
 }
 
 // Рендеринг графика распределения задач по типу для куратора
 function renderSupervisorTaskTypeChart() {
   const ctx = document.getElementById("supervisorTaskTypeChart");
-  if (!ctx) return;
-
-  const internTasks = completedTasks.filter(
-    (t) => t.internId === selectedInternId,
+  charts.supervisorTaskTypeChart = renderTaskTypeChartCommon(
+    ctx,
+    charts.supervisorTaskTypeChart,
   );
-  const hostTasksCount = internTasks.filter((t) => t.type === "host").length;
-  const feedTasksCount = internTasks.filter((t) => t.type === "feed").length;
-
-  if (supervisorTaskTypeChart) {
-    supervisorTaskTypeChart.destroy();
-  }
-
-  supervisorTaskTypeChart = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["От хоста", "Из ленты"],
-      datasets: [
-        {
-          data: [hostTasksCount, feedTasksCount],
-          backgroundColor: ["#2cb5b4", "#f59e0b"],
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: "bottom",
-          align: "center",
-          labels: {
-            color: "#333",
-            font: {
-              size: 12,
-            },
-            usePointStyle: true,
-            pointStyle: "circle",
-            padding: 20,
-          },
-        },
-        datalabels: {
-          display: true,
-          color: "#333",
-          font: {
-            size: 12,
-            weight: "normal",
-          },
-          formatter: function (value) {
-            return value;
-          },
-        },
-      },
-    },
-  });
 }
 
 // Рендеринг расписания для куратора
@@ -5679,14 +5629,14 @@ function renderSupervisorWeeklyTasksChart() {
   const weeks = Object.keys(weeklyData).sort();
   const counts = weeks.map((w) => weeklyData[w]);
 
-  if (supervisorWeeklyTasksChart) {
-    supervisorWeeklyTasksChart.destroy();
+  if (charts.supervisorWeeklyTasksChart) {
+    charts.supervisorWeeklyTasksChart.destroy();
   }
 
   const minValue = Math.min(...counts);
   const yMin = Math.floor(minValue / 10) * 10;
 
-  supervisorWeeklyTasksChart = new Chart(ctx, {
+  charts.supervisorWeeklyTasksChart = new Chart(ctx, {
     type: "line",
     data: {
       labels: weeks.map((w) => `Неделя ${w}`),
@@ -5754,98 +5704,11 @@ function renderSupervisorWeeklyTasksChart() {
 
 // Рендеринг списка активных задач для куратора
 function renderSupervisorActiveTasksList() {
-  const container = document.getElementById("supervisorActiveTasksList");
-  if (!container) return;
-
-  const internActiveTasks = hostTasks.filter(
-    (t) => t.internId === selectedInternId,
-  );
-
-  if (internActiveTasks.length === 0) {
-    container.innerHTML = "<p>Нет активных задач</p>";
-    return;
-  }
-
-  // Get current sort type from active button
-  const sortButtons = document.querySelectorAll(
+  renderActiveTasksListCommon(
+    "supervisorActiveTasksList",
     "#supervisorTaskSortButtons .sort-btn",
+    true,
   );
-  let sortType = "deadline";
-  sortButtons.forEach((btn) => {
-    if (btn.classList.contains("active")) {
-      sortType = btn.dataset.sort;
-    }
-  });
-
-  // Sort tasks
-  const sortedTasks = sortTasks(internActiveTasks, sortType);
-
-  container.innerHTML = sortedTasks
-    .map((task) => {
-      const progress = calculateProgress(task);
-      const completedCount = task.checklist.filter(
-        (item) => item.checked,
-      ).length;
-      const totalCount = task.checklist.length;
-
-      // Get deadline info based on task type
-      let deadlineInfo;
-      let taskTypeLabel = "";
-      let effortDisplay = "";
-
-      if (task.taskType === "complex") {
-        // For complex tasks, find the nearest deadline among unchecked items
-        const uncheckedItems = task.checklist.filter((item) => !item.checked);
-        if (uncheckedItems.length > 0) {
-          const nearestDeadline = uncheckedItems
-            .map((item) => new Date(item.deadline))
-            .reduce((min, date) => (date < min ? date : min));
-          deadlineInfo = getDeadlineInfo(
-            nearestDeadline.toISOString().split("T")[0],
-          );
-        } else {
-          deadlineInfo = getDeadlineInfo(task.deadline);
-        }
-
-        // Calculate total effort for complex tasks
-        const totalEffort = task.checklist.reduce(
-          (sum, item) => sum + parseFloat(item.effort || 0),
-          0,
-        );
-        effortDisplay = `${totalEffort} часов`;
-        taskTypeLabel = `<span style="font-size: 12px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">Сложная задача</span>`;
-      } else {
-        // For simple tasks, use the overall deadline
-        deadlineInfo = getDeadlineInfo(task.deadline);
-        effortDisplay = task.effort || "";
-      }
-
-      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
-
-      // Use red color only for overdue tasks
-      const progressColorClass =
-        deadlineInfo.status === "overdue" ? "overdue" : "";
-
-      return `
-        <div class="task-progress-card" data-task-id="${task.id}">
-          <div class="task-status-badge ${statusBadge.class}">${statusBadge.text}</div>
-          <div class="task-card-header">
-            <div class="task-card-title">${task.title}${taskTypeLabel}</div>
-            <div class="task-card-percent">${progress}%</div>
-          </div>
-          <div class="task-deadline-info">
-            <div class="deadline-indicator ${deadlineInfo.indicatorClass}"></div>
-            <span>${deadlineInfo.text}</span>
-          </div>
-          ${effortDisplay ? `<div class="task-effort-info" style="font-size: 12px; color: #666; margin-bottom: 8px;">⏱ ${effortDisplay}</div>` : ""}
-          <div class="task-progress-bar">
-            <div class="task-progress-fill ${progressColorClass}" style="width: ${progress}%"></div>
-          </div>
-          <div class="task-footer-info">${completedCount} из ${totalCount} пунктов выполнено</div>
-        </div>
-      `;
-    })
-    .join("");
 }
 
 // Рендеринг последних отзывов для куратора
@@ -6040,8 +5903,8 @@ function openTaskChecklistModal(taskId) {
 
 // ===== PROFILE INLINE EDITING FUNCTIONALITY =====
 
-// Store original values for cancel functionality
-const originalValues = new Map();
+// Store original values for cancel functionality - Map of Maps keyed by content element
+const originalValuesMap = new Map();
 
 // Initialize inline editing for profile blocks
 function initProfileInlineEditing() {
@@ -6167,7 +6030,10 @@ function storeOriginalValues(content) {
   const viewMode = content.querySelector(".view-mode");
   if (!viewMode) return;
 
-  originalValues.clear();
+  // Create a new Map for this content element
+  const contentId = content.id;
+  const originalValues = new Map();
+  originalValuesMap.set(contentId, originalValues);
 
   // Store field values
   viewMode.querySelectorAll(".field-value[data-field]").forEach((field) => {
@@ -6190,7 +6056,20 @@ function storeOriginalValues(content) {
     const schedule = {};
     scheduleDisplay.querySelectorAll(".schedule-row").forEach((row) => {
       const day = row.querySelector(".day-label").textContent.trim();
-      const status = row.querySelector(".schedule-status").className;
+      const statusSpan = row.querySelector(".schedule-status");
+      // Store the actual status value using data attribute if available, otherwise parse from class
+      let status = statusSpan.dataset.status;
+      if (!status) {
+        // Fallback to parsing from class name
+        const className = statusSpan.className;
+        if (className.includes("morning")) {
+          status = "morning";
+        } else if (className.includes("afternoon")) {
+          status = "afternoon";
+        } else {
+          status = "out";
+        }
+      }
       schedule[day] = status;
     });
     originalValues.set("schedule", schedule);
@@ -6201,6 +6080,11 @@ function storeOriginalValues(content) {
 function restoreOriginalValues(content) {
   const editMode = content.querySelector(".edit-mode");
   if (!editMode) return;
+
+  // Get the content-specific original values
+  const contentId = content.id;
+  const originalValues = originalValuesMap.get(contentId);
+  if (!originalValues) return;
 
   // Restore field values
   editMode
@@ -6239,25 +6123,20 @@ function restoreOriginalValues(content) {
   const scheduleEdit = editMode.querySelector(".schedule-edit");
   if (scheduleEdit && originalValues.has("schedule")) {
     const schedule = originalValues.get("schedule");
-    const dayMap = { Пн: "mon", Вт: "tue", Ср: "wed", Чт: "thu", Пт: "fri" };
 
     scheduleEdit.querySelectorAll(".schedule-row").forEach((row) => {
       const dayLabel = row.querySelector(".day-label").textContent.trim();
       const select = row.querySelector(".schedule-select");
-      const dayKey = dayMap[dayLabel];
 
-      if (select && dayKey && schedule[dayLabel]) {
-        const statusClass = schedule[dayLabel];
-        if (statusClass.includes("morning")) {
-          select.value = "morning";
-        } else if (statusClass.includes("afternoon")) {
-          select.value = "afternoon";
-        } else {
-          select.value = "out";
-        }
+      if (select && schedule[dayLabel]) {
+        // Use the stored status value directly
+        select.value = schedule[dayLabel];
       }
     });
   }
+
+  // Clean up the original values for this content
+  originalValuesMap.delete(contentId);
 }
 
 // Save changes
@@ -6304,6 +6183,10 @@ function saveChanges(content) {
   // Update current user data (in a real app, this would be sent to server)
   console.log("Saving changes:", newValues);
 
+  // Clean up the original values for this content
+  const contentId = content.id;
+  originalValuesMap.delete(contentId);
+
   // Update currentUser object based on current role
   if (currentRole === "intern") {
     if (newValues.name) currentUser.intern.name = newValues.name;
@@ -6317,8 +6200,10 @@ function saveChanges(content) {
         }),
       );
   } else if (currentRole === "employee" || currentRole === "host") {
-    if (newValues.name) currentUser[currentRole].name = newValues.name;
-    if (newValues.block) currentUser[currentRole].block = newValues.block;
+    if (currentUser[currentRole]) {
+      if (newValues.name) currentUser[currentRole].name = newValues.name;
+      if (newValues.block) currentUser[currentRole].block = newValues.block;
+    }
   } else if (currentRole === "supervisor") {
     if (newValues.name) currentUser.supervisor.name = newValues.name;
     if (newValues.block) currentUser.supervisor.block = newValues.block;
@@ -6499,12 +6384,6 @@ if (supervisorFeedToggle) {
       this.classList.add("active");
       // Обновляем режим ленты
       supervisorFeedMode = this.dataset.feed;
-      // Показываем/скрываем кнопку "Создать задачу" для куратора
-      const createTaskBtn = document.getElementById("createTaskBtn");
-      if (createTaskBtn && currentRole === "supervisor") {
-        createTaskBtn.style.display =
-          supervisorFeedMode === "tasks" ? "flex" : "none";
-      }
       // Перерисовываем ленту
       renderTasks();
     });
