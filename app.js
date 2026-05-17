@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Регистрация плагина Chart.js DataLabels
 Chart.register(ChartDataLabels);
 
@@ -2474,66 +2475,6 @@ if (inviteCancel && inviteModal && inviteTask && inviteComment) {
     // Очищаем поля
     inviteTask.value = "";
     inviteComment.value = "";
-  });
-}
-
-// Отправка приглашения
-if (inviteConfirm && inviteModal && inviteTask && inviteComment) {
-  inviteConfirm.addEventListener("click", function () {
-    const taskId = inviteTask.value;
-    const comment = inviteComment.value;
-    const internId = inviteModal.getAttribute("data-intern-id");
-    // Ищем практиканта в both arrays (raisedHands or allUsers)
-    const intern =
-      raisedHands.find((i) => i.id === parseInt(internId)) ||
-      allUsers.find((i) => i.id === parseInt(internId));
-
-    if (!taskId) {
-      alert("Пожалуйста, выберите задачу");
-      return;
-    }
-
-    if (intern) {
-      let message = "Приглашение отправлено практиканту " + intern.name;
-      let taskName = "";
-
-      if (taskId === "no-task") {
-        message += "\n\nЗадача будет создана при завершении работы";
-        taskName = "Будет создана";
-      } else {
-        const task = tasks.find((t) => t.id === parseInt(taskId));
-        if (task) {
-          message += "\n\nЗадача: " + task.title;
-          taskName = task.title;
-        }
-      }
-      if (comment) {
-        message += "\nКомментарий: " + comment;
-      }
-      alert(message);
-
-      // Добавляем приглашение в список активных
-      const invitationId = Date.now();
-      activeInvitations.push({
-        id: invitationId,
-        internId: intern.id,
-        name: intern.name,
-        block: intern.block,
-        rating: intern.rating,
-        avatar: intern.avatar,
-        taskId: taskId === "no-task" ? "no-task" : parseInt(taskId),
-        taskName: taskName,
-        comment: comment,
-      });
-
-      // Перерисовываем активные приглашения в профиле
-      renderActiveInvitations();
-
-      inviteModal.classList.remove("active");
-      // Очищаем поля
-      inviteTask.value = "";
-      inviteComment.value = "";
-    }
   });
 }
 
