@@ -251,6 +251,7 @@ const allEmployees = [
 const roleSelector = document.getElementById("roleSelector");
 const notifBtn = document.getElementById("notifBtn");
 const feedScreen = document.getElementById("feed-screen");
+const feedContent = document.getElementById("feed-content");
 const myTasksScreen = document.getElementById("mytasks-screen");
 const usersScreen = document.getElementById("users-screen");
 const usersList = document.getElementById("users-list");
@@ -425,6 +426,9 @@ const hostTasks = [
     operational: false,
   },
 ];
+
+// Массив черновиков задач для согласования
+const draftTasks = [];
 
 // Массив активных задач из ленты
 const feedTasks = [
@@ -1031,18 +1035,24 @@ function renderHostTaskCard(task) {
 
   let checklistHTML = "";
   task.checklist.forEach((item, index) => {
+    const extraInfo =
+      task.taskType === "complex" && item.deadline && item.effort
+        ? `<span style="font-size: 12px; color: #666; margin-left: 8px;">до ${formatDate(item.deadline)}, ${item.effort}ч</span>`
+        : "";
+
     checklistHTML += `
             <div class="checklist-item">
               <input type="checkbox" id="task-${task.id}-item-${item.id}"
                      data-task-id="${task.id}" data-item-id="${item.id}"
                      ${item.checked ? "checked" : ""}>
-              <label for="task-${task.id}-item-${item.id}">${item.text}</label>
+              <label for="task-${task.id}-item-${item.id}">${item.text}${extraInfo}</label>
             </div>
           `;
   });
 
   card.innerHTML = `
           <h3 class="host-task-title">${task.title}</h3>
+          ${task.taskType === "complex" ? '<span style="font-size: 12px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px;">Сложная задача</span>' : ""}
           <div class="checklist">
             ${checklistHTML}
           </div>
@@ -1053,6 +1063,46 @@ function renderHostTaskCard(task) {
             <div class="progress-text">${progress}% выполнено</div>
           </div>
           <button class="notify-btn" data-task-id="${task.id}">Сообщить хосту</button>
+        `;
+
+  return card;
+}
+
+// Функция для рендеринга карточки черновика задачи
+function renderDraftTaskCard(task) {
+  const card = document.createElement("div");
+  card.className = "host-task-card";
+  card.setAttribute("data-draft-id", task.id);
+  card.style.borderLeft = "4px solid #f59e0b";
+
+  let checklistHTML = "";
+  task.checklist.forEach((item, index) => {
+    const extraInfo =
+      task.taskType === "complex" && item.deadline && item.effort
+        ? `<span style="font-size: 12px; color: #666; margin-left: 8px;">до ${formatDate(item.deadline)}, ${item.effort}ч</span>`
+        : "";
+
+    checklistHTML += `
+            <div class="checklist-item">
+              <input type="checkbox" disabled>
+              <label>${item.text}${extraInfo}</label>
+            </div>
+          `;
+  });
+
+  card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <h3 class="host-task-title">${task.title}</h3>
+            <span style="font-size: 12px; color: #f59e0b; background: #fffbeb; padding: 4px 8px; border-radius: 4px;">На согласовании</span>
+          </div>
+          <div class="checklist">
+            ${checklistHTML}
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="notify-btn" style="flex: 1; background-color: #f59e0b;" data-draft-id="${task.id}" data-action="send">Отправить хосту</button>
+            <button class="notify-btn" style="flex: 1; background-color: #e5e7eb; color: #333;" data-draft-id="${task.id}" data-action="edit">Редактировать</button>
+            <button class="notify-btn" style="flex: 1; background-color: #ef4444;" data-draft-id="${task.id}" data-action="delete">Удалить</button>
+          </div>
         `;
 
   return card;
@@ -1074,16 +1124,26 @@ function renderHostTasks() {
     myTasksScreen.querySelectorAll(".feed-placeholder");
   existingPlaceholders.forEach((ph) => ph.remove());
 
-  // Показываем/скрываем вкладки для хоста
+  // Показываем/скрываем вкладки для хоста и куратора
   if (hostTabs) {
-    hostTabs.style.display = currentRole === "host" ? "flex" : "none";
+    hostTabs.style.display =
+      currentRole === "host" || currentRole === "supervisor" ? "flex" : "none";
   }
 
   if (currentRole === "intern") {
-    // Для практика показываем его задачи с чек-листами (фильтруем по internId)
-    const internTasks = hostTasks.filter((t) => t.internId === currentInternId);
+    // Показываем кнопку создания черновика для практики
+    const createDraftBtn = document.getElementById("createDraftTaskBtn");
+    if (createDraftBtn) {
+      createDraftBtn.style.display = currentRole === "intern" ? "flex" : "none";
+    }
 
-    if (internTasks.length === 0) {
+    // Для практики показываем его задачи с чек-листами (фильтруем по internId)
+    const internTasks = hostTasks.filter((t) => t.internId === currentInternId);
+    const internDraftTasks = draftTasks.filter(
+      (t) => t.internId === currentInternId,
+    );
+
+    if (internTasks.length === 0 && internDraftTasks.length === 0) {
       myTasksScreen.innerHTML = `
               <div class="feed-placeholder">
                 <h2>Нет задач</h2>
@@ -1091,6 +1151,13 @@ function renderHostTasks() {
               </div>
             `;
     } else {
+      // Сначала показываем черновики
+      internDraftTasks.forEach((task) => {
+        const card = renderDraftTaskCard(task);
+        myTasksScreen.appendChild(card);
+      });
+
+      // Затем активные задачи
       internTasks.forEach((task) => {
         const card = renderHostTaskCard(task);
         myTasksScreen.appendChild(card);
@@ -1208,25 +1275,39 @@ function renderHostTasks() {
 
           let checklistHTML = "";
           task.checklist.forEach((item) => {
+            const extraInfo =
+              task.taskType === "complex" && item.deadline && item.effort
+                ? `<span style="font-size: 12px; color: #666; display: block; margin-top: 4px;">до ${formatDate(item.deadline)}, ${item.effort}ч</span>`
+                : "";
+
             checklistHTML += `
                   <div class="checklist-item">
                     <input type="checkbox" disabled ${item.checked ? "checked" : ""}>
-                    <span class="checklist-text">${item.text}</span>
+                    <span class="checklist-text">${item.text}${extraInfo}</span>
                   </div>
                 `;
           });
+
+          const taskTypeBadge =
+            task.taskType === "complex"
+              ? '<span style="font-size: 11px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">Сложная задача</span>'
+              : "";
 
           card.innerHTML = `
                 <div class="task-header">
                   <h3 class="task-title">${task.title}</h3>
                   <span class="task-deadline">до ${formatDate(task.deadline)}</span>
                 </div>
+                ${taskTypeBadge}
                 <div class="task-meta">
                   <div class="meta-item">
                     <span class="meta-label">Практикант:</span> ${task.internName}
                   </div>
                   <div class="meta-item">
                     <span class="meta-label">Вклад:</span> ${task.contribution}
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Трудозатраты:</span> ${task.effort || "Не указано"}
                   </div>
                 </div>
                 <p class="task-description">${task.description}</p>
@@ -1253,8 +1334,8 @@ function renderHostTasks() {
         });
       }
     }
-  } else if (currentRole === "employee" || currentRole === "supervisor") {
-    // Для сотрудника/руководителя показываем созданные ими задачи
+  } else if (currentRole === "employee") {
+    // Для сотрудника показываем созданные ими задачи
     const employeeTasks = tasks.filter((t) => t.authorId === currentEmployeeId);
 
     // Очищаем контейнер перед рендерингом
@@ -1274,6 +1355,119 @@ function renderHostTasks() {
       const card = renderEmployeeTaskCard(task);
       myTasksScreen.appendChild(card);
     });
+  } else if (currentRole === "supervisor") {
+    // Для куратора показываем вкладки с задачами
+    // Вкладка "Созданные задачи" - задачи куратора
+    const supervisorTasks = tasks.filter(
+      (t) => t.authorId === currentEmployeeId,
+    );
+
+    if (myTasksContent) {
+      if (supervisorTasks.length === 0) {
+        myTasksContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач</h2>
+                  <p>Вы ещё не создали ни одной задачи</p>
+                </div>
+              `;
+      } else {
+        supervisorTasks.forEach((task) => {
+          const card = renderEmployeeTaskCard(task);
+          myTasksContent.appendChild(card);
+        });
+      }
+    }
+
+    // Вкладка "Задачи моих практикантов"
+    if (internTasksContent) {
+      if (hostTasks.length === 0) {
+        internTasksContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач практикантов</h2>
+                  <p>У ваших практикантов пока нет задач</p>
+                </div>
+              `;
+      } else {
+        hostTasks.forEach((task) => {
+          const progress = calculateProgress(task);
+          const card = document.createElement("div");
+          card.className = "host-task-card";
+          card.setAttribute("data-task-id", task.id);
+
+          let checklistHTML = "";
+          task.checklist.forEach((item) => {
+            const extraInfo =
+              task.taskType === "complex" && item.deadline && item.effort
+                ? `<span style="font-size: 12px; color: #666; display: block; margin-top: 4px;">до ${formatDate(item.deadline)}, ${item.effort}ч</span>`
+                : "";
+
+            checklistHTML += `
+                  <div class="checklist-item">
+                    <input type="checkbox" disabled ${item.checked ? "checked" : ""}>
+                    <span class="checklist-text">${item.text}${extraInfo}</span>
+                  </div>
+                `;
+          });
+
+          const taskTypeBadge =
+            task.taskType === "complex"
+              ? '<span style="font-size: 11px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">Сложная задача</span>'
+              : "";
+
+          card.innerHTML = `
+                <div class="task-header">
+                  <h3 class="task-title">${task.title}</h3>
+                  <span class="task-deadline">до ${formatDate(task.deadline)}</span>
+                </div>
+                ${taskTypeBadge}
+                <div class="task-meta">
+                  <div class="meta-item">
+                    <span class="meta-label">Практикант:</span> ${task.internName}
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Вклад:</span> ${task.contribution}
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-label">Трудозатраты:</span> ${task.effort || "Не указано"}
+                  </div>
+                </div>
+                <p class="task-description">${task.description}</p>
+                <div class="checklist-container">
+                  ${checklistHTML}
+                </div>
+                <div class="progress-section">
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                  </div>
+                  <div class="progress-text">${progress}% выполнено</div>
+                </div>
+              `;
+
+          internTasksContent.appendChild(card);
+        });
+      }
+    }
+
+    // Вкладка "Задачи на согласовании"
+    const pendingApprovalContent = document.getElementById(
+      "pending-approval-content",
+    );
+    if (pendingApprovalContent) {
+      // Для куратора показываем черновики задач, которые требуют согласования
+      if (draftTasks.length === 0) {
+        pendingApprovalContent.innerHTML = `
+                <div class="feed-placeholder">
+                  <h2>Нет задач на согласовании</h2>
+                  <p>Нет черновиков, требующих вашего согласования</p>
+                </div>
+              `;
+      } else {
+        draftTasks.forEach((task) => {
+          const card = renderDraftTaskCard(task);
+          pendingApprovalContent.appendChild(card);
+        });
+      }
+    }
   }
 }
 
@@ -1382,7 +1576,7 @@ function formatTimeSlot(startTime, endTime) {
 // Функция для рендеринга карточки практиканта (для сотрудника)
 function renderInternCard(intern) {
   const card = document.createElement("div");
-  card.className = "intern-card";
+  card.className = "task-card";
   card.setAttribute("data-intern-id", intern.id);
 
   const timeSlot = formatTimeSlot(intern.startTime, intern.endTime);
@@ -1398,19 +1592,36 @@ function renderInternCard(intern) {
   }
 
   card.innerHTML = `
-          <div class="intern-header">
-            <img src="${intern.avatar}" class="intern-avatar" alt="${intern.name}">
-            <div class="intern-info">
-              <div class="intern-name">${intern.name}</div>
-              <div class="intern-rating"><span>⭐</span>${intern.rating}</div>
+          <div class="task-header">
+            <img src="${intern.avatar}" class="author-avatar" alt="${intern.name}">
+            <div class="author-name">
+              <div class="task-title">${intern.name}</div>
+              <div class="task-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 2px;">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                ${intern.rating}
+              </div>
             </div>
           </div>
-          <div class="intern-blocks">
-            <div class="intern-block"><span class="intern-block-label">Блок практики:</span>${intern.block}</div>
-            <div class="intern-block"><span class="intern-block-label">Хочет помочь:</span>${helpBlocksHTML}</div>
+          <div class="task-meta">
+            <div class="meta-item">
+              <span class="meta-label">Блок практики:</span>${intern.block}
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Хочет помочь:</span>${helpBlocksHTML}
+            </div>
           </div>
-          <div class="intern-time">📅 ${timeSlot}</div>
-          <button class="invite-btn" data-intern-id="${intern.id}">Пригласить</button>
+          <p class="task-description">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            ${timeSlot}
+          </p>
+          <button class="respond-btn" data-intern-id="${intern.id}">Пригласить</button>
         `;
 
   return card;
@@ -1418,10 +1629,19 @@ function renderInternCard(intern) {
 
 // Функция для рендеринга ленты поднятых рук (для сотрудника)
 function renderRaisedHands() {
-  feedScreen.innerHTML = "";
+  feedContent.innerHTML = "";
+  if (raisedHands.length === 0) {
+    feedContent.innerHTML = `
+      <div class="feed-placeholder">
+        <h2>Нет поднятых рук</h2>
+        <p>В данный момент нет практикантов, готовых к работе</p>
+      </div>
+    `;
+    return;
+  }
   raisedHands.forEach((intern) => {
     const card = renderInternCard(intern);
-    feedScreen.appendChild(card);
+    feedContent.appendChild(card);
   });
 }
 
@@ -1561,24 +1781,63 @@ function renderEmployeeTaskCard(task) {
   return card;
 }
 
+// Текущий режим ленты для куратора
+let supervisorFeedMode = "raised-hands"; // "raised-hands" или "tasks"
+
 // Функция для рендеринга всех задач
 function renderTasks() {
-  feedScreen.innerHTML = "";
+  feedContent.innerHTML = "";
+
+  // Показываем/скрываем переключатель для куратора
+  const supervisorToggle = document.getElementById("supervisor-feed-toggle");
+  if (supervisorToggle) {
+    supervisorToggle.style.display =
+      currentRole === "supervisor" ? "flex" : "none";
+  }
 
   if (currentRole === "employee" || currentRole === "host") {
     // Для сотрудника и хоста показываем ленту поднятых рук
     renderRaisedHands();
+  } else if (currentRole === "supervisor") {
+    // Для куратора показываем в зависимости от режима
+    if (supervisorFeedMode === "raised-hands") {
+      renderRaisedHands();
+    } else {
+      // Показываем все задачи от всех сотрудников
+      if (tasks.length === 0) {
+        feedContent.innerHTML = `
+          <div class="feed-placeholder">
+            <h2>Нет задач</h2>
+            <p>В данный момент нет доступных задач</p>
+          </div>
+        `;
+        return;
+      }
+      tasks.forEach((task) => {
+        const card = renderTaskCard(task);
+        feedContent.appendChild(card);
+      });
+    }
   } else {
     // Для практиканта показываем задачи
+    if (tasks.length === 0) {
+      feedContent.innerHTML = `
+        <div class="feed-placeholder">
+          <h2>Нет задач</h2>
+          <p>В данный момент нет доступных задач</p>
+        </div>
+      `;
+      return;
+    }
     tasks.forEach((task) => {
       const card = renderTaskCard(task);
-      feedScreen.appendChild(card);
+      feedContent.appendChild(card);
     });
   }
 }
 
-// Делегирование событий для кнопок в feedScreen (отклики и приглашения)
-feedScreen.addEventListener("click", function (e) {
+// Делегирование событий для кнопок в feedContent (отклики и приглашения)
+feedContent.addEventListener("click", function (e) {
   const respondBtn = e.target.closest(".respond-btn");
   if (respondBtn) {
     const taskId = respondBtn.getAttribute("data-task-id");
@@ -1600,7 +1859,7 @@ feedScreen.addEventListener("click", function (e) {
     return;
   }
 
-  const inviteBtn = e.target.closest(".invite-btn");
+  const inviteBtn = e.target.closest(".respond-btn[data-intern-id]");
   if (inviteBtn) {
     const internId = inviteBtn.getAttribute("data-intern-id");
     const intern = raisedHands.find((i) => i.id === parseInt(internId));
@@ -1659,86 +1918,238 @@ function renderProfile() {
   const employeeProfileContent = document.getElementById(
     "employee-profile-content",
   );
+  const hostProfileContent = document.getElementById("host-profile-content");
+  const supervisorProfileContent = document.getElementById(
+    "supervisor-profile-content",
+  );
   const activeInvitationsSection = document.getElementById(
     "active-invitations-section",
   );
 
+  // Hide all profile sections first
+  if (internProfileContent) internProfileContent.style.display = "none";
+  if (employeeProfileContent) employeeProfileContent.style.display = "none";
+  if (hostProfileContent) hostProfileContent.style.display = "none";
+  if (supervisorProfileContent) supervisorProfileContent.style.display = "none";
+  if (activeInvitationsSection) activeInvitationsSection.style.display = "none";
+
   if (currentRole === "intern") {
     // Показываем профиль практиканта
-    internProfileContent.style.display = "block";
-    employeeProfileContent.style.display = "none";
-    activeInvitationsSection.style.display = "none";
+    if (internProfileContent) internProfileContent.style.display = "block";
 
     // Заполняем данные практиканта
     const internData = currentUser.intern;
-    document.getElementById("currentUserName").textContent = internData.name;
-    document.getElementById("currentUserBlock").textContent = internData.block;
-    document.getElementById("currentUserRating").textContent =
-      internData.rating.toFixed(1);
 
-    // Заполняем интересы
-    const interestsContainer = document.getElementById("currentUserInterests");
-    interestsContainer.innerHTML = "";
-    internData.interests.forEach((interest) => {
-      const tag = document.createElement("span");
-      tag.className = "interest-tag";
-      tag.textContent = interest;
-      interestsContainer.appendChild(tag);
-    });
+    // Update personal info block
+    updateProfileField("personal-info-content", "name", internData.name);
+    updateProfileField("personal-info-content", "block", internData.block);
+    updateProfileField("personal-info-content", "email", "ivan.petrov@veb.ru");
+    updateProfileField("personal-info-content", "phone", "+7 (999) 123-45-67");
 
-    // Заполняем расписание
-    const scheduleContainer = document.getElementById("currentUserSchedule");
-    scheduleContainer.innerHTML = "";
-    const statusText = {
-      morning: "до обеда",
-      afternoon: "после обеда",
-      out: "не в офисе",
-    };
-    internData.schedule.forEach((day) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-              <th>${day.day}</th>
-              <td><span class="schedule-status ${day.status}">${statusText[day.status]}</span></td>
-            `;
-      scheduleContainer.appendChild(row);
-    });
+    // Update interests and schedule block
+    updateProfileInterests("interests-schedule-content", internData.interests);
+    updateProfileSchedule("interests-schedule-content", internData.schedule);
+  } else if (currentRole === "employee") {
+    // Показываем профиль сотрудника
+    if (employeeProfileContent) employeeProfileContent.style.display = "block";
 
-    // Скрываем форму редактирования при открытии профиля
-    document.getElementById("currentUserEditForm").style.display = "none";
-    document.getElementById("currentUserEditButtons").style.display = "block";
-    document.getElementById("currentUserViewButtons").style.display = "none";
-  } else if (
-    currentRole === "employee" ||
-    currentRole === "host" ||
-    currentRole === "supervisor"
-  ) {
-    // Показываем профиль сотрудника/хоста/руководителя
-    internProfileContent.style.display = "none";
-    employeeProfileContent.style.display = "block";
-    activeInvitationsSection.style.display = "block";
+    // Заполняем данные сотрудника
+    const employeeData = currentUser.employee;
 
-    // Заполняем данные сотрудника/хоста/руководителя
-    const employeeData =
-      currentRole === "employee"
-        ? currentUser.employee
-        : currentRole === "host"
-          ? currentUser.employee
-          : currentUser.supervisor;
-    document.getElementById("employeeProfileName").textContent =
-      employeeData.name;
-    document.getElementById("employeeProfileBlock").textContent =
-      employeeData.block;
-    document.getElementById("employeeProfileAvatar").textContent = getInitials(
+    // Update personal info block
+    updateProfileField(
+      "employee-personal-info-content",
+      "name",
       employeeData.name,
     );
+    updateProfileField(
+      "employee-personal-info-content",
+      "block",
+      employeeData.block,
+    );
+    updateProfileField(
+      "employee-personal-info-content",
+      "position",
+      "Аналитик",
+    );
+    updateProfileField(
+      "employee-personal-info-content",
+      "email",
+      "alexey.petrov@veb.ru",
+    );
+    updateProfileField(
+      "employee-personal-info-content",
+      "phone",
+      "+7 (999) 234-56-78",
+    );
+  } else if (currentRole === "host") {
+    // Показываем профиль хоста
+    if (hostProfileContent) hostProfileContent.style.display = "block";
 
-    // Скрываем форму редактирования при открытии профиля
-    document.getElementById("employeeEditForm").style.display = "none";
-    document.getElementById("employeeEditButtons").style.display = "block";
-    document.getElementById("employeeViewButtons").style.display = "none";
+    // Заполняем данные хоста
+    const hostData = currentUser.employee;
 
-    // Рендерим активные приглашения
-    renderActiveInvitations();
+    // Update personal info block
+    updateProfileField("host-personal-info-content", "name", hostData.name);
+    updateProfileField("host-personal-info-content", "block", hostData.block);
+    updateProfileField(
+      "host-personal-info-content",
+      "position",
+      "Старший аналитик",
+    );
+    updateProfileField(
+      "host-personal-info-content",
+      "email",
+      "alexey.petrov@veb.ru",
+    );
+    updateProfileField(
+      "host-personal-info-content",
+      "phone",
+      "+7 (999) 234-56-78",
+    );
+  } else if (currentRole === "supervisor") {
+    // Показываем профиль куратора
+    if (supervisorProfileContent)
+      supervisorProfileContent.style.display = "block";
+
+    // Заполняем данные куратора
+    const supervisorData = currentUser.supervisor;
+
+    // Update personal info block
+    updateProfileField(
+      "supervisor-personal-info-content",
+      "name",
+      supervisorData.name,
+    );
+    updateProfileField(
+      "supervisor-personal-info-content",
+      "block",
+      supervisorData.block,
+    );
+    updateProfileField(
+      "supervisor-personal-info-content",
+      "position",
+      "Куратор практики",
+    );
+    updateProfileField(
+      "supervisor-personal-info-content",
+      "email",
+      "maria.ivanova@veb.ru",
+    );
+    updateProfileField(
+      "supervisor-personal-info-content",
+      "phone",
+      "+7 (999) 345-67-89",
+    );
+  }
+
+  // Re-initialize inline editing for the visible profile
+  initProfileInlineEditing();
+}
+
+// Helper function to update profile field values in both view and edit modes
+function updateProfileField(contentId, fieldName, value) {
+  const content = document.getElementById(contentId);
+  if (!content) return;
+
+  // Update view mode
+  const viewField = content.querySelector(
+    `.view-mode .field-value[data-field="${fieldName}"]`,
+  );
+  if (viewField) {
+    viewField.textContent = value;
+  }
+
+  // Update edit mode
+  const editField = content.querySelector(
+    `.edit-mode [data-field="${fieldName}"]`,
+  );
+  if (editField) {
+    editField.value = value;
+  }
+}
+
+// Helper function to update interests in both view and edit modes
+function updateProfileInterests(contentId, interests) {
+  const content = document.getElementById(contentId);
+  if (!content) return;
+
+  // Update view mode
+  const interestsList = content.querySelector(".view-mode .interests-list");
+  if (interestsList) {
+    interestsList.innerHTML = interests
+      .map((interest) => `<span class="interest-tag">${interest}</span>`)
+      .join("");
+  }
+
+  // Update edit mode
+  const interestsEdit = content.querySelector(".edit-mode .interests-edit");
+  if (interestsEdit) {
+    interestsEdit.innerHTML =
+      interests
+        .map(
+          (interest) => `
+      <div class="interests-inputs">
+        <input type="text" class="interest-input" value="${interest}">
+        <button class="remove-interest">×</button>
+      </div>
+    `,
+        )
+        .join("") +
+      `
+      <button class="add-interest-btn">+ Добавить интерес</button>
+    `;
+
+    // Re-add event listeners
+    initInterestListeners(interestsEdit);
+  }
+}
+
+// Helper function to update schedule in both view and edit modes
+function updateProfileSchedule(contentId, schedule) {
+  const content = document.getElementById(contentId);
+  if (!content) return;
+
+  const statusText = {
+    morning: "до обеда",
+    afternoon: "после обеда",
+    out: "не в офисе",
+  };
+
+  const dayMap = { Пн: "mon", Вт: "tue", Ср: "wed", Чт: "thu", Пт: "fri" };
+
+  // Update view mode
+  const scheduleDisplay = content.querySelector(".view-mode .schedule-display");
+  if (scheduleDisplay) {
+    scheduleDisplay.innerHTML = schedule
+      .map(
+        (day) => `
+      <div class="schedule-row">
+        <span class="day-label">${day.day}</span>
+        <span class="schedule-status ${day.status}">${statusText[day.status]}</span>
+      </div>
+    `,
+      )
+      .join("");
+  }
+
+  // Update edit mode
+  const scheduleEdit = content.querySelector(".edit-mode .schedule-edit");
+  if (scheduleEdit) {
+    scheduleEdit.innerHTML = schedule
+      .map(
+        (day) => `
+      <div class="schedule-row">
+        <span class="day-label">${day.day}</span>
+        <select class="schedule-select" data-day="${dayMap[day.day]}">
+          <option value="morning" ${day.status === "morning" ? "selected" : ""}>до обеда</option>
+          <option value="afternoon" ${day.status === "afternoon" ? "selected" : ""}>после обеда</option>
+          <option value="out" ${day.status === "out" ? "selected" : ""}>не в офисе</option>
+        </select>
+      </div>
+    `,
+      )
+      .join("");
   }
 }
 
@@ -1757,20 +2168,29 @@ function renderActiveInvitations() {
 
   activeInvitations.forEach((invitation) => {
     const card = document.createElement("div");
-    card.className = "host-task-card";
+    card.className = "task-card";
     card.innerHTML = `
-            <div class="intern-header">
-              <img src="${invitation.avatar}" class="intern-avatar" alt="${invitation.name}">
-              <div class="intern-info">
-                <div class="intern-name">${invitation.name}</div>
-                <div class="intern-rating"><span>⭐</span>${invitation.rating}</div>
+            <div class="task-header">
+              <img src="${invitation.avatar}" class="author-avatar" alt="${invitation.name}">
+              <div class="author-name">
+                <div class="task-title">${invitation.name}</div>
+                <div class="task-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 2px;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                  ${invitation.rating}
+                </div>
               </div>
             </div>
-            <div class="intern-blocks">
-              <div class="intern-block"><span class="intern-block-label">Задача:</span>${invitation.taskName || "Будет создана"}</div>
-              <div class="intern-block"><span class="intern-block-label">Блок:</span>${invitation.block}</div>
+            <div class="task-meta">
+              <div class="meta-item">
+                <span class="meta-label">Задача:</span>${invitation.taskName || "Будет создана"}
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Блок:</span>${invitation.block}
+              </div>
             </div>
-            <button class="notify-btn complete-work-btn" data-invitation-id="${invitation.id}">Завершить работу</button>
+            <button class="respond-btn complete-work-btn" data-invitation-id="${invitation.id}">Завершить работу</button>
           `;
     activeInvitationsList.appendChild(card);
   });
@@ -2238,7 +2658,12 @@ function renderUsersList(filterText = "") {
               <div class="user-list-item-name">${user.name}</div>
               <div class="user-list-item-block">${user.block}</div>
             </div>
-            <div class="user-list-item-rating">⭐ ${user.rating}</div>
+            <div class="user-list-item-rating">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 2px;">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              ${user.rating}
+            </div>
           `;
     usersList.appendChild(userItem);
   });
@@ -2388,13 +2813,19 @@ function showInternProfile(user) {
   const internProfileEditButtons = document.getElementById(
     "internProfileEditButtons",
   );
-  if (currentRole === "employee" || currentRole === "host") {
+  if (
+    currentRole === "employee" ||
+    currentRole === "host" ||
+    currentRole === "supervisor"
+  ) {
     internProfileButtons.style.display = "block";
     // Скрываем кнопку "Поставить задачу" для обычного сотрудника
     const assignTaskBtn = document.getElementById("assignTaskFromProfileBtn");
     if (assignTaskBtn) {
       assignTaskBtn.style.display =
-        currentRole === "host" ? "inline-block" : "none";
+        currentRole === "host" || currentRole === "supervisor"
+          ? "inline-block"
+          : "none";
     }
     // Скрываем кнопку редактирования профиля (сотрудник не может редактировать чужой профиль)
     internProfileEditButtons.style.display = "none";
@@ -2438,14 +2869,14 @@ document
     }
   });
 
-// Обработчик кнопки "Сохранить настройки" в профиле сотрудника
-document
-  .getElementById("saveSettingsBtn")
-  .addEventListener("click", function () {
-    const notifNewTasks = document.getElementById("notifNewTasks").checked;
-    const notifResponses = document.getElementById("notifResponses").checked;
-    const notifMessages = document.getElementById("notifMessages").checked;
-    const notifRating = document.getElementById("notifRating").checked;
+// Обработчик кнопки "Сохранить настройки" в профиле сотрудника (устаревший код)
+const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+if (saveSettingsBtn) {
+  saveSettingsBtn.addEventListener("click", function () {
+    const notifNewTasks = document.getElementById("notifNewTasks")?.checked;
+    const notifResponses = document.getElementById("notifResponses")?.checked;
+    const notifMessages = document.getElementById("notifMessages")?.checked;
+    const notifRating = document.getElementById("notifRating")?.checked;
 
     alert(
       "Настройки уведомлений сохранены:\n\n" +
@@ -2462,6 +2893,7 @@ document
         (notifRating ? "Вкл" : "Выкл"),
     );
   });
+}
 
 // Обновлённая функция открытия модалки приглашения
 function openInviteModal(intern) {
@@ -2839,7 +3271,9 @@ roleSelector.addEventListener("change", function () {
     if (supervisorTabs) supervisorTabs.style.display = "none";
   } else if (currentRole === "supervisor") {
     raiseHandBtn.style.display = "none";
-    createTaskBtn.style.display = "flex";
+    // Для куратора показываем кнопку "Создать задачу" только в режиме задач
+    createTaskBtn.style.display =
+      supervisorFeedMode === "tasks" ? "flex" : "none";
     supervisorMenuItems.forEach((item) => (item.style.display = "flex"));
     // Для куратора также показываем элементы хоста (включая аналитику)
     hostMenuItems.forEach((item) => {
@@ -2895,6 +3329,55 @@ roleSelector.addEventListener("change", function () {
   }
 });
 
+// Обработчик переключения типа задачи (простая/сложная)
+const taskTypeSimple = document.getElementById("taskTypeSimple");
+const taskTypeComplex = document.getElementById("taskTypeComplex");
+const simpleTaskFields = document.getElementById("simpleTaskFields");
+const complexTaskFields = document.getElementById("complexTaskFields");
+
+if (taskTypeSimple && taskTypeComplex) {
+  const handleTaskTypeChange = function () {
+    const isComplex = taskTypeComplex.checked;
+
+    if (isComplex) {
+      simpleTaskFields.style.display = "none";
+      complexTaskFields.style.display = "block";
+      updateChecklistForComplexTask();
+    } else {
+      simpleTaskFields.style.display = "block";
+      complexTaskFields.style.display = "none";
+      updateChecklistForSimpleTask();
+    }
+  };
+
+  taskTypeSimple.addEventListener("change", handleTaskTypeChange);
+  taskTypeComplex.addEventListener("change", handleTaskTypeChange);
+}
+
+// Функция для обновления чек-листа для простой задачи
+function updateChecklistForSimpleTask() {
+  const checklistContainer = document.getElementById("hostTaskChecklist");
+  checklistContainer.innerHTML = `
+    <div class="checklist-row">
+      <input type="text" class="modal-input checklist-input" placeholder="Элемент чек-листа" />
+      <button type="button" class="remove-checklist-btn" style="display: none;">×</button>
+    </div>
+  `;
+}
+
+// Функция для обновления чек-листа для сложной задачи
+function updateChecklistForComplexTask() {
+  const checklistContainer = document.getElementById("hostTaskChecklist");
+  checklistContainer.innerHTML = `
+    <div class="checklist-row complex-checklist-row">
+      <input type="text" class="modal-input checklist-input-text" placeholder="Элемент чек-листа" />
+      <input type="date" class="modal-input checklist-input-deadline" placeholder="Дедлайн" />
+      <input type="number" class="modal-input checklist-input-effort" placeholder="Часы" min="0.5" step="0.5" />
+      <button type="button" class="remove-checklist-btn" style="display: none;">×</button>
+    </div>
+  `;
+}
+
 // Обработчик для кнопки "Поставить задачу" в профиле практиканта
 document
   .getElementById("assignTaskFromProfileBtn")
@@ -2911,17 +3394,14 @@ document
     document.getElementById("hostTaskGoal").value = "";
     document.getElementById("hostTaskOperational").checked = false;
 
+    // Сбрасываем тип задачи на простой
+    if (taskTypeSimple) taskTypeSimple.checked = true;
+    if (taskTypeComplex) taskTypeComplex.checked = false;
+    if (simpleTaskFields) simpleTaskFields.style.display = "block";
+    if (complexTaskFields) complexTaskFields.style.display = "none";
+
     // Сбрасываем чек-лист до одного пустого поля
-    const checklistContainer = document.getElementById("hostTaskChecklist");
-    checklistContainer.innerHTML = `
-          <div class="checklist-row">
-            <input
-              type="text"
-              class="modal-input checklist-input"
-              placeholder="Элемент чек-листа" />
-            <button type="button" class="remove-checklist-btn" style="display: none;">×</button>
-          </div>
-        `;
+    updateChecklistForSimpleTask();
 
     // Сохраняем имя практиканта
     hostTaskModal.dataset.internName = internProfileName;
@@ -2942,15 +3422,26 @@ document
   .getElementById("addChecklistItem")
   .addEventListener("click", function () {
     const checklistContainer = document.getElementById("hostTaskChecklist");
+    const isComplex = document.getElementById("taskTypeComplex")?.checked;
+
     const newRow = document.createElement("div");
-    newRow.className = "checklist-row";
-    newRow.innerHTML = `
-          <input
-            type="text"
-            class="modal-input checklist-input"
-            placeholder="Элемент чек-листа" />
-          <button type="button" class="remove-checklist-btn">×</button>
-        `;
+    newRow.className =
+      "checklist-row" + (isComplex ? " complex-checklist-row" : "");
+
+    if (isComplex) {
+      newRow.innerHTML = `
+        <input type="text" class="modal-input checklist-input-text" placeholder="Элемент чек-листа" />
+        <input type="date" class="modal-input checklist-input-deadline" placeholder="Дедлайн" />
+        <input type="number" class="modal-input checklist-input-effort" placeholder="Часы" min="0.5" step="0.5" />
+        <button type="button" class="remove-checklist-btn">×</button>
+      `;
+    } else {
+      newRow.innerHTML = `
+        <input type="text" class="modal-input checklist-input" placeholder="Элемент чек-листа" />
+        <button type="button" class="remove-checklist-btn">×</button>
+      `;
+    }
+
     checklistContainer.appendChild(newRow);
 
     // Показываем кнопки удаления для всех строк
@@ -3007,40 +3498,87 @@ document
     const hostTaskModal = document.getElementById("hostTaskModal");
     const internName = hostTaskModal.dataset.internName;
     const isEditMode = hostTaskModal.dataset.editMode === "true";
+    const isComplex = document.getElementById("taskTypeComplex")?.checked;
 
     // Получаем данные формы
     const name = document.getElementById("hostTaskName").value.trim();
     const description = document
       .getElementById("hostTaskDescription")
       .value.trim();
-    const effort = document.getElementById("hostTaskEffort").value.trim();
-    const deadline = document.getElementById("hostTaskDeadline").value;
     const goal = document.getElementById("hostTaskGoal").value;
     const operational = document.getElementById("hostTaskOperational").checked;
 
-    // Валидация
-    if (!name || !description || !effort || !deadline) {
+    // Валидация общих полей
+    if (!name || !description) {
       alert("Пожалуйста, заполните все обязательные поля");
       return;
     }
 
-    // Собираем чек-лист
-    const checklistInputs = document.querySelectorAll(".checklist-input");
-    const checklist = [];
-    checklistInputs.forEach((input, index) => {
-      const text = input.value.trim();
-      if (text) {
-        checklist.push({
-          id: index + 1,
-          text: text,
-          checked: false,
-        });
-      }
-    });
+    let checklist = [];
+    let effort = "";
+    let deadline = "";
 
-    if (checklist.length === 0) {
-      alert("Пожалуйста, добавьте хотя бы один элемент в чек-лист");
-      return;
+    if (isComplex) {
+      // Сложная задача - собираем данные из каждого пункта чек-листа
+      const checklistRows = document.querySelectorAll(".complex-checklist-row");
+      checklistRows.forEach((row, index) => {
+        const text = row.querySelector(".checklist-input-text")?.value.trim();
+        const itemDeadline = row.querySelector(
+          ".checklist-input-deadline",
+        )?.value;
+        const itemEffort = row.querySelector(".checklist-input-effort")?.value;
+
+        if (text && itemDeadline && itemEffort) {
+          checklist.push({
+            id: index + 1,
+            text: text,
+            checked: false,
+            deadline: itemDeadline,
+            effort: itemEffort,
+          });
+        }
+      });
+
+      if (checklist.length === 0) {
+        alert(
+          "Пожалуйста, добавьте хотя бы один элемент в чек-лист с дедлайном и трудозатратами",
+        );
+        return;
+      }
+
+      // Для сложной задачи вычисляем общий дедлайн и суммарные трудозатраты
+      const deadlines = checklist.map((item) => new Date(item.deadline));
+      deadline = new Date(Math.max(...deadlines)).toISOString().split("T")[0];
+      effort =
+        checklist.reduce((sum, item) => sum + parseFloat(item.effort), 0) +
+        " часов";
+    } else {
+      // Простая задача
+      effort = document.getElementById("hostTaskEffort").value.trim();
+      deadline = document.getElementById("hostTaskDeadline").value;
+
+      if (!effort || !deadline) {
+        alert("Пожалуйста, заполните все обязательные поля");
+        return;
+      }
+
+      // Собираем чек-лист
+      const checklistInputs = document.querySelectorAll(".checklist-input");
+      checklistInputs.forEach((input, index) => {
+        const text = input.value.trim();
+        if (text) {
+          checklist.push({
+            id: index + 1,
+            text: text,
+            checked: false,
+          });
+        }
+      });
+
+      if (checklist.length === 0) {
+        alert("Пожалуйста, добавьте хотя бы один элемент в чек-лист");
+        return;
+      }
     }
 
     if (isEditMode) {
@@ -3054,6 +3592,7 @@ document
         task.deadline = deadline;
         task.contribution = goal || "Общее";
         task.operational = operational;
+        task.taskType = isComplex ? "complex" : "simple";
         task.checklist = checklist;
 
         alert("Задача успешно обновлена");
@@ -3076,6 +3615,8 @@ document
         deadline: deadline,
         contribution: goal || "Общее",
         operational: operational,
+        taskType: isComplex ? "complex" : "simple",
+        effort: effort,
       };
 
       // Добавляем в массив задач хоста
@@ -3312,17 +3853,25 @@ document
     }
   });
 
-// Обработчик кнопки "Редактировать" для текущего профиля практиканта
-document
-  .getElementById("editCurrentUserBtn")
-  .addEventListener("click", function () {
+// Обработчик кнопки "Редактировать" для текущего профиля практиканта (устаревший код)
+const editCurrentUserBtn = document.getElementById("editCurrentUserBtn");
+if (editCurrentUserBtn) {
+  editCurrentUserBtn.addEventListener("click", function () {
     const internData = currentUser.intern;
 
     // Заполняем форму редактирования
-    document.getElementById("editCurrentUserName").value = internData.name;
-    document.getElementById("editCurrentUserBlock").value = internData.block;
-    document.getElementById("editCurrentUserInterests").value =
-      internData.interests.join(", ");
+    const editCurrentUserName = document.getElementById("editCurrentUserName");
+    const editCurrentUserBlock = document.getElementById(
+      "editCurrentUserBlock",
+    );
+    const editCurrentUserInterests = document.getElementById(
+      "editCurrentUserInterests",
+    );
+
+    if (editCurrentUserName) editCurrentUserName.value = internData.name;
+    if (editCurrentUserBlock) editCurrentUserBlock.value = internData.block;
+    if (editCurrentUserInterests)
+      editCurrentUserInterests.value = internData.interests.join(", ");
 
     // Заполняем расписание
     const scheduleMap = {
@@ -3335,29 +3884,52 @@ document
     internData.schedule.forEach((day) => {
       const selectId = scheduleMap[day.day];
       if (selectId) {
-        document.getElementById(selectId).value = day.status;
+        const select = document.getElementById(selectId);
+        if (select) select.value = day.status;
       }
     });
 
     // Показываем форму, скрываем кнопки
-    document.getElementById("currentUserEditForm").style.display = "block";
-    document.getElementById("currentUserEditButtons").style.display = "none";
-    document.getElementById("currentUserViewButtons").style.display = "none";
-  });
+    const currentUserEditForm = document.getElementById("currentUserEditForm");
+    const currentUserEditButtons = document.getElementById(
+      "currentUserEditButtons",
+    );
+    const currentUserViewButtons = document.getElementById(
+      "currentUserViewButtons",
+    );
 
-// Обработчик кнопки "Отмена" редактирования текущего профиля
-document
-  .getElementById("cancelCurrentUserEditBtn")
-  .addEventListener("click", function () {
-    document.getElementById("currentUserEditForm").style.display = "none";
-    document.getElementById("currentUserEditButtons").style.display = "block";
-    document.getElementById("currentUserViewButtons").style.display = "block";
+    if (currentUserEditForm) currentUserEditForm.style.display = "block";
+    if (currentUserEditButtons) currentUserEditButtons.style.display = "none";
+    if (currentUserViewButtons) currentUserViewButtons.style.display = "none";
   });
+}
 
-// Обработчик кнопки "Сохранить" редактирования текущего профиля
-document
-  .getElementById("saveCurrentUserEditBtn")
-  .addEventListener("click", function () {
+// Обработчик кнопки "Отмена" редактирования текущего профиля (устаревший код)
+const cancelCurrentUserEditBtn = document.getElementById(
+  "cancelCurrentUserEditBtn",
+);
+if (cancelCurrentUserEditBtn) {
+  cancelCurrentUserEditBtn.addEventListener("click", function () {
+    const currentUserEditForm = document.getElementById("currentUserEditForm");
+    const currentUserEditButtons = document.getElementById(
+      "currentUserEditButtons",
+    );
+    const currentUserViewButtons = document.getElementById(
+      "currentUserViewButtons",
+    );
+
+    if (currentUserEditForm) currentUserEditForm.style.display = "none";
+    if (currentUserEditButtons) currentUserEditButtons.style.display = "block";
+    if (currentUserViewButtons) currentUserViewButtons.style.display = "block";
+  });
+}
+
+// Обработчик кнопки "Сохранить" редактирования текущего профиля (устаревший код)
+const saveCurrentUserEditBtn = document.getElementById(
+  "saveCurrentUserEditBtn",
+);
+if (saveCurrentUserEditBtn) {
+  saveCurrentUserEditBtn.addEventListener("click", function () {
     const internData = currentUser.intern;
 
     // Обновляем данные
@@ -3408,17 +3980,26 @@ document
     renderProfile();
 
     // Скрываем форму, показываем кнопки
-    document.getElementById("currentUserEditForm").style.display = "none";
-    document.getElementById("currentUserEditButtons").style.display = "block";
-    document.getElementById("currentUserViewButtons").style.display = "block";
+    const currentUserEditForm = document.getElementById("currentUserEditForm");
+    const currentUserEditButtons = document.getElementById(
+      "currentUserEditButtons",
+    );
+    const currentUserViewButtons = document.getElementById(
+      "currentUserViewButtons",
+    );
+
+    if (currentUserEditForm) currentUserEditForm.style.display = "none";
+    if (currentUserEditButtons) currentUserEditButtons.style.display = "block";
+    if (currentUserViewButtons) currentUserViewButtons.style.display = "block";
 
     alert("Профиль обновлён");
   });
+}
 
-// Обработчик кнопки "Редактировать" для профиля сотрудника
-document
-  .getElementById("editEmployeeBtn")
-  .addEventListener("click", function () {
+// Обработчик кнопки "Редактировать" для профиля сотрудника (устаревший код)
+const editEmployeeBtn = document.getElementById("editEmployeeBtn");
+if (editEmployeeBtn) {
+  editEmployeeBtn.addEventListener("click", function () {
     const employeeData =
       currentRole === "employee"
         ? currentUser.employee
@@ -3445,20 +4026,26 @@ document
     document.getElementById("employeeEditButtons").style.display = "none";
     document.getElementById("employeeViewButtons").style.display = "none";
   });
+}
 
-// Обработчик кнопки "Отмена" редактирования профиля сотрудника
-document
-  .getElementById("cancelEmployeeEditBtn")
-  .addEventListener("click", function () {
-    document.getElementById("employeeEditForm").style.display = "none";
-    document.getElementById("employeeEditButtons").style.display = "block";
-    document.getElementById("employeeViewButtons").style.display = "none";
+// Обработчик кнопки "Отмена" редактирования профиля сотрудника (устаревший код)
+const cancelEmployeeEditBtn = document.getElementById("cancelEmployeeEditBtn");
+if (cancelEmployeeEditBtn) {
+  cancelEmployeeEditBtn.addEventListener("click", function () {
+    const employeeEditForm = document.getElementById("employeeEditForm");
+    const employeeEditButtons = document.getElementById("employeeEditButtons");
+    const employeeViewButtons = document.getElementById("employeeViewButtons");
+
+    if (employeeEditForm) employeeEditForm.style.display = "none";
+    if (employeeEditButtons) employeeEditButtons.style.display = "block";
+    if (employeeViewButtons) employeeViewButtons.style.display = "none";
   });
+}
 
-// Обработчик кнопки "Сохранить" редактирования профиля сотрудника
-document
-  .getElementById("saveEmployeeEditBtn")
-  .addEventListener("click", function () {
+// Обработчик кнопки "Сохранить" редактирования профиля сотрудника (устаревший код)
+const saveEmployeeEditBtn = document.getElementById("saveEmployeeEditBtn");
+if (saveEmployeeEditBtn) {
+  saveEmployeeEditBtn.addEventListener("click", function () {
     const employeeData =
       currentRole === "employee"
         ? currentUser.employee
@@ -3484,12 +4071,17 @@ document
     renderProfile();
 
     // Скрываем форму, показываем кнопки
-    document.getElementById("employeeEditForm").style.display = "none";
-    document.getElementById("employeeEditButtons").style.display = "block";
-    document.getElementById("employeeViewButtons").style.display = "none";
+    const employeeEditForm = document.getElementById("employeeEditForm");
+    const employeeEditButtons = document.getElementById("employeeEditButtons");
+    const employeeViewButtons = document.getElementById("employeeViewButtons");
+
+    if (employeeEditForm) employeeEditForm.style.display = "none";
+    if (employeeEditButtons) employeeEditButtons.style.display = "block";
+    if (employeeViewButtons) employeeViewButtons.style.display = "none";
 
     alert("Профиль обновлён");
   });
+}
 
 // ==================== АНАЛИТИКА ====================
 
@@ -4041,12 +4633,44 @@ function renderActiveTasksList() {
   container.innerHTML = sortedTasks
     .map((task) => {
       const progress = calculateProgress(task);
-      const deadlineInfo = getDeadlineInfo(task.deadline);
-      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
       const completedCount = task.checklist.filter(
         (item) => item.checked,
       ).length;
       const totalCount = task.checklist.length;
+
+      // Get deadline info based on task type
+      let deadlineInfo;
+      let taskTypeLabel = "";
+      let effortDisplay = "";
+
+      if (task.taskType === "complex") {
+        // For complex tasks, find the nearest deadline among unchecked items
+        const uncheckedItems = task.checklist.filter((item) => !item.checked);
+        if (uncheckedItems.length > 0) {
+          const nearestDeadline = uncheckedItems
+            .map((item) => new Date(item.deadline))
+            .reduce((min, date) => (date < min ? date : min));
+          deadlineInfo = getDeadlineInfo(
+            nearestDeadline.toISOString().split("T")[0],
+          );
+        } else {
+          deadlineInfo = getDeadlineInfo(task.deadline);
+        }
+
+        // Calculate total effort for complex tasks
+        const totalEffort = task.checklist.reduce(
+          (sum, item) => sum + parseFloat(item.effort || 0),
+          0,
+        );
+        effortDisplay = `${totalEffort} часов`;
+        taskTypeLabel = `<span style="font-size: 12px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">Сложная задача</span>`;
+      } else {
+        // For simple tasks, use the overall deadline
+        deadlineInfo = getDeadlineInfo(task.deadline);
+        effortDisplay = task.effort || "";
+      }
+
+      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
 
       // Use red color only for overdue tasks
       const progressColorClass =
@@ -4056,13 +4680,14 @@ function renderActiveTasksList() {
         <div class="task-progress-card" data-task-id="${task.id}">
           <div class="task-status-badge ${statusBadge.class}">${statusBadge.text}</div>
           <div class="task-card-header">
-            <div class="task-card-title">${task.title}</div>
+            <div class="task-card-title">${task.title}${taskTypeLabel}</div>
             <div class="task-card-percent">${progress}%</div>
           </div>
           <div class="task-deadline-info">
             <div class="deadline-indicator ${deadlineInfo.indicatorClass}"></div>
             <span>${deadlineInfo.text}</span>
           </div>
+          ${effortDisplay ? `<div class="task-effort-info" style="font-size: 12px; color: #666; margin-bottom: 8px;">⏱ ${effortDisplay}</div>` : ""}
           <div class="task-progress-bar">
             <div class="task-progress-fill ${progressColorClass}" style="width: ${progress}%"></div>
           </div>
@@ -5158,12 +5783,44 @@ function renderSupervisorActiveTasksList() {
   container.innerHTML = sortedTasks
     .map((task) => {
       const progress = calculateProgress(task);
-      const deadlineInfo = getDeadlineInfo(task.deadline);
-      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
       const completedCount = task.checklist.filter(
         (item) => item.checked,
       ).length;
       const totalCount = task.checklist.length;
+
+      // Get deadline info based on task type
+      let deadlineInfo;
+      let taskTypeLabel = "";
+      let effortDisplay = "";
+
+      if (task.taskType === "complex") {
+        // For complex tasks, find the nearest deadline among unchecked items
+        const uncheckedItems = task.checklist.filter((item) => !item.checked);
+        if (uncheckedItems.length > 0) {
+          const nearestDeadline = uncheckedItems
+            .map((item) => new Date(item.deadline))
+            .reduce((min, date) => (date < min ? date : min));
+          deadlineInfo = getDeadlineInfo(
+            nearestDeadline.toISOString().split("T")[0],
+          );
+        } else {
+          deadlineInfo = getDeadlineInfo(task.deadline);
+        }
+
+        // Calculate total effort for complex tasks
+        const totalEffort = task.checklist.reduce(
+          (sum, item) => sum + parseFloat(item.effort || 0),
+          0,
+        );
+        effortDisplay = `${totalEffort} часов`;
+        taskTypeLabel = `<span style="font-size: 12px; color: #2cb5b4; background: #e8f5f5; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">Сложная задача</span>`;
+      } else {
+        // For simple tasks, use the overall deadline
+        deadlineInfo = getDeadlineInfo(task.deadline);
+        effortDisplay = task.effort || "";
+      }
+
+      const statusBadge = getStatusBadge(progress, deadlineInfo.status);
 
       // Use red color only for overdue tasks
       const progressColorClass =
@@ -5173,13 +5830,14 @@ function renderSupervisorActiveTasksList() {
         <div class="task-progress-card" data-task-id="${task.id}">
           <div class="task-status-badge ${statusBadge.class}">${statusBadge.text}</div>
           <div class="task-card-header">
-            <div class="task-card-title">${task.title}</div>
+            <div class="task-card-title">${task.title}${taskTypeLabel}</div>
             <div class="task-card-percent">${progress}%</div>
           </div>
           <div class="task-deadline-info">
             <div class="deadline-indicator ${deadlineInfo.indicatorClass}"></div>
             <span>${deadlineInfo.text}</span>
           </div>
+          ${effortDisplay ? `<div class="task-effort-info" style="font-size: 12px; color: #666; margin-bottom: 8px;">⏱ ${effortDisplay}</div>` : ""}
           <div class="task-progress-bar">
             <div class="task-progress-fill ${progressColorClass}" style="width: ${progress}%"></div>
           </div>
@@ -5380,9 +6038,866 @@ function openTaskChecklistModal(taskId) {
   modal.classList.add("active");
 }
 
+// ===== PROFILE INLINE EDITING FUNCTIONALITY =====
+
+// Store original values for cancel functionality
+const originalValues = new Map();
+
+// Initialize inline editing for profile blocks
+function initProfileInlineEditing() {
+  // Get all pencil icons
+  const pencilIcons = document.querySelectorAll(".pencil-icon");
+
+  pencilIcons.forEach((icon) => {
+    icon.addEventListener("click", function () {
+      const blockName = this.dataset.block;
+      const blockSection = this.closest(".profile-block-section");
+      const content = document.getElementById(`${blockName}-content`);
+
+      if (!content) return;
+
+      // Store original values
+      storeOriginalValues(content);
+
+      // Switch to edit mode
+      enterEditMode(blockSection, content);
+    });
+  });
+
+  // Handle cancel buttons
+  document.querySelectorAll(".edit-btn.cancel").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const blockSection = this.closest(".profile-block-section");
+      const content = this.closest(".profile-block-content");
+
+      if (!content) return;
+
+      // Restore original values
+      restoreOriginalValues(content);
+
+      // Exit edit mode
+      exitEditMode(blockSection, content);
+    });
+  });
+
+  // Handle save buttons
+  document.querySelectorAll(".edit-btn.save").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const blockSection = this.closest(".profile-block-section");
+      const content = this.closest(".profile-block-content");
+
+      if (!content) return;
+
+      // Save changes
+      saveChanges(content);
+
+      // Update view mode with new values
+      updateViewMode(content);
+
+      // Exit edit mode
+      exitEditMode(blockSection, content);
+    });
+  });
+
+  // Handle avatar change buttons
+  document.querySelectorAll(".change-avatar-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const input = this.nextElementSibling;
+      if (input && input.type === "file") {
+        input.click();
+      }
+    });
+  });
+
+  // Handle avatar file inputs
+  document
+    .querySelectorAll('input[type="file"][accept="image/*"]')
+    .forEach((input) => {
+      input.addEventListener("change", function () {
+        if (this.files && this.files[0]) {
+          // In a real app, you would upload the file here
+          console.log("Avatar file selected:", this.files[0].name);
+          alert(
+            "Фото выбрано. В реальном приложении оно будет загружено на сервер.",
+          );
+        }
+      });
+    });
+
+  // Handle add interest buttons
+  document.querySelectorAll(".add-interest-btn").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const container = this.closest(".interests-edit");
+      if (!container) return;
+
+      const newInterest = document.createElement("div");
+      newInterest.className = "interests-inputs";
+      newInterest.innerHTML = `
+        <input type="text" class="interest-input" placeholder="#новый-интерес">
+        <button class="remove-interest">×</button>
+      `;
+
+      container.insertBefore(newInterest, this);
+
+      // Add remove listener to new button
+      newInterest
+        .querySelector(".remove-interest")
+        .addEventListener("click", function () {
+          newInterest.remove();
+        });
+
+      // Focus on new input
+      newInterest.querySelector(".interest-input").focus();
+    });
+  });
+
+  // Handle remove interest buttons
+  document.querySelectorAll(".remove-interest").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const container = this.closest(".interests-inputs");
+      if (container) {
+        container.remove();
+      }
+    });
+  });
+}
+
+// Store original values from view mode
+function storeOriginalValues(content) {
+  const viewMode = content.querySelector(".view-mode");
+  if (!viewMode) return;
+
+  originalValues.clear();
+
+  // Store field values
+  viewMode.querySelectorAll(".field-value[data-field]").forEach((field) => {
+    const fieldName = field.dataset.field;
+    originalValues.set(fieldName, field.textContent.trim());
+  });
+
+  // Store interests
+  const interestsList = viewMode.querySelector(".interests-list");
+  if (interestsList) {
+    const interests = Array.from(
+      interestsList.querySelectorAll(".interest-tag"),
+    ).map((tag) => tag.textContent.trim());
+    originalValues.set("interests", interests);
+  }
+
+  // Store schedule
+  const scheduleDisplay = viewMode.querySelector(".schedule-display");
+  if (scheduleDisplay) {
+    const schedule = {};
+    scheduleDisplay.querySelectorAll(".schedule-row").forEach((row) => {
+      const day = row.querySelector(".day-label").textContent.trim();
+      const status = row.querySelector(".schedule-status").className;
+      schedule[day] = status;
+    });
+    originalValues.set("schedule", schedule);
+  }
+}
+
+// Restore original values
+function restoreOriginalValues(content) {
+  const editMode = content.querySelector(".edit-mode");
+  if (!editMode) return;
+
+  // Restore field values
+  editMode
+    .querySelectorAll(".field-input[data-field], .field-select[data-field]")
+    .forEach((field) => {
+      const fieldName = field.dataset.field;
+      if (originalValues.has(fieldName)) {
+        field.value = originalValues.get(fieldName);
+      }
+    });
+
+  // Restore interests
+  const interestsEdit = editMode.querySelector(".interests-edit");
+  if (interestsEdit && originalValues.has("interests")) {
+    const interests = originalValues.get("interests");
+    interestsEdit.innerHTML =
+      interests
+        .map(
+          (interest) => `
+      <div class="interests-inputs">
+        <input type="text" class="interest-input" value="${interest}">
+        <button class="remove-interest">×</button>
+      </div>
+    `,
+        )
+        .join("") +
+      `
+      <button class="add-interest-btn">+ Добавить интерес</button>
+    `;
+
+    // Re-add event listeners
+    initInterestListeners(interestsEdit);
+  }
+
+  // Restore schedule
+  const scheduleEdit = editMode.querySelector(".schedule-edit");
+  if (scheduleEdit && originalValues.has("schedule")) {
+    const schedule = originalValues.get("schedule");
+    const dayMap = { Пн: "mon", Вт: "tue", Ср: "wed", Чт: "thu", Пт: "fri" };
+
+    scheduleEdit.querySelectorAll(".schedule-row").forEach((row) => {
+      const dayLabel = row.querySelector(".day-label").textContent.trim();
+      const select = row.querySelector(".schedule-select");
+      const dayKey = dayMap[dayLabel];
+
+      if (select && dayKey && schedule[dayLabel]) {
+        const statusClass = schedule[dayLabel];
+        if (statusClass.includes("morning")) {
+          select.value = "morning";
+        } else if (statusClass.includes("afternoon")) {
+          select.value = "afternoon";
+        } else {
+          select.value = "out";
+        }
+      }
+    });
+  }
+}
+
+// Save changes
+function saveChanges(content) {
+  const editMode = content.querySelector(".edit-mode");
+  if (!editMode) return;
+
+  // Collect new values
+  const newValues = {};
+
+  // Collect field values
+  editMode
+    .querySelectorAll(".field-input[data-field], .field-select[data-field]")
+    .forEach((field) => {
+      const fieldName = field.dataset.field;
+      newValues[fieldName] = field.value;
+    });
+
+  // Collect interests
+  const interestsEdit = editMode.querySelector(".interests-edit");
+  if (interestsEdit) {
+    const interests = Array.from(
+      interestsEdit.querySelectorAll(".interest-input"),
+    )
+      .map((input) => input.value.trim())
+      .filter((val) => val !== "");
+    newValues.interests = interests;
+  }
+
+  // Collect schedule
+  const scheduleEdit = editMode.querySelector(".schedule-edit");
+  if (scheduleEdit) {
+    const schedule = {};
+    scheduleEdit.querySelectorAll(".schedule-row").forEach((row) => {
+      const dayLabel = row.querySelector(".day-label").textContent.trim();
+      const select = row.querySelector(".schedule-select");
+      if (select) {
+        schedule[dayLabel] = select.value;
+      }
+    });
+    newValues.schedule = schedule;
+  }
+
+  // Update current user data (in a real app, this would be sent to server)
+  console.log("Saving changes:", newValues);
+
+  // Update currentUser object based on current role
+  if (currentRole === "intern") {
+    if (newValues.name) currentUser.intern.name = newValues.name;
+    if (newValues.block) currentUser.intern.block = newValues.block;
+    if (newValues.interests) currentUser.intern.interests = newValues.interests;
+    if (newValues.schedule)
+      currentUser.intern.schedule = Object.entries(newValues.schedule).map(
+        ([day, status]) => ({
+          day,
+          status,
+        }),
+      );
+  } else if (currentRole === "employee" || currentRole === "host") {
+    if (newValues.name) currentUser[currentRole].name = newValues.name;
+    if (newValues.block) currentUser[currentRole].block = newValues.block;
+  } else if (currentRole === "supervisor") {
+    if (newValues.name) currentUser.supervisor.name = newValues.name;
+    if (newValues.block) currentUser.supervisor.block = newValues.block;
+  }
+}
+
+// Update view mode with new values
+function updateViewMode(content) {
+  const viewMode = content.querySelector(".view-mode");
+  if (!viewMode) return;
+
+  // Update field values
+  viewMode.querySelectorAll(".field-value[data-field]").forEach((field) => {
+    const fieldName = field.dataset.field;
+    const editMode = content.querySelector(".edit-mode");
+    if (editMode) {
+      const editField = editMode.querySelector(`[data-field="${fieldName}"]`);
+      if (editField) {
+        field.textContent = editField.value;
+      }
+    }
+  });
+
+  // Update interests
+  const interestsList = viewMode.querySelector(".interests-list");
+  const interestsEdit = content.querySelector(".edit-mode .interests-edit");
+  if (interestsList && interestsEdit) {
+    const interests = Array.from(
+      interestsEdit.querySelectorAll(".interest-input"),
+    )
+      .map((input) => input.value.trim())
+      .filter((val) => val !== "");
+    interestsList.innerHTML = interests
+      .map((interest) => `<span class="interest-tag">${interest}</span>`)
+      .join("");
+  }
+
+  // Update schedule
+  const scheduleDisplay = viewMode.querySelector(".schedule-display");
+  const scheduleEdit = content.querySelector(".edit-mode .schedule-edit");
+  if (scheduleDisplay && scheduleEdit) {
+    const statusMap = {
+      morning: "до обеда",
+      afternoon: "после обеда",
+      out: "не в офисе",
+    };
+
+    const classMap = {
+      morning: "morning",
+      afternoon: "afternoon",
+      out: "out",
+    };
+
+    scheduleDisplay.querySelectorAll(".schedule-row").forEach((row) => {
+      const dayLabel = row.querySelector(".day-label").textContent.trim();
+      const statusSpan = row.querySelector(".schedule-status");
+
+      // Find corresponding edit row
+      const editRow = Array.from(
+        scheduleEdit.querySelectorAll(".schedule-row"),
+      ).find(
+        (r) => r.querySelector(".day-label").textContent.trim() === dayLabel,
+      );
+
+      if (editRow && statusSpan) {
+        const select = editRow.querySelector(".schedule-select");
+        if (select) {
+          const value = select.value;
+          statusSpan.textContent = statusMap[value];
+          statusSpan.className = `schedule-status ${classMap[value]}`;
+        }
+      }
+    });
+  }
+}
+
+// Enter edit mode
+function enterEditMode(blockSection, content) {
+  // Hide pencil icon
+  const pencilIcon = blockSection.querySelector(".pencil-icon");
+  if (pencilIcon) {
+    pencilIcon.style.display = "none";
+  }
+
+  // Show edit mode, hide view mode
+  content.querySelector(".view-mode").style.display = "none";
+  content.querySelector(".edit-mode").style.display = "block";
+
+  // Add editing class to section
+  blockSection.classList.add("editing");
+}
+
+// Exit edit mode
+function exitEditMode(blockSection, content) {
+  // Show pencil icon
+  const pencilIcon = blockSection.querySelector(".pencil-icon");
+  if (pencilIcon) {
+    pencilIcon.style.display = "flex";
+  }
+
+  // Show view mode, hide edit mode
+  content.querySelector(".view-mode").style.display = "block";
+  content.querySelector(".edit-mode").style.display = "none";
+
+  // Remove editing class from section
+  blockSection.classList.remove("editing");
+}
+
+// Initialize interest listeners (for dynamically added elements)
+function initInterestListeners(container) {
+  container.querySelectorAll(".remove-interest").forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const inputsContainer = this.closest(".interests-inputs");
+      if (inputsContainer) {
+        inputsContainer.remove();
+      }
+    });
+  });
+
+  const addBtn = container.querySelector(".add-interest-btn");
+  if (addBtn) {
+    addBtn.addEventListener("click", function () {
+      const newInterest = document.createElement("div");
+      newInterest.className = "interests-inputs";
+      newInterest.innerHTML = `
+        <input type="text" class="interest-input" placeholder="#новый-интерес">
+        <button class="remove-interest">×</button>
+      `;
+
+      container.insertBefore(newInterest, this);
+
+      // Add remove listener to new button
+      newInterest
+        .querySelector(".remove-interest")
+        .addEventListener("click", function () {
+          newInterest.remove();
+        });
+
+      // Focus on new input
+      newInterest.querySelector(".interest-input").focus();
+    });
+  }
+}
+
+// Initialize profile inline editing when profile screen is shown
+function initProfileScreen() {
+  initProfileInlineEditing();
+
+  // QR button handlers
+  const qrButtons = document.querySelectorAll(".qr-button");
+  qrButtons.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      alert("QR-код будет показан в модальном окне");
+    });
+  });
+}
+
 // Инициализация - рендерим задачи при загрузке
 renderTasks();
 renderHostTasks();
 renderUsersList();
 renderEmployeesList();
 renderProfile();
+
+// Initialize profile inline editing
+initProfileScreen();
+
+// Обработчики переключателя ленты для куратора
+const supervisorFeedToggle = document.getElementById("supervisor-feed-toggle");
+if (supervisorFeedToggle) {
+  const toggleButtons =
+    supervisorFeedToggle.querySelectorAll(".feed-toggle-btn");
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      // Убираем активный класс со всех кнопок
+      toggleButtons.forEach((b) => b.classList.remove("active"));
+      // Добавляем активный класс на нажатую кнопку
+      this.classList.add("active");
+      // Обновляем режим ленты
+      supervisorFeedMode = this.dataset.feed;
+      // Показываем/скрываем кнопку "Создать задачу" для куратора
+      const createTaskBtn = document.getElementById("createTaskBtn");
+      if (createTaskBtn && currentRole === "supervisor") {
+        createTaskBtn.style.display =
+          supervisorFeedMode === "tasks" ? "flex" : "none";
+      }
+      // Перерисовываем ленту
+      renderTasks();
+    });
+  });
+}
+
+// Обработчики модального окна черновика задачи
+const createDraftTaskBtn = document.getElementById("createDraftTaskBtn");
+const draftTaskModal = document.getElementById("draftTaskModal");
+const draftTaskCancel = document.getElementById("draftTaskCancel");
+const draftTaskSave = document.getElementById("draftTaskSave");
+
+// Обработчик переключения типа задачи в модалке черновика
+const draftTaskTypeSimple = document.getElementById("draftTaskTypeSimple");
+const draftTaskTypeComplex = document.getElementById("draftTaskTypeComplex");
+const draftSimpleTaskFields = document.getElementById("draftSimpleTaskFields");
+const draftComplexTaskFields = document.getElementById(
+  "draftComplexTaskFields",
+);
+
+if (draftTaskTypeSimple && draftTaskTypeComplex) {
+  const handleDraftTaskTypeChange = function () {
+    const isComplex = draftTaskTypeComplex.checked;
+
+    if (isComplex) {
+      draftSimpleTaskFields.style.display = "none";
+      draftComplexTaskFields.style.display = "block";
+      updateDraftChecklistForComplexTask();
+    } else {
+      draftSimpleTaskFields.style.display = "block";
+      draftComplexTaskFields.style.display = "none";
+      updateDraftChecklistForSimpleTask();
+    }
+  };
+
+  draftTaskTypeSimple.addEventListener("change", handleDraftTaskTypeChange);
+  draftTaskTypeComplex.addEventListener("change", handleDraftTaskTypeChange);
+}
+
+// Функции для обновления чек-листа черновика
+function updateDraftChecklistForSimpleTask() {
+  const checklistContainer = document.getElementById("draftTaskChecklist");
+  checklistContainer.innerHTML = `
+    <div class="checklist-row">
+      <input type="text" class="modal-input checklist-input" placeholder="Элемент чек-листа" />
+      <button type="button" class="remove-checklist-btn" style="display: none;">×</button>
+    </div>
+  `;
+}
+
+function updateDraftChecklistForComplexTask() {
+  const checklistContainer = document.getElementById("draftTaskChecklist");
+  checklistContainer.innerHTML = `
+    <div class="checklist-row complex-checklist-row">
+      <input type="text" class="modal-input checklist-input-text" placeholder="Элемент чек-листа" />
+      <input type="date" class="modal-input checklist-input-deadline" placeholder="Дедлайн" />
+      <input type="number" class="modal-input checklist-input-effort" placeholder="Часы" min="0.5" step="0.5" />
+      <button type="button" class="remove-checklist-btn" style="display: none;">×</button>
+    </div>
+  `;
+}
+
+// Обработчик кнопки создания черновика
+if (createDraftTaskBtn) {
+  createDraftTaskBtn.addEventListener("click", function () {
+    // Очищаем форму
+    document.getElementById("draftTaskName").value = "";
+    document.getElementById("draftTaskDescription").value = "";
+    document.getElementById("draftTaskEffort").value = "";
+    document.getElementById("draftTaskDeadline").value = "";
+    document.getElementById("draftTaskGoal").value = "";
+    document.getElementById("draftTaskOperational").checked = false;
+
+    // Сбрасываем тип задачи на простой
+    if (draftTaskTypeSimple) draftTaskTypeSimple.checked = true;
+    if (draftTaskTypeComplex) draftTaskTypeComplex.checked = false;
+    if (draftSimpleTaskFields) draftSimpleTaskFields.style.display = "block";
+    if (draftComplexTaskFields) draftComplexTaskFields.style.display = "none";
+
+    // Сбрасываем чек-лист до одного пустого поля
+    updateDraftChecklistForSimpleTask();
+
+    // Сбрасываем режим редактирования
+    draftTaskModal.dataset.editDraftId = "";
+
+    // Восстанавливаем заголовок и кнопку
+    draftTaskModal.querySelector(".modal-title").textContent =
+      "Новая задача (черновик)";
+    document.getElementById("draftTaskSave").textContent = "Сохранить черновик";
+
+    // Открываем модальное окно
+    draftTaskModal.classList.add("active");
+  });
+}
+
+// Обработчик добавления элемента чек-листа черновика
+const addDraftChecklistItem = document.getElementById("addDraftChecklistItem");
+if (addDraftChecklistItem) {
+  addDraftChecklistItem.addEventListener("click", function () {
+    const checklistContainer = document.getElementById("draftTaskChecklist");
+    const isComplex = document.getElementById("draftTaskTypeComplex")?.checked;
+
+    const newRow = document.createElement("div");
+    newRow.className =
+      "checklist-row" + (isComplex ? " complex-checklist-row" : "");
+
+    if (isComplex) {
+      newRow.innerHTML = `
+        <input type="text" class="modal-input checklist-input-text" placeholder="Элемент чек-листа" />
+        <input type="date" class="modal-input checklist-input-deadline" placeholder="Дедлайн" />
+        <input type="number" class="modal-input checklist-input-effort" placeholder="Часы" min="0.5" step="0.5" />
+        <button type="button" class="remove-checklist-btn">×</button>
+      `;
+    } else {
+      newRow.innerHTML = `
+        <input type="text" class="modal-input checklist-input" placeholder="Элемент чек-листа" />
+        <button type="button" class="remove-checklist-btn">×</button>
+      `;
+    }
+
+    checklistContainer.appendChild(newRow);
+
+    checklistContainer
+      .querySelectorAll(".remove-checklist-btn")
+      .forEach((btn) => {
+        btn.style.display = "flex";
+      });
+  });
+}
+
+// Обработчик удаления элементов чек-листа черновика
+const draftTaskChecklist = document.getElementById("draftTaskChecklist");
+if (draftTaskChecklist) {
+  draftTaskChecklist.addEventListener("click", function (e) {
+    if (e.target.classList.contains("remove-checklist-btn")) {
+      const row = e.target.closest(".checklist-row");
+      if (draftTaskChecklist.querySelectorAll(".checklist-row").length > 1) {
+        row.remove();
+        if (
+          draftTaskChecklist.querySelectorAll(".checklist-row").length === 1
+        ) {
+          draftTaskChecklist.querySelector(
+            ".remove-checklist-btn",
+          ).style.display = "none";
+        }
+      }
+    }
+  });
+}
+
+// Обработчик сохранения черновика
+if (draftTaskSave) {
+  draftTaskSave.addEventListener("click", function () {
+    const name = document.getElementById("draftTaskName").value.trim();
+    const description = document
+      .getElementById("draftTaskDescription")
+      .value.trim();
+    const goal = document.getElementById("draftTaskGoal").value;
+    const operational = document.getElementById("draftTaskOperational").checked;
+    const isComplex = document.getElementById("draftTaskTypeComplex")?.checked;
+    const editDraftId = draftTaskModal.dataset.editDraftId;
+
+    if (!name || !description) {
+      alert("Пожалуйста, заполните все обязательные поля");
+      return;
+    }
+
+    let checklist = [];
+    let effort = "";
+    let deadline = "";
+
+    if (isComplex) {
+      const checklistRows = document.querySelectorAll(
+        "#draftTaskChecklist .complex-checklist-row",
+      );
+      checklistRows.forEach((row, index) => {
+        const text = row.querySelector(".checklist-input-text")?.value.trim();
+        const itemDeadline = row.querySelector(
+          ".checklist-input-deadline",
+        )?.value;
+        const itemEffort = row.querySelector(".checklist-input-effort")?.value;
+
+        if (text && itemDeadline && itemEffort) {
+          checklist.push({
+            id: index + 1,
+            text: text,
+            checked: false,
+            deadline: itemDeadline,
+            effort: itemEffort,
+          });
+        }
+      });
+
+      if (checklist.length === 0) {
+        alert(
+          "Пожалуйста, добавьте хотя бы один элемент в чек-лист с дедлайном и трудозатратами",
+        );
+        return;
+      }
+
+      const deadlines = checklist.map((item) => new Date(item.deadline));
+      deadline = new Date(Math.max(...deadlines)).toISOString().split("T")[0];
+      effort =
+        checklist.reduce((sum, item) => sum + parseFloat(item.effort), 0) +
+        " часов";
+    } else {
+      effort = document.getElementById("draftTaskEffort").value.trim();
+      deadline = document.getElementById("draftTaskDeadline").value;
+
+      if (!effort || !deadline) {
+        alert("Пожалуйста, заполните все обязательные поля");
+        return;
+      }
+
+      const checklistInputs = document.querySelectorAll(
+        "#draftTaskChecklist .checklist-input",
+      );
+      checklistInputs.forEach((input, index) => {
+        const text = input.value.trim();
+        if (text) {
+          checklist.push({
+            id: index + 1,
+            text: text,
+            checked: false,
+          });
+        }
+      });
+
+      if (checklist.length === 0) {
+        alert("Пожалуйста, добавьте хотя бы один элемент в чек-лист");
+        return;
+      }
+    }
+
+    if (editDraftId) {
+      // Режим редактирования
+      const draftIndex = draftTasks.findIndex(
+        (t) => t.id === parseInt(editDraftId),
+      );
+      if (draftIndex > -1) {
+        draftTasks[draftIndex] = {
+          ...draftTasks[draftIndex],
+          title: name,
+          description: description,
+          checklist: checklist,
+          deadline: deadline,
+          contribution: goal || "Общее",
+          operational: operational,
+          taskType: isComplex ? "complex" : "simple",
+          effort: effort,
+        };
+        alert("Черновик обновлён");
+      }
+    } else {
+      // Режим создания
+      const newDraft = {
+        id: Date.now(),
+        internId: currentInternId,
+        internName: currentUser.intern.name,
+        title: name,
+        description: description,
+        checklist: checklist,
+        deadline: deadline,
+        contribution: goal || "Общее",
+        operational: operational,
+        taskType: isComplex ? "complex" : "simple",
+        effort: effort,
+        status: "pending",
+      };
+
+      draftTasks.push(newDraft);
+      alert("Черновик задачи сохранён");
+    }
+
+    draftTaskModal.classList.remove("active");
+    renderHostTasks();
+  });
+}
+
+// Обработчик отмены черновика
+if (draftTaskCancel) {
+  draftTaskCancel.addEventListener("click", function () {
+    draftTaskModal.classList.remove("active");
+  });
+}
+
+// Обработчик закрытия модального окна черновика при клике на оверлей
+if (draftTaskModal) {
+  draftTaskModal.addEventListener("click", function (e) {
+    if (e.target === draftTaskModal) {
+      draftTaskModal.classList.remove("active");
+    }
+  });
+}
+
+// Делегирование событий для карточек черновиков
+myTasksScreen.addEventListener("click", function (e) {
+  const sendBtn = e.target.closest('[data-action="send"]');
+  if (sendBtn) {
+    const draftId = parseInt(sendBtn.getAttribute("data-draft-id"));
+    const draft = draftTasks.find((t) => t.id === draftId);
+    if (draft) {
+      // Перемещаем из черновиков в задачи на согласовании
+      draft.status = "awaiting_approval";
+      alert("Задача отправлена хосту на согласование");
+      renderHostTasks();
+    }
+    return;
+  }
+
+  const editBtn = e.target.closest('[data-action="edit"]');
+  if (editBtn) {
+    const draftId = parseInt(editBtn.getAttribute("data-draft-id"));
+    const draft = draftTasks.find((t) => t.id === draftId);
+    if (draft) {
+      // Открываем модалку для редактирования
+      openDraftTaskForEdit(draft);
+    }
+    return;
+  }
+
+  const deleteBtn = e.target.closest('[data-action="delete"]');
+  if (deleteBtn) {
+    const draftId = parseInt(deleteBtn.getAttribute("data-draft-id"));
+    if (confirm("Удалить черновик задачи?")) {
+      const index = draftTasks.findIndex((t) => t.id === draftId);
+      if (index > -1) {
+        draftTasks.splice(index, 1);
+        alert("Черновик удалён");
+        renderHostTasks();
+      }
+    }
+    return;
+  }
+});
+
+// Функция для открытия черновика на редактирование
+function openDraftTaskForEdit(draft) {
+  // Заполняем поля формы
+  document.getElementById("draftTaskName").value = draft.title;
+  document.getElementById("draftTaskDescription").value = draft.description;
+  document.getElementById("draftTaskGoal").value = draft.contribution;
+  document.getElementById("draftTaskOperational").checked = draft.operational;
+
+  // Устанавливаем тип задачи
+  if (draft.taskType === "complex") {
+    if (draftTaskTypeComplex) draftTaskTypeComplex.checked = true;
+    if (draftTaskTypeSimple) draftTaskTypeSimple.checked = false;
+    if (draftSimpleTaskFields) draftSimpleTaskFields.style.display = "none";
+    if (draftComplexTaskFields) draftComplexTaskFields.style.display = "block";
+  } else {
+    if (draftTaskTypeSimple) draftTaskTypeSimple.checked = true;
+    if (draftTaskTypeComplex) draftTaskTypeComplex.checked = false;
+    if (draftSimpleTaskFields) draftSimpleTaskFields.style.display = "block";
+    if (draftComplexTaskFields) draftComplexTaskFields.style.display = "none";
+    document.getElementById("draftTaskEffort").value = draft.effort || "";
+    document.getElementById("draftTaskDeadline").value = draft.deadline || "";
+  }
+
+  // Заполняем чек-лист
+  const checklistContainer = document.getElementById("draftTaskChecklist");
+  checklistContainer.innerHTML = "";
+
+  draft.checklist.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className =
+      "checklist-row" +
+      (draft.taskType === "complex" ? " complex-checklist-row" : "");
+
+    if (draft.taskType === "complex") {
+      row.innerHTML = `
+        <input type="text" class="modal-input checklist-input-text" value="${item.text}" placeholder="Элемент чек-листа" />
+        <input type="date" class="modal-input checklist-input-deadline" value="${item.deadline || ""}" placeholder="Дедлайн" />
+        <input type="number" class="modal-input checklist-input-effort" value="${item.effort || ""}" placeholder="Часы" min="0.5" step="0.5" />
+        <button type="button" class="remove-checklist-btn" style="display: flex;">×</button>
+      `;
+    } else {
+      row.innerHTML = `
+        <input type="text" class="modal-input checklist-input" value="${item.text}" placeholder="Элемент чек-листа" />
+        <button type="button" class="remove-checklist-btn" style="display: flex;">×</button>
+      `;
+    }
+
+    checklistContainer.appendChild(row);
+  });
+
+  // Сохраняем ID черновика для редактирования
+  draftTaskModal.dataset.editDraftId = draft.id;
+
+  // Меняем заголовок и кнопку
+  draftTaskModal.querySelector(".modal-title").textContent =
+    "Редактировать черновик";
+  document.getElementById("draftTaskSave").textContent = "Сохранить изменения";
+
+  draftTaskModal.classList.add("active");
+}

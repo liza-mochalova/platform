@@ -84,11 +84,51 @@
       <div class="content">
         <!-- Экран ленты -->
         <div id="feed-screen" class="screen active">
-          <!-- Задачи будут рендериться здесь -->
+          <!-- Переключатель для куратора -->
+          <div
+            id="supervisor-feed-toggle"
+            style="
+              display: none;
+              padding: 12px 16px;
+              background: white;
+              border-bottom: 1px solid #e0e0e0;
+            ">
+            <button class="feed-toggle-btn active" data-feed="raised-hands">
+              Поднятые руки
+            </button>
+            <button class="feed-toggle-btn" data-feed="tasks">Задачи</button>
+          </div>
+          <!-- Контейнер для контента ленты -->
+          <div id="feed-content">
+            <!-- Задачи будут рендериться здесь -->
+          </div>
         </div>
 
         <!-- Экран моих задач -->
         <div id="mytasks-screen" class="screen">
+          <!-- Кнопка создания черновика для практика -->
+          <div
+            id="create-draft-task-container"
+            style="display: none; padding: 12px 16px">
+            <button
+              class="create-task-btn"
+              id="createDraftTaskBtn"
+              style="width: 100%">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Создать черновик задачи
+            </button>
+          </div>
+
           <!-- Вкладки для хоста -->
           <div class="host-tabs" id="hostTabs" style="display: none">
             <button class="host-tab active" data-tab="my-tasks">
@@ -96,6 +136,9 @@
             </button>
             <button class="host-tab" data-tab="intern-tasks">
               Задачи моих практикантов
+            </button>
+            <button class="host-tab" data-tab="pending-approval">
+              Задачи на согласовании
             </button>
           </div>
 
@@ -110,6 +153,14 @@
             class="tab-content"
             style="display: none">
             <!-- Задачи практикантов будут рендериться здесь -->
+          </div>
+
+          <!-- Контент для вкладки "Задачи на согласовании" -->
+          <div
+            id="pending-approval-content"
+            class="tab-content"
+            style="display: none">
+            <!-- Черновики задач будут рендериться здесь -->
           </div>
         </div>
 
@@ -596,7 +647,26 @@
                 <div class="review-item">
                   <div class="review-header">
                     <span class="review-author">Алексей Петров</span>
-                    <span class="review-rating">⭐ 5.0</span>
+                    <span class="review-rating">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          vertical-align: middle;
+                          margin-right: 2px;
+                        ">
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                      5.0
+                    </span>
                   </div>
                   <p class="review-text">
                     Отличная работа, всё выполнено в срок!
@@ -605,7 +675,26 @@
                 <div class="review-item">
                   <div class="review-header">
                     <span class="review-author">Мария Иванова</span>
-                    <span class="review-rating">⭐ 4.5</span>
+                    <span class="review-rating">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          vertical-align: middle;
+                          margin-right: 2px;
+                        ">
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                      4.5
+                    </span>
                   </div>
                   <p class="review-text">Хороший результат, рекомендую.</p>
                 </div>
@@ -657,296 +746,1306 @@
         <div id="profile-screen" class="screen">
           <!-- Контент для практиканта -->
           <div id="intern-profile-content" class="profile-container">
-            <!-- Заголовок профиля -->
-            <div class="profile-header">
-              <div class="profile-avatar">ИП</div>
-              <div class="profile-info">
-                <h2 id="currentUserName">Иван Петров</h2>
-                <span class="profile-block" id="currentUserBlock"
-                  >Аналитика</span
-                >
+            <!-- Кнопка QR -->
+            <button class="qr-button" id="showQRBtn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+
+            <!-- Блок 1: Личная информация -->
+            <div class="profile-block-section" data-editable="true">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Личная информация</h3>
+                <button class="pencil-icon" data-block="personal-info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="profile-block-content" id="personal-info-content">
+                <!-- Режим просмотра -->
+                <div class="view-mode">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-display">
+                      <div class="profile-avatar">ИП</div>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <div class="field-value" data-field="name">Иван Петров</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <div class="field-value" data-field="block">Аналитика</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <div class="field-value" data-field="email">
+                      ivan.petrov@veb.ru
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <div class="field-value" data-field="phone">
+                      +7 (999) 123-45-67
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата начала практики</label>
+                    <div class="field-value readonly">01.06.2025</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата окончания практики</label>
+                    <div class="field-value readonly">31.08.2025</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Хост</label>
+                    <div class="field-value readonly">
+                      <a href="#" class="host-link">Алексей Петров</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Режим редактирования -->
+                <div class="edit-mode" style="display: none">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-edit">
+                      <div class="profile-avatar">ИП</div>
+                      <button class="change-avatar-btn">Изменить фото</button>
+                      <input
+                        type="file"
+                        id="avatarInput"
+                        accept="image/*"
+                        style="display: none" />
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="name"
+                      value="Иван Петров" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <select class="field-select" data-field="block">
+                      <option value="Аналитика">Аналитика</option>
+                      <option value="Маркетинг">Маркетинг</option>
+                      <option value="IT">IT</option>
+                      <option value="Разработка">Разработка</option>
+                      <option value="Продукт">Продукт</option>
+                    </select>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <input
+                      type="email"
+                      class="field-input"
+                      data-field="email"
+                      value="ivan.petrov@veb.ru" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <input
+                      type="tel"
+                      class="field-input"
+                      data-field="phone"
+                      value="+7 (999) 123-45-67" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата начала практики</label>
+                    <div class="field-value readonly">01.06.2025</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата окончания практики</label>
+                    <div class="field-value readonly">31.08.2025</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Хост</label>
+                    <div class="field-value readonly">
+                      <a href="#" class="host-link">Алексей Петров</a>
+                    </div>
+                  </div>
+                  <div class="edit-buttons">
+                    <button class="edit-btn cancel">Отмена</button>
+                    <button class="edit-btn save">Сохранить</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Интересы -->
-            <div class="profile-section">
-              <div class="profile-section-title">Интересы</div>
-              <div class="interests" id="currentUserInterests">
-                <span class="interest-tag">#маркетинг</span>
-                <span class="interest-tag">#продукт</span>
+            <!-- Блок 2: Статистика и достижения (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Статистика и достижения</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="statistics-grid">
+                  <div class="stat-item">
+                    <div class="stat-value">42.7</div>
+                    <div class="stat-label">Текущий рейтинг</div>
+                    <div class="stat-change positive">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                      </svg>
+                      +2.3 за неделю
+                    </div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Выполнено задач</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">18 / 6</div>
+                    <div class="stat-label">От хоста / Из ленты</div>
+                    <div class="stat-ratio">75% / 25%</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">4.5</div>
+                    <div class="stat-label">Средняя оценка</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">92%</div>
+                    <div class="stat-label">Успешно завершено</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">#7</div>
+                    <div class="stat-label">Позиция в рейтинге</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Расписание -->
-            <div class="profile-section">
-              <div class="profile-section-title">Расписание</div>
-              <table class="schedule-table" id="currentUserSchedule">
-                <tr>
-                  <th>Пн</th>
-                  <td><span class="schedule-status morning">до обеда</span></td>
-                </tr>
-                <tr>
-                  <th>Вт</th>
-                  <td>
-                    <span class="schedule-status afternoon">после обеда</span>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Ср</th>
-                  <td><span class="schedule-status morning">до обеда</span></td>
-                </tr>
-                <tr>
-                  <th>Чт</th>
-                  <td><span class="schedule-status out">не в офисе</span></td>
-                </tr>
-                <tr>
-                  <th>Пт</th>
-                  <td>
-                    <span class="schedule-status afternoon">после обеда</span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <!-- Рейтинг -->
-            <div class="profile-section">
-              <div class="profile-section-title">Рейтинг</div>
-              <div class="rating-section">
-                <div>
-                  <div class="rating-value" id="currentUserRating">42.7</div>
-                  <div class="rating-label">баллов</div>
-                </div>
+            <!-- Блок 3: Активность и прогресс (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Активность и прогресс</h3>
               </div>
-            </div>
-
-            <!-- Кнопка редактирования -->
-            <div class="profile-buttons" id="currentUserEditButtons">
-              <button class="profile-btn primary" id="editCurrentUserBtn">
-                Редактировать
-              </button>
-              <button class="profile-btn secondary" id="detailsBtn">
-                Детали
-              </button>
-              <button class="profile-btn secondary" id="qrBtn">
-                Показать QR
-              </button>
-            </div>
-
-            <!-- Форма редактирования профиля -->
-            <div id="currentUserEditForm" style="display: none">
-              <div class="profile-section">
-                <div class="profile-section-title">Редактирование профиля</div>
-                <div class="modal-field">
-                  <label class="modal-label">ФИО</label>
-                  <input
-                    type="text"
-                    class="modal-input"
-                    id="editCurrentUserName" />
+              <div class="profile-block-content">
+                <div class="activity-heatmap">
+                  <div class="heatmap-title">
+                    Активность за последние 30 дней
+                  </div>
+                  <div class="heatmap-grid">
+                    <!-- Будет заполнено динамически -->
+                  </div>
                 </div>
-                <div class="modal-field">
-                  <label class="modal-label">Блок</label>
-                  <select class="modal-select" id="editCurrentUserBlock">
-                    <option value="Аналитика">Аналитика</option>
-                    <option value="Маркетинг">Маркетинг</option>
-                    <option value="IT">IT</option>
-                    <option value="Разработка">Разработка</option>
-                    <option value="Продукт">Продукт</option>
-                  </select>
-                </div>
-                <div class="modal-field">
-                  <label class="modal-label">Интересы (через запятую)</label>
-                  <input
-                    type="text"
-                    class="modal-input"
-                    id="editCurrentUserInterests"
-                    placeholder="#маркетинг, #продукт" />
-                </div>
-                <div class="modal-field">
-                  <label class="modal-label">Расписание</label>
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: repeat(5, 1fr);
-                      gap: 8px;
-                    ">
-                    <div>
-                      <label style="font-size: 12px; color: #666">Пн</label>
-                      <select class="modal-select" id="editCurrentScheduleMon">
-                        <option value="morning">до обеда</option>
-                        <option value="afternoon">после обеда</option>
-                        <option value="out">не в офисе</option>
-                      </select>
+                <div class="active-tasks">
+                  <div class="subsection-title">Текущие активные задачи</div>
+                  <div class="task-item">
+                    <div class="task-info">
+                      <div class="task-name">Анализ данных продаж</div>
+                      <div class="task-deadline">Дедлайн: 20.05.2025</div>
                     </div>
-                    <div>
-                      <label style="font-size: 12px; color: #666">Вт</label>
-                      <select class="modal-select" id="editCurrentScheduleTue">
-                        <option value="morning">до обеда</option>
-                        <option value="afternoon">после обеда</option>
-                        <option value="out">не в офисе</option>
-                      </select>
+                    <div class="task-progress">
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                      </div>
+                      <span class="progress-text">60%</span>
                     </div>
-                    <div>
-                      <label style="font-size: 12px; color: #666">Ср</label>
-                      <select class="modal-select" id="editCurrentScheduleWed">
-                        <option value="morning">до обеда</option>
-                        <option value="afternoon">после обеда</option>
-                        <option value="out">не в офисе</option>
-                      </select>
+                  </div>
+                  <div class="task-item">
+                    <div class="task-info">
+                      <div class="task-name">Подготовка отчёта</div>
+                      <div class="task-deadline">Дедлайн: 25.05.2025</div>
                     </div>
-                    <div>
-                      <label style="font-size: 12px; color: #666">Чт</label>
-                      <select class="modal-select" id="editCurrentScheduleThu">
-                        <option value="morning">до обеда</option>
-                        <option value="afternoon">после обеда</option>
-                        <option value="out">не в офисе</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label style="font-size: 12px; color: #666">Пт</label>
-                      <select class="modal-select" id="editCurrentScheduleFri">
-                        <option value="morning">до обеда</option>
-                        <option value="afternoon">после обеда</option>
-                        <option value="out">не в офисе</option>
-                      </select>
+                    <div class="task-progress">
+                      <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
+                      </div>
+                      <span class="progress-text">30%</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="profile-buttons">
-                <button
-                  class="profile-btn secondary"
-                  id="cancelCurrentUserEditBtn">
-                  Отмена
-                </button>
-                <button class="profile-btn primary" id="saveCurrentUserEditBtn">
-                  Сохранить
-                </button>
+            </div>
+
+            <!-- Блок 4: Навыки и компетенции (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Навыки и компетенции</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="skills-section">
+                  <div class="subsection-title">Приобретённые навыки</div>
+                  <div class="skills-list">
+                    <span class="skill-badge">Анализ данных</span>
+                    <span class="skill-badge">Excel</span>
+                    <span class="skill-badge">Power BI</span>
+                    <span class="skill-badge">SQL</span>
+                  </div>
+                </div>
+                <div class="suggested-skills">
+                  <div class="subsection-title">
+                    Предлагаемые навыки для развития
+                  </div>
+                  <div class="skills-list">
+                    <span class="skill-badge suggested">Python</span>
+                    <span class="skill-badge suggested">Machine Learning</span>
+                    <span class="skill-badge suggested"
+                      >Data Visualization</span
+                    >
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Кнопки (скрыты при редактировании) -->
-            <div class="profile-buttons" id="currentUserViewButtons">
-              <button class="profile-btn primary" id="detailsBtn">
-                Детали
-              </button>
-              <button class="profile-btn secondary" id="qrBtn">
-                Показать QR
-              </button>
+            <!-- Блок 5: Интересы и расписание -->
+            <div class="profile-block-section" data-editable="true">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Интересы и расписание</h3>
+                <button class="pencil-icon" data-block="interests-schedule">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                class="profile-block-content"
+                id="interests-schedule-content">
+                <!-- Режим просмотра -->
+                <div class="view-mode">
+                  <div class="profile-field">
+                    <label class="field-label">Интересы</label>
+                    <div class="interests-list" data-field="interests">
+                      <span class="interest-tag">#маркетинг</span>
+                      <span class="interest-tag">#продукт</span>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Расписание</label>
+                    <div class="schedule-display">
+                      <div class="schedule-row">
+                        <span class="day-label">Пн</span>
+                        <span class="schedule-status morning">до обеда</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Вт</span>
+                        <span class="schedule-status afternoon"
+                          >после обеда</span
+                        >
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Ср</span>
+                        <span class="schedule-status morning">до обеда</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Чт</span>
+                        <span class="schedule-status out">не в офисе</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Пт</span>
+                        <span class="schedule-status afternoon"
+                          >после обеда</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Режим редактирования -->
+                <div class="edit-mode" style="display: none">
+                  <div class="profile-field">
+                    <label class="field-label">Интересы</label>
+                    <div class="interests-edit" data-field="interests">
+                      <div class="interests-inputs">
+                        <input
+                          type="text"
+                          class="interest-input"
+                          value="#маркетинг" />
+                        <button class="remove-interest">×</button>
+                      </div>
+                      <div class="interests-inputs">
+                        <input
+                          type="text"
+                          class="interest-input"
+                          value="#продукт" />
+                        <button class="remove-interest">×</button>
+                      </div>
+                      <button class="add-interest-btn">
+                        + Добавить интерес
+                      </button>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Расписание</label>
+                    <div class="schedule-edit">
+                      <div class="schedule-row">
+                        <span class="day-label">Пн</span>
+                        <select class="schedule-select" data-day="mon">
+                          <option value="morning">до обеда</option>
+                          <option value="afternoon">после обеда</option>
+                          <option value="out">не в офисе</option>
+                        </select>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Вт</span>
+                        <select class="schedule-select" data-day="tue">
+                          <option value="morning">до обеда</option>
+                          <option value="afternoon" selected>
+                            после обеда
+                          </option>
+                          <option value="out">не в офисе</option>
+                        </select>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Ср</span>
+                        <select class="schedule-select" data-day="wed">
+                          <option value="morning" selected>до обеда</option>
+                          <option value="afternoon">после обеда</option>
+                          <option value="out">не в офисе</option>
+                        </select>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Чт</span>
+                        <select class="schedule-select" data-day="thu">
+                          <option value="morning">до обеда</option>
+                          <option value="afternoon">после обеда</option>
+                          <option value="out" selected>не в офисе</option>
+                        </select>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="day-label">Пт</span>
+                        <select class="schedule-select" data-day="fri">
+                          <option value="morning">до обеда</option>
+                          <option value="afternoon" selected>
+                            после обеда
+                          </option>
+                          <option value="out">не в офисе</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="edit-buttons">
+                    <button class="edit-btn cancel">Отмена</button>
+                    <button class="edit-btn save">Сохранить</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Контент для сотрудника/руководителя -->
+          <!-- Контент для сотрудника -->
           <div
             id="employee-profile-content"
             class="profile-container"
             style="display: none">
-            <!-- Заголовок профиля -->
-            <div class="profile-header">
-              <div class="profile-avatar" id="employeeProfileAvatar">АП</div>
-              <div class="profile-info">
-                <h2 id="employeeProfileName">Алексей Петров</h2>
-                <span class="profile-block" id="employeeProfileBlock"
-                  >Аналитика</span
-                >
+            <!-- Кнопка QR -->
+            <button class="qr-button" id="showQREmployeeBtn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+
+            <!-- Блок 1: Личная информация -->
+            <div class="profile-block-section" data-editable="true">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Личная информация</h3>
+                <button class="pencil-icon" data-block="employee-personal-info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                class="profile-block-content"
+                id="employee-personal-info-content">
+                <!-- Режим просмотра -->
+                <div class="view-mode">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-display">
+                      <div class="profile-avatar">АП</div>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <div class="field-value" data-field="name">
+                      Алексей Петров
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <div class="field-value" data-field="block">Аналитика</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <div class="field-value" data-field="position">
+                      Аналитик
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <div class="field-value" data-field="email">
+                      alexey.petrov@veb.ru
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <div class="field-value" data-field="phone">
+                      +7 (999) 234-56-78
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">15.01.2020</div>
+                  </div>
+                </div>
+
+                <!-- Режим редактирования -->
+                <div class="edit-mode" style="display: none">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-edit">
+                      <div class="profile-avatar">АП</div>
+                      <button class="change-avatar-btn">Изменить фото</button>
+                      <input
+                        type="file"
+                        id="employeeAvatarInput"
+                        accept="image/*"
+                        style="display: none" />
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="name"
+                      value="Алексей Петров" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <select class="field-select" data-field="block">
+                      <option value="Аналитика">Аналитика</option>
+                      <option value="Маркетинг">Маркетинг</option>
+                      <option value="IT">IT</option>
+                      <option value="Разработка">Разработка</option>
+                      <option value="Продукт">Продукт</option>
+                    </select>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="position"
+                      value="Аналитик" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <input
+                      type="email"
+                      class="field-input"
+                      data-field="email"
+                      value="alexey.petrov@veb.ru" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <input
+                      type="tel"
+                      class="field-input"
+                      data-field="phone"
+                      value="+7 (999) 234-56-78" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">15.01.2020</div>
+                  </div>
+                  <div class="edit-buttons">
+                    <button class="edit-btn cancel">Отмена</button>
+                    <button class="edit-btn save">Сохранить</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Настройки уведомлений -->
-            <div class="profile-section">
-              <div class="profile-section-title">Настройки уведомлений</div>
-              <div class="checklist notification-settings">
-                <div class="checklist-item">
-                  <input type="checkbox" id="notifNewTasks" checked />
-                  <label for="notifNewTasks">Новые задачи</label>
-                </div>
-                <div class="checklist-item">
-                  <input type="checkbox" id="notifResponses" checked />
-                  <label for="notifResponses">Отклики на задачи</label>
-                </div>
-                <div class="checklist-item">
-                  <input type="checkbox" id="notifMessages" checked />
-                  <label for="notifMessages">Сообщения</label>
-                </div>
-                <div class="checklist-item">
-                  <input type="checkbox" id="notifRating" checked />
-                  <label for="notifRating">Изменение рейтинга</label>
+            <!-- Блок 2: Статистика сотрудника (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Статистика</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="statistics-grid">
+                  <div class="stat-item">
+                    <div class="stat-value">45</div>
+                    <div class="stat-label">Создано задач (всего)</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Создано задач (за месяц)</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Приглашено практикантов</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">4.3</div>
+                    <div class="stat-label">Средняя оценка</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">4.7</div>
+                    <div class="stat-label">Рейтинг как наставника</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Кнопка редактирования -->
-            <div class="profile-buttons" id="employeeEditButtons">
-              <button class="profile-btn primary" id="editEmployeeBtn">
-                Редактировать
-              </button>
-              <button class="profile-btn secondary" id="saveSettingsBtn">
-                Сохранить настройки
-              </button>
+            <!-- Блок 3: Активность (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Активность</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="subsection-title">Созданные задачи</div>
+                <div class="activity-list">
+                  <div class="activity-item">
+                    <div class="activity-name">Анализ рынка</div>
+                    <div class="activity-status completed">Завершено</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-name">Подготовка презентации</div>
+                    <div class="activity-status in-progress">В работе</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-name">Отчёт по Q2</div>
+                    <div class="activity-status pending">Ожидает отклика</div>
+                  </div>
+                </div>
+                <div class="subsection-title" style="margin-top: 24px">
+                  Приглашения и отклики
+                </div>
+                <div class="activity-list">
+                  <div class="activity-item">
+                    <div class="activity-name">Приглашение: Иван Петров</div>
+                    <div class="activity-status accepted">Принято</div>
+                  </div>
+                  <div class="activity-item">
+                    <div class="activity-name">Отклик: Мария Иванова</div>
+                    <div class="activity-status pending">На рассмотрении</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Контент для хоста -->
+          <div
+            id="host-profile-content"
+            class="profile-container"
+            style="display: none">
+            <!-- Кнопка QR -->
+            <button class="qr-button" id="showQRHostBtn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+
+            <!-- Блок 1: Личная информация -->
+            <div class="profile-block-section" data-editable="true">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Личная информация</h3>
+                <button class="pencil-icon" data-block="host-personal-info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                class="profile-block-content"
+                id="host-personal-info-content">
+                <!-- Режим просмотра -->
+                <div class="view-mode">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-display">
+                      <div class="profile-avatar">АП</div>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <div class="field-value" data-field="name">
+                      Алексей Петров
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <div class="field-value" data-field="block">Аналитика</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <div class="field-value" data-field="position">
+                      Старший аналитик
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <div class="field-value" data-field="email">
+                      alexey.petrov@veb.ru
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <div class="field-value" data-field="phone">
+                      +7 (999) 234-56-78
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">15.01.2018</div>
+                  </div>
+                </div>
+
+                <!-- Режим редактирования -->
+                <div class="edit-mode" style="display: none">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-edit">
+                      <div class="profile-avatar">АП</div>
+                      <button class="change-avatar-btn">Изменить фото</button>
+                      <input
+                        type="file"
+                        id="hostAvatarInput"
+                        accept="image/*"
+                        style="display: none" />
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="name"
+                      value="Алексей Петров" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <select class="field-select" data-field="block">
+                      <option value="Аналитика">Аналитика</option>
+                      <option value="Маркетинг">Маркетинг</option>
+                      <option value="IT">IT</option>
+                      <option value="Разработка">Разработка</option>
+                      <option value="Продукт">Продукт</option>
+                    </select>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="position"
+                      value="Старший аналитик" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <input
+                      type="email"
+                      class="field-input"
+                      data-field="email"
+                      value="alexey.petrov@veb.ru" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <input
+                      type="tel"
+                      class="field-input"
+                      data-field="phone"
+                      value="+7 (999) 234-56-78" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">15.01.2018</div>
+                  </div>
+                  <div class="edit-buttons">
+                    <button class="edit-btn cancel">Отмена</button>
+                    <button class="edit-btn save">Сохранить</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <!-- Форма редактирования профиля сотрудника -->
-            <div id="employeeEditForm" style="display: none">
-              <div class="profile-section">
-                <div class="profile-section-title">Редактирование профиля</div>
-                <div class="modal-field">
-                  <label class="modal-label">ФИО</label>
+            <!-- Блок 2: Статистика хоста как наставника (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Статистика как наставника</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="statistics-grid">
+                  <div class="stat-item">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Активных практикантов</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">4.6</div>
+                    <div class="stat-label">Средняя оценка практикантам</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">78%</div>
+                    <div class="stat-label">Средний прогресс задач</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">67</div>
+                    <div class="stat-label">Создано задач (всего)</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Создано задач (за месяц)</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">94%</div>
+                    <div class="stat-label">Завершено в срок</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 3: Мои практиканты (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Мои практиканты</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="interns-list">
+                  <div class="intern-card">
+                    <div class="intern-avatar">ИП</div>
+                    <div class="intern-info">
+                      <div class="intern-name">Иван Петров</div>
+                      <div class="intern-block">Аналитика</div>
+                    </div>
+                    <div class="intern-rating">Рейтинг: 42.7</div>
+                    <div class="intern-stats">
+                      <div class="intern-stat">3 активные задачи</div>
+                      <div class="intern-stat">0 просрочек</div>
+                    </div>
+                    <div class="intern-actions">
+                      <button class="action-btn profile">Профиль</button>
+                      <button class="action-btn task">Задача</button>
+                    </div>
+                  </div>
+                  <div class="intern-card">
+                    <div class="intern-avatar">МИ</div>
+                    <div class="intern-info">
+                      <div class="intern-name">Мария Иванова</div>
+                      <div class="intern-block">Аналитика</div>
+                    </div>
+                    <div class="intern-rating">Рейтинг: 38.5</div>
+                    <div class="intern-stats">
+                      <div class="intern-stat">2 активные задачи</div>
+                      <div class="intern-stat warning">1 просрочка</div>
+                    </div>
+                    <div class="intern-actions">
+                      <button class="action-btn profile">Профиль</button>
+                      <button class="action-btn task">Задача</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 4: Активность по практикантам (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Активность по практикантам</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="subsection-title">Динамика рейтинга</div>
+                <div class="chart-placeholder">
+                  График динамики рейтинга практикантов
+                </div>
+                <div class="subsection-title" style="margin-top: 24px">
+                  Последние завершённые задачи
+                </div>
+                <div class="completed-tasks-list">
+                  <div class="completed-task-item">
+                    <div class="task-info">
+                      <div class="task-name">Анализ данных продаж</div>
+                      <div class="task-intern">Иван Петров</div>
+                    </div>
+                    <div class="task-rating">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          vertical-align: middle;
+                          margin-right: 2px;
+                        ">
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                      5.0
+                    </div>
+                  </div>
+                  <div class="completed-task-item">
+                    <div class="task-info">
+                      <div class="task-name">Подготовка отчёта</div>
+                      <div class="task-intern">Мария Иванова</div>
+                    </div>
+                    <div class="task-rating">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="
+                          width: 14px;
+                          height: 14px;
+                          vertical-align: middle;
+                          margin-right: 2px;
+                        ">
+                        <polygon
+                          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                      4.5
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Контент для куратора практики -->
+          <div
+            id="supervisor-profile-content"
+            class="profile-container"
+            style="display: none">
+            <!-- Кнопка QR -->
+            <button class="qr-button" id="showQRSupervisorBtn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </button>
+
+            <!-- Блок 1: Личная информация -->
+            <div class="profile-block-section" data-editable="true">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Личная информация</h3>
+                <button
+                  class="pencil-icon"
+                  data-block="supervisor-personal-info">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path
+                      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div
+                class="profile-block-content"
+                id="supervisor-personal-info-content">
+                <!-- Режим просмотра -->
+                <div class="view-mode">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-display">
+                      <div class="profile-avatar">МИ</div>
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <div class="field-value" data-field="name">
+                      Мария Иванова
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <div class="field-value" data-field="block">Маркетинг</div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <div class="field-value" data-field="position">
+                      Куратор практики
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <div class="field-value" data-field="email">
+                      maria.ivanova@veb.ru
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <div class="field-value" data-field="phone">
+                      +7 (999) 345-67-89
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">01.03.2015</div>
+                  </div>
+                </div>
+
+                <!-- Режим редактирования -->
+                <div class="edit-mode" style="display: none">
+                  <div class="profile-field">
+                    <label class="field-label">Аватар</label>
+                    <div class="avatar-edit">
+                      <div class="profile-avatar">МИ</div>
+                      <button class="change-avatar-btn">Изменить фото</button>
+                      <input
+                        type="file"
+                        id="supervisorAvatarInput"
+                        accept="image/*"
+                        style="display: none" />
+                    </div>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">ФИО</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="name"
+                      value="Мария Иванова" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Блок</label>
+                    <select class="field-select" data-field="block">
+                      <option value="Аналитика">Аналитика</option>
+                      <option value="Маркетинг">Маркетинг</option>
+                      <option value="IT">IT</option>
+                      <option value="Разработка">Разработка</option>
+                      <option value="Продукт">Продукт</option>
+                    </select>
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Должность</label>
+                    <input
+                      type="text"
+                      class="field-input"
+                      data-field="position"
+                      value="Куратор практики" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Email</label>
+                    <input
+                      type="email"
+                      class="field-input"
+                      data-field="email"
+                      value="maria.ivanova@veb.ru" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Телефон</label>
+                    <input
+                      type="tel"
+                      class="field-input"
+                      data-field="phone"
+                      value="+7 (999) 345-67-89" />
+                  </div>
+                  <div class="profile-field">
+                    <label class="field-label">Дата трудоустройства</label>
+                    <div class="field-value readonly">01.03.2015</div>
+                  </div>
+                  <div class="edit-buttons">
+                    <button class="edit-btn cancel">Отмена</button>
+                    <button class="edit-btn save">Сохранить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 2: Общая статистика по практике (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">
+                  Общая статистика по практике
+                </h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="statistics-grid">
+                  <div class="stat-item">
+                    <div class="stat-value">48</div>
+                    <div class="stat-label">Всего практикантов</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Всего хостов</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">87%</div>
+                    <div class="stat-label">Активных практикантов</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">41.2</div>
+                    <div class="stat-label">Средний рейтинг</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Выполнено задач</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">91%</div>
+                    <div class="stat-label">Выполнено в срок</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 3: Топы (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Топы</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="top-section">
+                  <div class="subsection-title">
+                    Топ-10 практикантов по рейтингу
+                  </div>
+                  <div class="top-list">
+                    <div class="top-item">
+                      <span class="top-rank">1</span> Иван Петров - 42.7
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">2</span> Анна Смирнова - 41.5
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">3</span> Денис Михайлов - 40.8
+                    </div>
+                  </div>
+                </div>
+                <div class="top-section">
+                  <div class="subsection-title">Топ-5 хостов по задачам</div>
+                  <div class="top-list">
+                    <div class="top-item">
+                      <span class="top-rank">1</span> Алексей Петров - 67 задач
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">2</span> Екатерина Соколова - 54
+                      задачи
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">3</span> Олег Иванов - 48 задач
+                    </div>
+                  </div>
+                </div>
+                <div class="top-section">
+                  <div class="subsection-title">Топ-5 блоков по активности</div>
+                  <div class="top-list">
+                    <div class="top-item">
+                      <span class="top-rank">1</span> IT - 89 задач
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">2</span> Аналитика - 76 задач
+                    </div>
+                    <div class="top-item">
+                      <span class="top-rank">3</span> Маркетинг - 64 задачи
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 4: Графики (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Графики</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="chart-section">
+                  <div class="subsection-title">Динамика задач по неделям</div>
+                  <div class="chart-placeholder">
+                    График количества задач по неделям
+                  </div>
+                </div>
+                <div class="chart-section">
+                  <div class="subsection-title">
+                    Распределение практикантов по блокам
+                  </div>
+                  <div class="chart-placeholder">Диаграмма распределения</div>
+                </div>
+                <div class="chart-section">
+                  <div class="subsection-title">Динамика среднего рейтинга</div>
+                  <div class="chart-placeholder">
+                    График рейтинга по месяцам
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 5: Мои практиканты (как у хоста, только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Мои практиканты</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="interns-list">
+                  <div class="intern-card">
+                    <div class="intern-avatar">АС</div>
+                    <div class="intern-info">
+                      <div class="intern-name">Анна Смирнова</div>
+                      <div class="intern-block">Маркетинг</div>
+                    </div>
+                    <div class="intern-rating">Рейтинг: 41.5</div>
+                    <div class="intern-stats">
+                      <div class="intern-stat">4 активные задачи</div>
+                      <div class="intern-stat">0 просрочек</div>
+                    </div>
+                    <div class="intern-actions">
+                      <button class="action-btn profile">Профиль</button>
+                      <button class="action-btn task">Задача</button>
+                    </div>
+                  </div>
+                  <div class="intern-card">
+                    <div class="intern-avatar">ДМ</div>
+                    <div class="intern-info">
+                      <div class="intern-name">Денис Михайлов</div>
+                      <div class="intern-block">IT</div>
+                    </div>
+                    <div class="intern-rating">Рейтинг: 40.8</div>
+                    <div class="intern-stats">
+                      <div class="intern-stat">2 активные задачи</div>
+                      <div class="intern-stat warning">2 просрочки</div>
+                    </div>
+                    <div class="intern-actions">
+                      <button class="action-btn profile">Профиль</button>
+                      <button class="action-btn task">Задача</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Блок 6: Управление (только чтение) -->
+            <div class="profile-block-section">
+              <div class="profile-block-header">
+                <h3 class="profile-block-title">Управление</h3>
+              </div>
+              <div class="profile-block-content">
+                <div class="subsection-title">Список хостов</div>
+                <div class="hosts-list">
+                  <div class="host-item">
+                    <span class="host-name">Алексей Петров (Аналитика)</span>
+                    <button class="view-btn">Профиль</button>
+                  </div>
+                  <div class="host-item">
+                    <span class="host-name">Екатерина Соколова (IT)</span>
+                    <button class="view-btn">Профиль</button>
+                  </div>
+                  <div class="host-item">
+                    <span class="host-name">Олег Иванов (Разработка)</span>
+                    <button class="view-btn">Профиль</button>
+                  </div>
+                </div>
+                <div class="subsection-title" style="margin-top: 24px">
+                  Список практикантов
+                </div>
+                <div class="all-interns-filter">
                   <input
                     type="text"
-                    class="modal-input"
-                    id="editEmployeeName" />
+                    placeholder="Поиск по имени и блоку..."
+                    class="filter-input" />
                 </div>
-                <div class="modal-field">
-                  <label class="modal-label">Блок</label>
-                  <select class="modal-select" id="editEmployeeBlock">
-                    <option value="Аналитика">Аналитика</option>
-                    <option value="Маркетинг">Маркетинг</option>
-                    <option value="IT">IT</option>
-                    <option value="Разработка">Разработка</option>
-                    <option value="Продукт">Продукт</option>
-                  </select>
+                <div class="all-interns-list">
+                  <div class="intern-small-item">Иван Петров (Аналитика)</div>
+                  <div class="intern-small-item">Анна Смирнова (Маркетинг)</div>
+                  <div class="intern-small-item">Денис Михайлов (IT)</div>
                 </div>
-                <div class="profile-section-title" style="margin-top: 16px">
-                  Настройки уведомлений
-                </div>
-                <div class="checklist notification-settings">
-                  <div class="checklist-item">
-                    <input type="checkbox" id="editNotifNewTasks" checked />
-                    <label for="editNotifNewTasks">Новые задачи</label>
-                  </div>
-                  <div class="checklist-item">
-                    <input type="checkbox" id="editNotifResponses" checked />
-                    <label for="editNotifResponses">Отклики на задачи</label>
-                  </div>
-                  <div class="checklist-item">
-                    <input type="checkbox" id="editNotifMessages" checked />
-                    <label for="editNotifMessages">Сообщения</label>
-                  </div>
-                  <div class="checklist-item">
-                    <input type="checkbox" id="editNotifRating" checked />
-                    <label for="editNotifRating">Изменение рейтинга</label>
-                  </div>
-                </div>
-              </div>
-              <div class="profile-buttons">
-                <button
-                  class="profile-btn secondary"
-                  id="cancelEmployeeEditBtn">
-                  Отмена
-                </button>
-                <button class="profile-btn primary" id="saveEmployeeEditBtn">
-                  Сохранить
+                <button class="send-notification-btn">
+                  Отправить общее уведомление
                 </button>
               </div>
-            </div>
-
-            <!-- Кнопки (скрыты при редактировании) -->
-            <div
-              class="profile-buttons"
-              id="employeeViewButtons"
-              style="display: none">
-              <button class="profile-btn primary" id="saveSettingsBtn">
-                Сохранить настройки
-              </button>
             </div>
           </div>
 
