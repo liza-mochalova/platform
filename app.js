@@ -1894,6 +1894,9 @@ feedContent.addEventListener("click", function (e) {
     const intern = raisedHands.find((i) => i.id === parseInt(internId));
     if (intern) {
       openInviteModal(intern);
+      alert(
+        `Приглашение для практика ${intern.name} будет отправлено после выбора задачи`,
+      );
     }
     return;
   }
