@@ -593,6 +593,7 @@
                         <option value="morning">до обеда</option>
                         <option value="afternoon">после обеда</option>
                         <option value="out">не в офисе</option>
+                        <option value="all_day">целый день</option>
                       </select>
                     </div>
                     <div>
@@ -601,6 +602,7 @@
                         <option value="morning">до обеда</option>
                         <option value="afternoon">после обеда</option>
                         <option value="out">не в офисе</option>
+                        <option value="all_day">целый день</option>
                       </select>
                     </div>
                     <div>
@@ -609,6 +611,7 @@
                         <option value="morning">до обеда</option>
                         <option value="afternoon">после обеда</option>
                         <option value="out">не в офисе</option>
+                        <option value="all_day">целый день</option>
                       </select>
                     </div>
                     <div>
@@ -617,6 +620,7 @@
                         <option value="morning">до обеда</option>
                         <option value="afternoon">после обеда</option>
                         <option value="out">не в офисе</option>
+                        <option value="all_day">целый день</option>
                       </select>
                     </div>
                     <div>
@@ -625,6 +629,7 @@
                         <option value="morning">до обеда</option>
                         <option value="afternoon">после обеда</option>
                         <option value="out">не в офисе</option>
+                        <option value="all_day">целый день</option>
                       </select>
                     </div>
                   </div>
@@ -1115,6 +1120,7 @@
                           <option value="morning">до обеда</option>
                           <option value="afternoon">после обеда</option>
                           <option value="out">не в офисе</option>
+                          <option value="all_day">целый день</option>
                         </select>
                       </div>
                       <div class="schedule-row">
@@ -1125,6 +1131,7 @@
                             после обеда
                           </option>
                           <option value="out">не в офисе</option>
+                          <option value="all_day">целый день</option>
                         </select>
                       </div>
                       <div class="schedule-row">
@@ -1133,6 +1140,7 @@
                           <option value="morning" selected>до обеда</option>
                           <option value="afternoon">после обеда</option>
                           <option value="out">не в офисе</option>
+                          <option value="all_day">целый день</option>
                         </select>
                       </div>
                       <div class="schedule-row">
@@ -1141,6 +1149,7 @@
                           <option value="morning">до обеда</option>
                           <option value="afternoon">после обеда</option>
                           <option value="out" selected>не в офисе</option>
+                          <option value="all_day">целый день</option>
                         </select>
                       </div>
                       <div class="schedule-row">
@@ -1151,6 +1160,7 @@
                             после обеда
                           </option>
                           <option value="out">не в офисе</option>
+                          <option value="all_day">целый день</option>
                         </select>
                       </div>
                     </div>
@@ -2509,6 +2519,51 @@
     <div class="modal-overlay" id="hostTaskModal">
       <div class="modal">
         <h3 class="modal-title">Поставить задачу</h3>
+
+        <!-- Тип задачи -->
+        <div class="modal-field">
+          <label class="modal-label">Тип задачи *</label>
+          <div style="display: flex; gap: 16px">
+            <label class="modal-checkbox">
+              <input
+                type="radio"
+                name="taskType"
+                value="simple"
+                checked
+                id="taskTypeSimple" />
+              <span>Простая задача</span>
+            </label>
+            <label class="modal-checkbox">
+              <input
+                type="radio"
+                name="taskType"
+                value="complex"
+                id="taskTypeComplex" />
+              <span>Сложная задача</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Общие поля для простой задачи -->
+        <div id="simpleTaskFields">
+          <div class="modal-field">
+            <label class="modal-label" for="hostTaskEffort"
+              >Общие трудозатраты (часы) *</label
+            >
+            <input
+              type="number"
+              class="modal-input"
+              id="hostTaskEffort"
+              placeholder="8" />
+          </div>
+          <div class="modal-field">
+            <label class="modal-label" for="hostTaskDeadline"
+              >Общий дедлайн *</label
+            >
+            <input type="date" class="modal-input" id="hostTaskDeadline" />
+          </div>
+        </div>
+
         <div class="modal-field">
           <label class="modal-label" for="hostTaskName"
             >Название задачи *</label
@@ -2549,22 +2604,10 @@
             + Добавить элемент
           </button>
         </div>
-        <div class="modal-field">
-          <label class="modal-label" for="hostTaskEffort"
-            >Трудозатраты (часы) *</label
-          >
-          <input
-            type="number"
-            class="modal-input"
-            id="hostTaskEffort"
-            placeholder="8" />
-        </div>
-        <div class="modal-field">
-          <label class="modal-label" for="hostTaskDeadline"
-            >Срок выполнения *</label
-          >
-          <input type="date" class="modal-input" id="hostTaskDeadline" />
-        </div>
+
+        <!-- Дополнительные поля для сложной задачи (добавляются динамически) -->
+        <div id="complexTaskFields" style="display: none"></div>
+
         <div class="modal-field">
           <label class="modal-label" for="hostTaskGoal"
             >Привязка к цели блока</label
@@ -2588,6 +2631,130 @@
           </button>
           <button class="modal-btn primary" id="hostTaskConfirm">
             Создать задачу
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно "Создать черновик задачи" (для практика) -->
+    <div class="modal-overlay" id="draftTaskModal">
+      <div class="modal">
+        <h3 class="modal-title">Новая задача (черновик)</h3>
+
+        <!-- Тип задачи -->
+        <div class="modal-field">
+          <label class="modal-label">Тип задачи *</label>
+          <div style="display: flex; gap: 16px">
+            <label class="modal-checkbox">
+              <input
+                type="radio"
+                name="draftTaskType"
+                value="simple"
+                checked
+                id="draftTaskTypeSimple" />
+              <span>Простая задача</span>
+            </label>
+            <label class="modal-checkbox">
+              <input
+                type="radio"
+                name="draftTaskType"
+                value="complex"
+                id="draftTaskTypeComplex" />
+              <span>Сложная задача</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Общие поля для простой задачи -->
+        <div id="draftSimpleTaskFields">
+          <div class="modal-field">
+            <label class="modal-label" for="draftTaskEffort"
+              >Общие трудозатраты (часы) *</label
+            >
+            <input
+              type="number"
+              class="modal-input"
+              id="draftTaskEffort"
+              placeholder="8" />
+          </div>
+          <div class="modal-field">
+            <label class="modal-label" for="draftTaskDeadline"
+              >Общий дедлайн *</label
+            >
+            <input type="date" class="modal-input" id="draftTaskDeadline" />
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="draftTaskName"
+            >Название задачи *</label
+          >
+          <input
+            type="text"
+            class="modal-input"
+            id="draftTaskName"
+            placeholder="Введите название задачи" />
+        </div>
+        <div class="modal-field">
+          <label class="modal-label" for="draftTaskDescription"
+            >Описание *</label
+          >
+          <textarea
+            class="modal-input"
+            id="draftTaskDescription"
+            rows="3"
+            placeholder="Опишите задачу"></textarea>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Чек-лист *</label>
+          <div id="draftTaskChecklist">
+            <div class="checklist-row">
+              <input
+                type="text"
+                class="modal-input checklist-input"
+                placeholder="Элемент чек-листа" />
+              <button
+                type="button"
+                class="remove-checklist-btn"
+                style="display: none">
+                ×
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="add-checklist-btn"
+            id="addDraftChecklistItem">
+            + Добавить элемент
+          </button>
+        </div>
+
+        <!-- Дополнительные поля для сложной задачи (добавляются динамически) -->
+        <div id="draftComplexTaskFields" style="display: none"></div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="draftTaskGoal"
+            >Привязка к цели блока</label
+          >
+          <select class="modal-select" id="draftTaskGoal">
+            <option value="">-- Выберите цель --</option>
+            <option value="goal1">Увеличить конверсию на 20%</option>
+            <option value="goal2">Запустить новую функцию</option>
+            <option value="goal3">Оптимизировать производительность</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-checkbox">
+            <input type="checkbox" id="draftTaskOperational" />
+            <span>Операционная задача</span>
+          </label>
+        </div>
+        <div class="modal-buttons">
+          <button class="modal-btn secondary" id="draftTaskCancel">
+            Отмена
+          </button>
+          <button class="modal-btn primary" id="draftTaskSave">
+            Сохранить черновик
           </button>
         </div>
       </div>

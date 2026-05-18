@@ -19,7 +19,7 @@ const currentUser = {
     interests: ["#маркетинг", "#продукт"],
     rating: 42.7,
     schedule: [
-      { day: "Пн", status: "morning" },
+      { day: "Пн", status: "all_day" },
       { day: "Вт", status: "afternoon" },
       { day: "Ср", status: "morning" },
       { day: "Чт", status: "out" },
@@ -134,7 +134,7 @@ const tasks = [
     title: "Разработка модуля авторизации",
     author: "Алексей Петров",
     authorId: 1,
-    contribution: "Фронтенд",
+    contribution: 1.6,
     deadline: "2025-05-15",
     effort: "16 часов",
     description:
@@ -145,7 +145,7 @@ const tasks = [
     title: "Анализ требований к системе",
     author: "Мария Иванова",
     authorId: 2,
-    contribution: "Аналитика",
+    contribution: 0.8,
     deadline: "2025-05-10",
     effort: "8 часов",
     description:
@@ -156,7 +156,7 @@ const tasks = [
     title: "Настройка CI/CD пайплайна",
     author: "Дмитрий Сидоров",
     authorId: 3,
-    contribution: "DevOps",
+    contribution: 1.2,
     deadline: "2025-05-20",
     effort: "12 часов",
     description:
@@ -167,7 +167,7 @@ const tasks = [
     title: "Дизайн пользовательского интерфейса",
     author: "Елена Козлова",
     authorId: 4,
-    contribution: "UI/UX",
+    contribution: 2.4,
     deadline: "2025-05-18",
     effort: "24 часа",
     description:
@@ -267,7 +267,7 @@ const allUsers = [
     rating: 4.8,
     avatar: "https://randomuser.me/api/portraits/men/1.jpg",
     schedule: [
-      { day: "Пн", status: "morning" },
+      { day: "Пн", status: "all_day" },
       { day: "Вт", status: "afternoon" },
       { day: "Ср", status: "morning" },
       { day: "Чт", status: "out" },
@@ -285,7 +285,7 @@ const allUsers = [
       { day: "Пн", status: "afternoon" },
       { day: "Вт", status: "morning" },
       { day: "Ср", status: "morning" },
-      { day: "Чт", status: "morning" },
+      { day: "Чт", status: "all_day" },
       { day: "Пт", status: "out" },
     ],
   },
@@ -301,7 +301,7 @@ const allUsers = [
       { day: "Вт", status: "morning" },
       { day: "Ср", status: "afternoon" },
       { day: "Чт", status: "afternoon" },
-      { day: "Пт", status: "morning" },
+      { day: "Пт", status: "all_day" },
     ],
   },
   {
@@ -313,10 +313,72 @@ const allUsers = [
     avatar: "https://randomuser.me/api/portraits/women/4.jpg",
     schedule: [
       { day: "Пн", status: "out" },
-      { day: "Вт", status: "afternoon" },
+      { day: "Вт", status: "all_day" },
       { day: "Ср", status: "afternoon" },
       { day: "Чт", status: "morning" },
       { day: "Пт", status: "morning" },
+    ],
+  },
+  // Практиканты из профиля хоста
+  {
+    id: 5,
+    name: "Иван Петров",
+    block: "Аналитика",
+    interests: ["#аналитика", "#данные"],
+    rating: 42.7,
+    avatar: "",
+    schedule: [
+      { day: "Пн", status: "morning" },
+      { day: "Вт", status: "afternoon" },
+      { day: "Ср", status: "all_day" },
+      { day: "Чт", status: "out" },
+      { day: "Пт", status: "afternoon" },
+    ],
+  },
+  {
+    id: 6,
+    name: "Мария Иванова",
+    block: "Аналитика",
+    interests: ["#маркетинг", "#аналитика"],
+    rating: 38.5,
+    avatar: "",
+    schedule: [
+      { day: "Пн", status: "afternoon" },
+      { day: "Вт", status: "morning" },
+      { day: "Ср", status: "afternoon" },
+      { day: "Чт", status: "morning" },
+      { day: "Пт", status: "all_day" },
+    ],
+  },
+  // Практиканты из профиля куратора
+  {
+    id: 7,
+    name: "Анна Смирнова",
+    block: "Маркетинг",
+    interests: ["#маркетинг", "#соцсети", "#контент"],
+    rating: 41.5,
+    avatar: "",
+    schedule: [
+      { day: "Пн", status: "all_day" },
+      { day: "Вт", status: "morning" },
+      { day: "Ср", status: "afternoon" },
+      { day: "Чт", status: "afternoon" },
+      { day: "Пт", status: "morning" },
+    ],
+  },
+  {
+    id: 8,
+    name: "Денис Михайлов",
+    block: "IT",
+    interests: ["#разработка", "#backend", "#api"],
+    rating: 40.8,
+    avatar: "",
+    schedule: [
+      { day: "Пн", status: "afternoon" },
+      { day: "Вт", status: "afternoon" },
+      { day: "Ср", status: "all_day" },
+      { day: "Чт", status: "morning" },
+      { day: "Пт", status: "out" },
     ],
   },
 ];
@@ -337,7 +399,7 @@ const hostTasks = [
       { id: 4, text: "Пройти вводный тренинг", checked: false },
     ],
     deadline: "2026-05-20",
-    contribution: "Обучение",
+    contribution: 0.4,
     operational: false,
   },
   {
@@ -355,7 +417,7 @@ const hostTasks = [
       { id: 5, text: "Подготовить презентацию", checked: false },
     ],
     deadline: "2026-05-25",
-    contribution: "Документация",
+    contribution: 0.5,
     operational: true,
   },
   {
@@ -372,7 +434,7 @@ const hostTasks = [
       { id: 5, text: "Провести нагрузочное тестирование", checked: true },
     ],
     deadline: "2026-05-15",
-    contribution: "Разработка",
+    contribution: 1.2,
     operational: false,
   },
   {
@@ -390,7 +452,7 @@ const hostTasks = [
       { id: 6, text: "Финализировать дизайн", checked: false },
     ],
     deadline: "2026-05-30",
-    contribution: "Дизайн",
+    contribution: 1.5,
     operational: false,
   },
   {
@@ -406,7 +468,7 @@ const hostTasks = [
       { id: 4, text: "Настроить кэширование", checked: false },
     ],
     deadline: "2026-05-18",
-    contribution: "Бэкенд",
+    contribution: 0.8,
     operational: true,
   },
   {
@@ -423,7 +485,7 @@ const hostTasks = [
       { id: 5, text: "Добавить примеры использования", checked: false },
     ],
     deadline: "2025-05-22",
-    contribution: "Документация",
+    contribution: 0.5,
     operational: false,
   },
 ];
@@ -445,7 +507,7 @@ const feedTasks = [
       { id: 3, text: "Подготовить отчёт", checked: false },
     ],
     deadline: "2025-05-18",
-    contribution: "Аналитика",
+    contribution: 0.8,
     operational: false,
   },
   {
@@ -461,7 +523,7 @@ const feedTasks = [
       { id: 4, text: "Подготовить баг-репорт", checked: false },
     ],
     deadline: "2025-05-22",
-    contribution: "QA",
+    contribution: 0.6,
     operational: true,
   },
   {
@@ -477,7 +539,7 @@ const feedTasks = [
       { id: 4, text: "Написать третью статью", checked: false },
     ],
     deadline: "2025-05-25",
-    contribution: "Контент",
+    contribution: 0.9,
     operational: false,
   },
 ];
@@ -1149,11 +1211,18 @@ function renderHostTasks() {
   if (internTasksContent) internTasksContent.innerHTML = "";
   if (pendingApprovalContent) pendingApprovalContent.innerHTML = "";
 
+  // Скрываем кнопку создания черновика для всех ролей, кроме практика
+  const createDraftContainer = document.getElementById(
+    "create-draft-task-container",
+  );
+  if (createDraftContainer) {
+    createDraftContainer.style.display = "none";
+  }
+
   if (currentRole === "intern") {
     // Показываем кнопку создания черновика для практики
-    const createDraftBtn = document.getElementById("createDraftTaskBtn");
-    if (createDraftBtn) {
-      createDraftBtn.style.display = currentRole === "intern" ? "flex" : "none";
+    if (createDraftContainer) {
+      createDraftContainer.style.display = "block";
     }
 
     // Скрываем вкладки для практики
@@ -1309,7 +1378,7 @@ function renderHostTasks() {
                     <span class="meta-label">Практикант:</span> ${task.internName}
                   </div>
                   <div class="meta-item">
-                    <span class="meta-label">Вклад:</span> ${task.contribution}
+                    <span class="meta-label">Вклад:</span> ${typeof task.contribution === "number" ? task.contribution.toFixed(1) : task.contribution}
                   </div>
                   <div class="meta-item">
                     <span class="meta-label">Трудозатраты:</span> ${task.effort || "Не указано"}
@@ -1459,7 +1528,7 @@ function renderHostTasks() {
                     <span class="meta-label">Практикант:</span> ${task.internName}
                   </div>
                   <div class="meta-item">
-                    <span class="meta-label">Вклад:</span> ${task.contribution}
+                    <span class="meta-label">Вклад:</span> ${typeof task.contribution === "number" ? task.contribution.toFixed(1) : task.contribution}
                   </div>
                   <div class="meta-item">
                     <span class="meta-label">Трудозатраты:</span> ${task.effort || "Не указано"}
@@ -1552,7 +1621,11 @@ if (internTasksContent) {
         if (hostTaskDescription) hostTaskDescription.value = task.description;
         if (hostTaskEffort) hostTaskEffort.value = task.effort || "";
         if (hostTaskDeadline) hostTaskDeadline.value = task.deadline;
-        if (hostTaskGoal) hostTaskGoal.value = task.contribution || "";
+        if (hostTaskGoal)
+          hostTaskGoal.value =
+            typeof task.contribution === "number"
+              ? task.contribution.toString()
+              : task.contribution || "";
         if (hostTaskOperational)
           hostTaskOperational.checked = task.operational || false;
 
@@ -1774,7 +1847,7 @@ function renderTaskCard(task) {
           </div>
           <div class="task-meta">
             <div class="meta-item">
-              <span class="meta-label">Вклад:</span> ${task.contribution}
+              <span class="meta-label">Вклад:</span> ${typeof task.contribution === "number" ? task.contribution.toFixed(1) : task.contribution}
             </div>
             <div class="meta-item">
               <span class="meta-label">Трудозатраты:</span> ${task.effort}
@@ -1798,7 +1871,7 @@ function renderEmployeeTaskCard(task) {
             </div>
             <div class="task-meta">
               <div class="meta-item">
-                <span class="meta-label">Вклад:</span> ${task.contribution}
+                <span class="meta-label">Вклад:</span> ${typeof task.contribution === "number" ? task.contribution.toFixed(1) : task.contribution}
               </div>
               <div class="meta-item">
                 <span class="meta-label">Трудозатраты:</span> ${task.effort}
@@ -2154,6 +2227,7 @@ function updateProfileSchedule(contentId, schedule) {
     morning: "до обеда",
     afternoon: "после обеда",
     out: "не в офисе",
+    all_day: "целый день",
   };
 
   const dayMap = { Пн: "mon", Вт: "tue", Ср: "wed", Чт: "thu", Пт: "fri" };
@@ -2841,6 +2915,12 @@ function showInternProfile(user) {
   const internProfileRating = document.getElementById("internProfileRating");
   const internProfileButtons = document.getElementById("internProfileButtons");
 
+  // Store the previous screen for back button navigation
+  const activeScreen = document.querySelector(".screen.active");
+  if (activeScreen) {
+    internProfileScreen.setAttribute("data-previous-screen", activeScreen.id);
+  }
+
   // Заполняем данные
   internProfileAvatar.src = user.avatar;
   internProfileName.textContent = user.name;
@@ -2864,6 +2944,7 @@ function showInternProfile(user) {
       morning: "до обеда",
       afternoon: "после обеда",
       out: "не в офисе",
+      all_day: "целый день",
     };
     row.innerHTML = `
             <th>${day.day}</th>
@@ -2915,7 +2996,15 @@ function showInternProfile(user) {
 document
   .getElementById("backFromInternProfile")
   .addEventListener("click", function () {
-    switchScreen("users-screen");
+    const internProfileScreen = document.getElementById(
+      "intern-profile-screen",
+    );
+    const previousScreen = internProfileScreen.getAttribute(
+      "data-previous-screen",
+    );
+
+    // Switch back to the previous screen, or default to profile-screen
+    switchScreen(previousScreen || "profile-screen");
   });
 
 // Обработчик кнопки "Пригласить" из профиля
@@ -3700,7 +3789,7 @@ document
         task.description = description;
         task.effort = effort;
         task.deadline = deadline;
-        task.contribution = goal || "Общее";
+        task.contribution = goal ? parseFloat(goal) : 0.1;
         task.operational = operational;
         task.taskType = isComplex ? "complex" : "simple";
         task.checklist = checklist;
@@ -3723,7 +3812,7 @@ document
         description: description,
         checklist: checklist,
         deadline: deadline,
-        contribution: goal || "Общее",
+        contribution: goal ? parseFloat(goal) : 0.1,
         operational: operational,
         taskType: isComplex ? "complex" : "simple",
         effort: effort,
@@ -5110,6 +5199,7 @@ function renderOfficeAttendanceChart() {
   const days = ["Пн", "Вт", "Ср", "Чт", "Пт"];
   const morningCounts = [0, 0, 0, 0, 0];
   const afternoonCounts = [0, 0, 0, 0, 0];
+  const allDayCounts = [0, 0, 0, 0, 0];
 
   allUsers.forEach((user) => {
     user.schedule.forEach((day) => {
@@ -5120,6 +5210,9 @@ function renderOfficeAttendanceChart() {
         morningCounts[dayIndex]++;
       } else if (day.status === "afternoon") {
         afternoonCounts[dayIndex]++;
+      } else if (day.status === "all_day") {
+        // Практикант в офисе весь день - считаем отдельно
+        allDayCounts[dayIndex]++;
       }
     });
   });
@@ -5128,7 +5221,11 @@ function renderOfficeAttendanceChart() {
     charts.officeAttendanceChart.destroy();
   }
 
-  const maxValue = Math.max(...morningCounts, ...afternoonCounts);
+  const maxValue = Math.max(
+    ...morningCounts,
+    ...afternoonCounts,
+    ...allDayCounts,
+  );
 
   charts.officeAttendanceChart = new Chart(ctx, {
     type: "bar",
@@ -5150,6 +5247,17 @@ function renderOfficeAttendanceChart() {
           label: "После обеда",
           data: afternoonCounts,
           backgroundColor: "#94a3b8",
+          borderRadius: {
+            topLeft: 6,
+            topRight: 6,
+            bottomLeft: 0,
+            bottomRight: 0,
+          },
+        },
+        {
+          label: "Целый день",
+          data: allDayCounts,
+          backgroundColor: "#f59e0b",
           borderRadius: {
             topLeft: 6,
             topRight: 6,
@@ -5708,6 +5816,8 @@ function getScheduleStatusText(status) {
       return "после обеда";
     case "out":
       return "не в офисе";
+    case "all_day":
+      return "целый день";
     default:
       return status;
   }
@@ -6319,6 +6429,64 @@ function initProfileScreen() {
       alert("QR-код будет показан в модальном окне");
     });
   });
+
+  // Profile button handlers in "Мои практиканты" section
+  const hostProfileContent = document.getElementById("host-profile-content");
+  const supervisorProfileContent = document.getElementById(
+    "supervisor-profile-content",
+  );
+
+  const handleProfileButtonClick = function (e) {
+    const profileBtn = e.target.closest(".action-btn.profile");
+    if (profileBtn) {
+      const internCard = profileBtn.closest(".intern-card");
+      if (internCard) {
+        const internName =
+          internCard.querySelector(".intern-name")?.textContent;
+
+        if (internName) {
+          // Find intern data in allUsers array
+          const intern = allUsers.find((u) => u.name === internName);
+
+          if (intern) {
+            showInternProfile(intern);
+          } else {
+            // Fallback: create minimal intern object if not found
+            const internBlock =
+              internCard.querySelector(".intern-block")?.textContent;
+            const internAvatar =
+              internCard.querySelector(".intern-avatar")?.textContent;
+            const ratingText =
+              internCard.querySelector(".intern-rating")?.textContent;
+            const rating = ratingText
+              ? parseFloat(ratingText.replace("Рейтинг: ", ""))
+              : 0;
+
+            showInternProfile({
+              id: Date.now(),
+              name: internName,
+              block: internBlock,
+              avatar: internAvatar,
+              rating: rating,
+              interests: [],
+              schedule: [],
+            });
+          }
+        }
+      }
+    }
+  };
+
+  if (hostProfileContent) {
+    hostProfileContent.addEventListener("click", handleProfileButtonClick);
+  }
+
+  if (supervisorProfileContent) {
+    supervisorProfileContent.addEventListener(
+      "click",
+      handleProfileButtonClick,
+    );
+  }
 }
 
 // Инициализация - рендерим задачи при загрузке
@@ -6590,7 +6758,7 @@ if (draftTaskSave) {
           description: description,
           checklist: checklist,
           deadline: deadline,
-          contribution: goal || "Общее",
+          contribution: goal ? parseFloat(goal) : 0.1,
           operational: operational,
           taskType: isComplex ? "complex" : "simple",
           effort: effort,
@@ -6607,7 +6775,7 @@ if (draftTaskSave) {
         description: description,
         checklist: checklist,
         deadline: deadline,
-        contribution: goal || "Общее",
+        contribution: goal ? parseFloat(goal) : 0.1,
         operational: operational,
         taskType: isComplex ? "complex" : "simple",
         effort: effort,
@@ -6685,7 +6853,10 @@ function openDraftTaskForEdit(draft) {
   // Заполняем поля формы
   document.getElementById("draftTaskName").value = draft.title;
   document.getElementById("draftTaskDescription").value = draft.description;
-  document.getElementById("draftTaskGoal").value = draft.contribution;
+  document.getElementById("draftTaskGoal").value =
+    typeof draft.contribution === "number"
+      ? draft.contribution.toString()
+      : draft.contribution;
   document.getElementById("draftTaskOperational").checked = draft.operational;
 
   // Устанавливаем тип задачи

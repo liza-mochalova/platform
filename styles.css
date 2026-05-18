@@ -343,8 +343,8 @@ body {
 }
 
 .interest-tag {
-  background-color: #e8f5f5;
-  color: #2cb5b4;
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
   padding: 6px 14px;
   border-radius: 16px;
   font-size: 13px;
@@ -390,6 +390,11 @@ body {
 
 .schedule-status.out {
   color: #999;
+}
+
+.schedule-status.all_day {
+  color: #f59e0b;
+  font-weight: 500;
 }
 
 .rating-section {
@@ -605,6 +610,8 @@ body {
   padding: 24px;
   width: 90%;
   max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -2663,18 +2670,26 @@ input[type="date"].modal-input {
 }
 
 .schedule-status.morning {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: rgba(44, 181, 180, 0.2);
+  color: #2cb5b4;
+  font-weight: 600;
 }
 
 .schedule-status.afternoon {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: rgba(148, 163, 184, 0.2);
+  color: #64748b;
+  font-weight: 600;
 }
 
 .schedule-status.out {
   background-color: #f3f4f6;
   color: #6b7280;
+}
+
+.schedule-status.all_day {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  font-weight: 600;
 }
 
 /* Schedule Edit */
@@ -2718,8 +2733,8 @@ input[type="date"].modal-input {
 .interest-tag {
   display: inline-block;
   padding: 6px 12px;
-  background-color: #f0fdf4;
-  color: #16a34a;
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
   border-radius: 16px;
   font-size: 13px;
   font-weight: 500;
