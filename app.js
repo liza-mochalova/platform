@@ -185,7 +185,6 @@ const raisedHands = [
     startTime: "2025-04-25T14:00",
     endTime: "2025-04-25T17:00",
     rating: 4.8,
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
   },
   {
     id: 2,
@@ -195,7 +194,6 @@ const raisedHands = [
     startTime: "2025-04-25T10:00",
     endTime: "2025-04-25T13:00",
     rating: 4.5,
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
   },
   {
     id: 3,
@@ -205,7 +203,6 @@ const raisedHands = [
     startTime: "2025-04-26T15:00",
     endTime: "2025-04-26T18:00",
     rating: 4.9,
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
   },
 ];
 
@@ -215,35 +212,30 @@ const allEmployees = [
     id: 101,
     name: "Алексей Петров",
     block: "Аналитика",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
     role: "employee",
   },
   {
     id: 102,
     name: "Мария Иванова",
     block: "Маркетинг",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     role: "host",
   },
   {
     id: 103,
     name: "Дмитрий Сидоров",
     block: "IT",
-    avatar: "https://randomuser.me/api/portraits/men/22.jpg",
     role: "employee",
   },
   {
     id: 104,
     name: "Елена Козлова",
     block: "Аналитика",
-    avatar: "https://randomuser.me/api/portraits/women/65.jpg",
     role: "supervisor",
   },
   {
     id: 105,
     name: "Олег Иванов",
     block: "Маркетинг",
-    avatar: "https://randomuser.me/api/portraits/men/52.jpg",
     role: "employee",
   },
 ];
@@ -265,7 +257,6 @@ const allUsers = [
     block: "Аналитика",
     interests: ["#маркетинг", "#продукт"],
     rating: 4.8,
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
     schedule: [
       { day: "Пн", status: "all_day" },
       { day: "Вт", status: "afternoon" },
@@ -280,7 +271,6 @@ const allUsers = [
     block: "IT",
     interests: ["#разработка", "#frontend"],
     rating: 4.5,
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
     schedule: [
       { day: "Пн", status: "afternoon" },
       { day: "Вт", status: "morning" },
@@ -295,7 +285,6 @@ const allUsers = [
     block: "Маркетинг",
     interests: ["#аналитика", "#дизайн"],
     rating: 4.9,
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
     schedule: [
       { day: "Пн", status: "morning" },
       { day: "Вт", status: "morning" },
@@ -310,7 +299,6 @@ const allUsers = [
     block: "Аналитика",
     interests: ["#данные", "#ml"],
     rating: 4.7,
-    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
     schedule: [
       { day: "Пн", status: "out" },
       { day: "Вт", status: "all_day" },
@@ -326,7 +314,6 @@ const allUsers = [
     block: "Аналитика",
     interests: ["#аналитика", "#данные"],
     rating: 42.7,
-    avatar: "",
     schedule: [
       { day: "Пн", status: "morning" },
       { day: "Вт", status: "afternoon" },
@@ -341,7 +328,6 @@ const allUsers = [
     block: "Аналитика",
     interests: ["#маркетинг", "#аналитика"],
     rating: 38.5,
-    avatar: "",
     schedule: [
       { day: "Пн", status: "afternoon" },
       { day: "Вт", status: "morning" },
@@ -357,7 +343,6 @@ const allUsers = [
     block: "Маркетинг",
     interests: ["#маркетинг", "#соцсети", "#контент"],
     rating: 41.5,
-    avatar: "",
     schedule: [
       { day: "Пн", status: "all_day" },
       { day: "Вт", status: "morning" },
@@ -372,7 +357,6 @@ const allUsers = [
     block: "IT",
     interests: ["#разработка", "#backend", "#api"],
     rating: 40.8,
-    avatar: "",
     schedule: [
       { day: "Пн", status: "afternoon" },
       { day: "Вт", status: "afternoon" },
@@ -1712,7 +1696,7 @@ function renderInternCard(intern) {
 
   card.innerHTML = `
           <div class="task-header">
-            <img src="${intern.avatar}" class="author-avatar" alt="${intern.name}">
+            <div class="author-avatar">${getInitials(intern.name)}</div>
             <div class="author-name">
               <div class="task-title">${intern.name}</div>
               <div class="task-title">
@@ -1797,8 +1781,29 @@ function switchScreen(screenId) {
 
   // Инициализируем список пользователей при открытии экрана пользователей
   if (screenId === "users-screen") {
-    renderUsersList();
-    renderEmployeesList();
+    // Показываем активную вкладку и скрываем остальные
+    const activeTab = document.querySelector("#usersTabs .host-tab.active");
+    if (activeTab) {
+      const tabId = activeTab.getAttribute("data-tab");
+      document
+        .querySelectorAll("#users-screen .tab-content")
+        .forEach((content) => {
+          content.style.display = "none";
+        });
+      const selectedContent = document.getElementById(tabId + "-content");
+      if (selectedContent) {
+        selectedContent.style.display = "block";
+      }
+      // Рендерим соответствующий список
+      if (tabId === "interns") {
+        renderUsersList();
+      } else if (tabId === "employees") {
+        renderEmployeesList();
+      }
+    } else {
+      // Если нет активной вкладки, показываем вкладку Практиканты по умолчанию
+      renderUsersList();
+    }
   }
 }
 
@@ -2285,7 +2290,7 @@ function renderActiveInvitations() {
     card.className = "task-card";
     card.innerHTML = `
             <div class="task-header">
-              <img src="${invitation.avatar}" class="author-avatar" alt="${invitation.name}">
+              <div class="author-avatar">${getInitials(invitation.name)}</div>
               <div class="author-name">
                 <div class="task-title">${invitation.name}</div>
                 <div class="task-title">
@@ -2790,7 +2795,7 @@ function renderUsersList(filterText = "") {
     userItem.className = "user-list-item";
     userItem.setAttribute("data-user-id", user.id);
     userItem.innerHTML = `
-            <img src="${user.avatar}" class="user-list-item-avatar" alt="${user.name}">
+            <div class="user-list-item-avatar">${getInitials(user.name)}</div>
             <div class="user-list-item-info">
               <div class="user-list-item-name">${user.name}</div>
               <div class="user-list-item-block">${user.block}</div>
@@ -2848,7 +2853,7 @@ function renderEmployeesList(filterText = "") {
     };
 
     employeeItem.innerHTML = `
-            <img src="${employee.avatar}" class="user-list-item-avatar" alt="${employee.name}">
+            <div class="user-list-item-avatar">${getInitials(employee.name)}</div>
             <div class="user-list-item-info">
               <div class="user-list-item-name">${employee.name}</div>
               <div class="user-list-item-block">${employee.block}</div>
@@ -2885,7 +2890,7 @@ function showEmployeeProfile(employee) {
   const employeePublicRole = document.getElementById("employeePublicRole");
 
   // Заполняем данные
-  employeePublicAvatar.src = employee.avatar;
+  employeePublicAvatar.textContent = getInitials(employee.name);
   employeePublicName.textContent = employee.name;
   employeePublicBlock.textContent = employee.block;
 
@@ -2922,7 +2927,7 @@ function showInternProfile(user) {
   }
 
   // Заполняем данные
-  internProfileAvatar.src = user.avatar;
+  internProfileAvatar.textContent = getInitials(user.name);
   internProfileName.textContent = user.name;
   internProfileBlock.textContent = user.block;
   internProfileRating.textContent = user.rating.toFixed(1);
@@ -3109,7 +3114,6 @@ inviteConfirm.addEventListener("click", function () {
       name: intern.name,
       block: intern.block,
       rating: intern.rating,
-      avatar: intern.avatar,
       taskId: taskId === "no-task" ? "no-task" : parseInt(taskId),
       taskName: taskName,
       comment: comment,
